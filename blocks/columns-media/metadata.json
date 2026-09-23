@@ -1,0 +1,25 @@
+{
+  "variantName": "columns-media",
+  "baseBlock": "columns",
+  "canonicalModel": "standalone",
+  "visualCharacteristics": {
+    "layout": "two-column",
+    "density": "spacious",
+    "tone": "on-color-background",
+    "imageTreatment": "large photographic, one column"
+  },
+  "contentPattern": "One media column (single image) paired with one text column (eyebrow, heading, paragraph, CTA). Supports image on either side.",
+  "usage": {
+    "pagesFound": ["/us/en/home"],
+    "reuseCount": 1,
+    "reuseGuidance": "Use for image + text feature bands on a colored/grey section background. Add the 'reverse' option to place the image on the right and text on the left."
+  },
+  "options": [
+    {
+      "name": "reverse",
+      "class": "reverse",
+      "description": "Places the media column on the right and the text column on the left (desktop)."
+    }
+  ],
+  "memberVariantIds": ["columns-media"]
+}

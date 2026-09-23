@@ -1,0 +1,21 @@
+/* banner-cta: text-only promotional strip on a solid background.
+   Structural/functional only — no brand color/typography tokens. */
+
+.banner-cta {
+  display: flex;
+  flex-direction: column;
+}
+
+.banner-cta .banner-cta-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 32px 0;
+}
+
+@media (width >= 900px) {
+  .banner-cta .banner-cta-body {
+    padding: 48px 0;
+  }
+}

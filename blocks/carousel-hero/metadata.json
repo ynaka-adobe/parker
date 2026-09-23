@@ -1,0 +1,19 @@
+{
+  "variantName": "carousel-hero",
+  "baseBlock": "carousel",
+  "canonicalModel": "container",
+  "visualCharacteristics": {
+    "layout": "full-bleed",
+    "density": "spacious",
+    "tone": "dark-overlay",
+    "imageTreatment": "full-bleed background per slide"
+  },
+  "contentPattern": "Rotating full-bleed hero slides; each slide has a background image and a content block (eyebrow, heading, paragraph, CTA). Slide-position dot indicators and prev/next controls.",
+  "usage": {
+    "pagesFound": ["/us/en/home"],
+    "reuseCount": 1,
+    "reuseGuidance": "Use for a rotating hero banner of full-bleed image slides with overlaid text and a CTA. First cell per row is the background image; second cell is the slide content."
+  },
+  "options": [],
+  "memberVariantIds": ["carousel-hero"]
+}

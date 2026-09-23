@@ -1,0 +1,156 @@
+{
+  "metadata": {
+    "projectType": "da"
+  },
+  "templates": [
+    {
+      "name": "home",
+      "urls": [
+        "https://www.parker.com/us/en/home.html"
+      ],
+      "representativeUrl": "https://www.parker.com/us/en/home.html",
+      "description": "Parker home page",
+      "urlPattern": "/us/en/*",
+      "blocks": [
+        {
+          "name": "hero-banner",
+          "instances": [
+            ".left-to-right-gradient.aem-GridColumn"
+          ]
+        },
+        {
+          "name": "columns-media",
+          "instances": [
+            ".cmp-parker-blue-theme.cmp-parker-ibd-align-center",
+            ".grey-bg.aem-GridColumn"
+          ]
+        },
+        {
+          "name": "carousel-hero",
+          "instances": [
+            ".cmp-carousel"
+          ]
+        },
+        {
+          "name": "banner-cta",
+          "instances": [
+            ".cmp-parker-gold-theme.cmp-parker-secondary-img-box-theme"
+          ]
+        },
+        {
+          "name": "cards-category",
+          "instances": [
+            ".parker-carousel"
+          ]
+        },
+        {
+          "name": "cards-news",
+          "instances": [
+            ".cmp-news-v2-component__container"
+          ]
+        }
+      ],
+      "sections": [
+        {
+          "id": "section-1",
+          "name": "hero",
+          "selector": [
+            ".left-to-right-gradient.aem-GridColumn"
+          ],
+          "style": null,
+          "blocks": [
+            "hero-banner"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "section-2",
+          "name": "our-purpose",
+          "selector": [
+            ".cmp-parker-blue-theme.cmp-parker-ibd-align-center"
+          ],
+          "style": "sky-blue",
+          "blocks": [
+            "columns-media"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "section-3",
+          "name": "trends-carousel",
+          "selector": [
+            ".cmp-carousel"
+          ],
+          "style": null,
+          "blocks": [
+            "carousel-hero"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "section-4",
+          "name": "products-cta",
+          "selector": [
+            ".cmp-parker-gold-theme.cmp-parker-secondary-img-box-theme"
+          ],
+          "style": "gold",
+          "blocks": [
+            "banner-cta"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "section-5",
+          "name": "featured-categories-heading",
+          "selector": [
+            "#spa-root > div > div > div.aem-container.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(1) > div.aem-container.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(7)",
+            "div.aem-GridColumn:has(> .cmp-titlelink_container)"
+          ],
+          "style": null,
+          "blocks": [],
+          "defaultContent": [
+            "h2"
+          ]
+        },
+        {
+          "id": "section-6",
+          "name": "featured-categories",
+          "selector": [
+            ".parker-carousel"
+          ],
+          "style": null,
+          "blocks": [
+            "cards-category"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "section-7",
+          "name": "about-parker",
+          "selector": [
+            ".grey-bg.aem-GridColumn"
+          ],
+          "style": "grey",
+          "blocks": [
+            "columns-media"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "section-8",
+          "name": "featured-news",
+          "selector": [
+            ".cmp-container_contentwrapper"
+          ],
+          "style": null,
+          "blocks": [
+            "cards-news"
+          ],
+          "defaultContent": [
+            "h2"
+          ]
+        }
+      ]
+    }
+  ]
+}

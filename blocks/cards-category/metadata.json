@@ -33,8 +33,11 @@
     ]
   },
   "usage": {
-    "pagesUsing": ["/en/catcorp"],
-    "reuseCount": 1,
-    "lastUsed": "2026-06-23T00:00:00.000Z"
+    "pagesUsing": [
+      "/en/catcorp",
+      "/us/en/home"
+    ],
+    "reuseCount": 2,
+    "lastUsed": "2026-09-22T13:05:16.031Z"
   }
 }

@@ -1,0 +1,47 @@
+/* columns-media: image + text side-by-side, image on either side.
+   Structural/functional only — no brand color/typography tokens. */
+
+.columns-media > div {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.columns-media img {
+  width: 100%;
+  display: block;
+}
+
+/* Mobile-first: media stacks above text. */
+.columns-media > div > div {
+  order: 1;
+}
+
+.columns-media > div > .columns-media-img-col {
+  order: 0;
+  padding: 0;
+}
+
+.columns-media .columns-media-text-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+@media (width >= 900px) {
+  .columns-media > div {
+    align-items: center;
+    flex-direction: row;
+    gap: 48px;
+  }
+
+  .columns-media > div > div {
+    flex: 1;
+    order: unset;
+  }
+
+  /* Reverse option: text left, media right (About Parker section). */
+  .columns-media.reverse > div {
+    flex-direction: row-reverse;
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "variantName": "cards-news",
+  "baseBlock": "cards",
+  "canonicalModel": "container",
+  "visualCharacteristics": {
+    "layout": "vertical-list",
+    "density": "compact",
+    "tone": "neutral",
+    "imageTreatment": "none"
+  },
+  "contentPattern": "Text-only news list; each item is a linked article title with a source/date meta line, items separated by horizontal rules. No images.",
+  "usage": {
+    "pagesFound": ["/us/en/home"],
+    "reuseCount": 1,
+    "reuseGuidance": "Use for a stacked list of news/article links with a title and a source/date meta line, no thumbnails. One row per news item."
+  },
+  "options": [],
+  "memberVariantIds": ["cards-news"]
+}
