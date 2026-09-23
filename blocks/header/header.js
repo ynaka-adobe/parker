@@ -82,6 +82,11 @@ function decorateDropdowns(nav) {
     // click on the chevron area toggles the panel (mobile accordion + desktop tap)
     const link = li.querySelector(':scope > a');
     if (link) {
+      const toggleDrop = () => {
+        const open = li.getAttribute('aria-expanded') === 'true';
+        if (!isDesktop.matches) toggleAllDrops(nav, false);
+        li.setAttribute('aria-expanded', open ? 'false' : 'true');
+      };
       const chevron = document.createElement('button');
       chevron.type = 'button';
       chevron.className = 'nav-drop-toggle';
@@ -89,9 +94,15 @@ function decorateDropdowns(nav) {
       chevron.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        const open = li.getAttribute('aria-expanded') === 'true';
-        if (!isDesktop.matches) toggleAllDrops(nav, false);
-        li.setAttribute('aria-expanded', open ? 'false' : 'true');
+        toggleDrop();
+      });
+      // on mobile, a tap on the row (but not on the link label) also toggles,
+      // so the accordion is reachable without pixel-precise chevron taps
+      li.addEventListener('click', (e) => {
+        if (isDesktop.matches) return;
+        if (e.target.closest(':scope > a') === link) return;
+        e.preventDefault();
+        toggleDrop();
       });
       link.after(chevron);
     }

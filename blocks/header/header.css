@@ -31,7 +31,7 @@ header nav {
   align-items: center;
   margin: auto;
   max-width: 1400px;
-  padding: 0 16px;
+  padding: 0;
   font-family: var(--body-font-family, sans-serif);
 }
 
@@ -47,6 +47,7 @@ header nav a:any-link {
   color: inherit;
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 header nav .nav-sections a:hover {
   color: var(--parker-gold);
 }
@@ -56,6 +57,7 @@ header nav .nav-hamburger {
   grid-area: hamburger;
   display: flex;
   align-items: center;
+  padding-left: 8px;
 }
 
 header nav .nav-hamburger button {
@@ -109,7 +111,7 @@ header nav[aria-expanded='true'] .nav-hamburger-icon::after {
 header nav .nav-brand {
   grid-area: brand;
   margin: 0;
-  padding: 8px 0;
+  padding: 8px 16px;
 }
 
 header nav .nav-brand img {
@@ -122,6 +124,18 @@ header nav .nav-brand img {
 header nav .nav-utility {
   grid-area: utility;
   display: none;
+  padding: 8px 0;
+}
+
+header nav .nav-utility > p,
+header nav .nav-utility > ul > li {
+  padding: 6px 16px;
+  font-weight: 600;
+}
+
+/* stylelint-disable-next-line no-descending-specificity */
+header nav .nav-utility > ul > li > a {
+  font-weight: 600;
 }
 
 /* main sections (primary nav) */
@@ -138,13 +152,15 @@ header nav[aria-expanded='true'] .nav-sections {
 
 header nav .nav-sections > ul > li {
   position: relative;
-  padding: 12px 0;
+  padding: 12px 16px;
   border-top: 1px solid #eee;
   font-weight: 600;
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 header nav .nav-sections > ul > li > a {
   display: inline-block;
+  font-weight: 600;
 }
 
 /* dropdown submenu */
@@ -234,7 +250,7 @@ header nav .nav-search-submit::after {
 }
 
 /* ===== desktop ===== */
-@media (min-width: 900px) {
+@media (width >= 900px) {
   header nav {
     grid-template:
       'utility utility' auto
@@ -298,6 +314,7 @@ header nav .nav-search-submit::after {
     align-self: end;
   }
 
+  /* stylelint-disable-next-line no-descending-specificity */
   header nav .nav-sections > ul {
     display: flex;
     gap: 28px;
@@ -311,6 +328,7 @@ header nav .nav-search-submit::after {
   }
 
   /* desktop dropdown: absolute panel, hover-opened */
+  /* stylelint-disable-next-line no-descending-specificity */
   header nav .nav-sections li > ul {
     position: absolute;
     top: 100%;
@@ -320,7 +338,7 @@ header nav .nav-search-submit::after {
     max-height: 70vh;
     overflow-y: auto;
     background: #fff;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 20px rgb(0 0 0 / 15%);
     padding: 12px 0;
     animation: none;
   }
