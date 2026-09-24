@@ -156,6 +156,16 @@ export default async function decorate(block) {
     if (section) section.classList.add(`nav-${c}`);
   });
 
+  // wrap the utility bar's content so the black bar stays full-bleed while its
+  // links cluster in a width-capped, right-aligned column
+  const utility = nav.querySelector('.nav-utility');
+  if (utility) {
+    const inner = document.createElement('div');
+    inner.className = 'nav-utility-inner';
+    while (utility.firstChild) inner.append(utility.firstChild);
+    utility.append(inner);
+  }
+
   // brand: the logo is the first image link inside the main header section
   const mainSection = nav.querySelector('.nav-sections');
   if (mainSection) {
