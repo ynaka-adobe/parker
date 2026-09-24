@@ -137,6 +137,45 @@ function decorateSearch(searchSection) {
 }
 
 /**
+ * Add source-matching affordances to the black utility bar: an icon before
+ * Sustainability (leaf) and Sign In (user), an external-link glyph after
+ * Investors, a chevron on the language item, and `|` separators between the
+ * three groups. Content stays in the fragment; these are chrome-only classes.
+ * @param {Element} inner the .nav-utility-inner wrapper
+ */
+function decorateUtility(inner) {
+  // language item (a bare <p> that is not a link) gets a dropdown chevron
+  inner.querySelectorAll(':scope > p').forEach((p) => {
+    if (!p.querySelector('a')) p.classList.add('nav-locale');
+  });
+  // tag links by their text so CSS can prepend/append the right glyph
+  const ICONS = {
+    sustainability: 'leaf',
+    'sign in': 'user',
+    investors: 'external',
+  };
+  inner.querySelectorAll('a').forEach((a) => {
+    const label = a.textContent.trim().toLowerCase();
+    Object.keys(ICONS).forEach((key) => {
+      if (label.startsWith(key)) a.dataset.icon = ICONS[key];
+    });
+  });
+  // separators: source shows a `|` before the main links group and before the
+  // final sign-in group (locale + language read as one leading cluster). Mark
+  // only the <ul> groups so CSS draws a `|` divider before each.
+  inner.querySelectorAll(':scope > ul').forEach((ul) => {
+    ul.classList.add('nav-utility-group');
+  });
+  // trailing tag glyph pinned to the far right of the black bar (source parity)
+  if (!inner.parentElement.querySelector('.nav-utility-tag')) {
+    const tag = document.createElement('span');
+    tag.className = 'nav-utility-tag';
+    tag.setAttribute('aria-hidden', 'true');
+    inner.parentElement.append(tag);
+  }
+}
+
+/**
  * loads and decorates the header, mainly the nav
  * @param {Element} block The header block element
  */
@@ -164,6 +203,7 @@ export default async function decorate(block) {
     inner.className = 'nav-utility-inner';
     while (utility.firstChild) inner.append(utility.firstChild);
     utility.append(inner);
+    decorateUtility(inner);
   }
 
   // brand: the logo is the first image inside the main header section. Hoist its

@@ -127,6 +127,11 @@ header nav .nav-utility {
   padding: 8px 0;
 }
 
+/* trailing tag glyph is desktop-only chrome */
+header nav .nav-utility-tag {
+  display: none;
+}
+
 header nav .nav-utility-inner > p,
 header nav .nav-utility-inner > ul > li {
   padding: 6px 16px;
@@ -237,6 +242,7 @@ header nav .nav-search-submit {
   width: 52px;
   height: 44px;
   border: 0;
+  border-radius: 0;
   background-color: var(--parker-gold);
   cursor: pointer;
   position: relative;
@@ -272,11 +278,12 @@ header nav .nav-search-submit::after {
 
   /* utility bar: full-width black background; content clustered right, ~800px cap */
   header nav .nav-utility {
+    position: relative;
     display: flex;
     justify-content: flex-end;
     grid-area: utility;
     margin: 0 -24px;
-    padding: 0 24px;
+    padding: 0 52px 0 24px;
     background: var(--parker-black);
     color: #fff;
     min-height: 40px;
@@ -307,6 +314,82 @@ header nav .nav-search-submit::after {
 
   header nav .nav-utility a:hover {
     color: var(--parker-gold);
+  }
+
+  header nav .nav-utility-tag {
+    display: block;
+    position: absolute;
+    right: 24px;
+    top: 50%;
+    width: 20px;
+    height: 20px;
+    transform: translateY(-50%);
+    background: currentcolor;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: contain;
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath fill='currentColor' d='M0 80L0 229.5c0 17 6.7 33.3 18.7 45.3l176 176c25 25 65.5 25 90.5 0L410.7 325.5c25-25 25-65.5 0-90.5l-176-176c-12-12-28.3-18.7-45.3-18.7L48 40C21.5 40 0 61.5 0 88l0-8zM112 120a32 32 0 1 1 0 64 32 32 0 1 1 0-64z'/%3E%3C/svg%3E");
+  }
+
+  /* `|` separators between the three utility groups */
+  header nav .nav-utility-inner > .nav-utility-group {
+    position: relative;
+    padding-left: 20px;
+  }
+
+  header nav .nav-utility-inner > .nav-utility-group::before {
+    content: '|';
+    position: absolute;
+    left: 4px;
+    color: rgb(255 255 255 / 45%);
+  }
+
+  /* language item chevron */
+  header nav .nav-utility .nav-locale {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  header nav .nav-utility .nav-locale::after {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-right: 1.5px solid currentcolor;
+    border-bottom: 1.5px solid currentcolor;
+    transform: translateY(-2px) rotate(45deg);
+  }
+
+  /* inline glyphs on tagged utility links */
+  header nav .nav-utility a[data-icon] {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  header nav .nav-utility a[data-icon]::before {
+    content: '';
+    width: 15px;
+    height: 15px;
+    background: currentcolor;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: contain;
+  }
+
+  header nav .nav-utility a[data-icon='leaf']::before {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='currentColor' d='M272 96c-78.6 0-145.1 51.5-167.7 122.5c33.6-17 71.5-26.5 111.7-26.5h88c8.8 0 16 7.2 16 16s-7.2 16-16 16H288 216s0 0 0 0c-16.6 0-32.7 1.9-48.3 5.4c-25.9 5.9-49.9 16.4-71.4 30.7c0 0 0 0 0 0C38.3 298.8 0 364.9 0 440v16c0 13.3 10.7 24 24 24s24-10.7 24-24V440c0-48.7 20.7-92.5 53.8-123.2C121.6 392.3 190.3 448 272 448l1 0c132.1-.7 239-130.9 239-291.4c0-42.6-7.5-81.6-20.1-115.5c-4.2-11.3-16.5-17.2-27.8-13.1c-5.5 2-11.4 3-17.4 3H354.8C334.3 12 305.4 0 272 0z'/%3E%3C/svg%3E");
+  }
+
+  header nav .nav-utility a[data-icon='user']::before {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath fill='currentColor' d='M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z'/%3E%3C/svg%3E");
+  }
+
+  header nav .nav-utility a[data-icon='external']::before {
+    order: 2;
+    width: 12px;
+    height: 12px;
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='currentColor' d='M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32h82.7L201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3V192c0 17.7 14.3 32 32 32s32-14.3 32-32V32c0-17.7-14.3-32-32-32H320zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 0 80-35.8 80-80V320c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H192c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z'/%3E%3C/svg%3E");
   }
 
   header nav .nav-brand {
