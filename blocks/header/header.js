@@ -166,13 +166,18 @@ export default async function decorate(block) {
     utility.append(inner);
   }
 
-  // brand: the logo is the first image link inside the main header section
+  // brand: the logo is the first image inside the main header section. Hoist its
+  // <p> out to be a direct grid child of nav so it can occupy the `brand` area
+  // (logo left; nav + search stacked in the right column).
   const mainSection = nav.querySelector('.nav-sections');
   if (mainSection) {
     const brand = mainSection.querySelector('p:has(img), p a img');
     if (brand) {
       const brandP = brand.closest('p');
-      if (brandP) brandP.classList.add('nav-brand');
+      if (brandP) {
+        brandP.classList.add('nav-brand');
+        nav.insertBefore(brandP, mainSection);
+      }
     }
   }
 
