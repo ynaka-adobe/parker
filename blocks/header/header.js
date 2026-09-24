@@ -215,4 +215,18 @@ export default async function decorate(block) {
   navWrapper.className = 'nav-wrapper';
   navWrapper.append(nav);
   block.append(navWrapper);
+
+  // condensed sticky header on scroll: past a threshold the header collapses to
+  // a single compact row (logo + inline nav + search icon). Only on desktop.
+  const CONDENSE_AT = 120;
+  const applyCondensed = () => {
+    if (isDesktop.matches && window.scrollY > CONDENSE_AT) {
+      navWrapper.classList.add('is-condensed');
+    } else {
+      navWrapper.classList.remove('is-condensed');
+    }
+  };
+  window.addEventListener('scroll', applyCondensed, { passive: true });
+  isDesktop.addEventListener('change', applyCondensed);
+  applyCondensed();
 }
