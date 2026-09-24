@@ -120,7 +120,7 @@ function decorateSearch(searchSection) {
   const placeholder = p ? p.textContent.trim() : 'Search';
   searchSection.textContent = '';
   const form = document.createElement('form');
-  form.className = 'nav-search';
+  form.className = 'nav-search-form';
   form.action = 'https://www.parker.com/us/en/search.html';
   form.setAttribute('role', 'search');
   const input = document.createElement('input');

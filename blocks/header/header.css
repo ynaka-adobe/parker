@@ -214,8 +214,14 @@ header nav .nav-drop[aria-expanded='true'] > .nav-drop-toggle::after {
 /* search */
 header nav .nav-search {
   grid-area: search;
-  display: flex;
   padding: 12px 0;
+}
+
+header nav .nav-search-form {
+  display: flex;
+  align-items: center;
+  height: 44px;
+  margin: 0;
 }
 
 header nav .nav-search input {
@@ -306,11 +312,11 @@ header nav .nav-search-submit::after {
   header nav .nav-brand {
     grid-area: brand;
     align-self: center;
-    padding: 12px 24px 12px 0;
+    padding: 8px 24px 8px 0;
   }
 
   header nav .nav-brand img {
-    width: 140px;
+    width: 120px;
   }
 
   header nav .nav-sections {
@@ -327,9 +333,9 @@ header nav .nav-search-submit::after {
   }
 
   header nav .nav-sections > ul > li {
-    padding: 8px 0;
+    padding: 4px 0;
     border-top: 0;
-    font-size: 18px;
+    font-size: 17px;
   }
 
   /* desktop dropdown: absolute panel, hover-opened */
@@ -371,15 +377,15 @@ header nav .nav-search-submit::after {
   header nav .nav-search {
     grid-area: search;
     align-self: start;
-    padding: 4px 0 16px;
+    padding: 22px 0 24px;
   }
 
   header nav .nav-search input {
-    height: 48px;
+    height: 44px;
   }
 
   header nav .nav-search-submit {
-    width: 56px;
-    height: 48px;
+    width: 52px;
+    height: 44px;
   }
 }
