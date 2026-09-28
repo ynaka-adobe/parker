@@ -9,18 +9,36 @@
     "id": "section",
     "components": [
       "accordion",
+      "banner",
+      "banner-cta",
       "cards",
+      "cards-callouts",
+      "cards-category",
+      "cards-feature",
+      "cards-news",
+      "cards-promo",
       "carousel",
+      "carousel-hero",
       "columns",
+      "columns-media",
+      "commerce-products",
       "embed",
+      "footer",
       "fragment",
       "form",
+      "header",
       "hero",
+      "hero-banner",
       "image",
+      "marketo",
+      "modal",
+      "promo-banner",
       "quote",
       "search",
       "tabs",
       "table",
+      "target-offer",
+      "target-slot-hero",
       "text",
       "video",
       "product-recommendations"
@@ -78,6 +96,42 @@
     "id": "tabs",
     "components": [
       "tabs-item"
+    ]
+  },
+  {
+    "id": "cards-callouts",
+    "components": [
+      "card-callouts"
+    ]
+  },
+  {
+    "id": "cards-category",
+    "components": [
+      "card-category"
+    ]
+  },
+  {
+    "id": "cards-feature",
+    "components": [
+      "card-feature"
+    ]
+  },
+  {
+    "id": "cards-news",
+    "components": [
+      "card-news"
+    ]
+  },
+  {
+    "id": "cards-promo",
+    "components": [
+      "card-promo"
+    ]
+  },
+  {
+    "id": "carousel-hero",
+    "components": [
+      "carousel-hero-item"
     ]
   }
 ]
