@@ -278,17 +278,46 @@ export default async function decorate(block) {
   navWrapper.append(nav);
   block.append(navWrapper);
 
-  // condensed sticky header on scroll: past a threshold the header collapses to
-  // a single compact row (logo + inline nav + search icon). Only on desktop.
-  const CONDENSE_AT = 120;
-  const applyCondensed = () => {
-    if (isDesktop.matches && window.scrollY > CONDENSE_AT) {
-      navWrapper.classList.add('is-condensed');
-    } else {
-      navWrapper.classList.remove('is-condensed');
+  // reserve the header's real (closed) height so page content starts below it and
+  // nothing jumps when the nav later becomes a fixed condensed bar
+  const header = block.closest('header');
+  new ResizeObserver(() => {
+    const busy = navWrapper.classList.contains('is-condensed')
+      || navWrapper.classList.contains('is-condensing')
+      || nav.getAttribute('aria-expanded') === 'true';
+    if (header && !busy) header.style.height = `${navWrapper.offsetHeight}px`;
+  }).observe(navWrapper);
+
+  // condensed sticky header (desktop): the full header scrolls with the page until
+  // the utility bar is out of view, then the logo slides left and fades out and a
+  // compact fixed bar slides down from the top. Scrolling back restores it.
+  const CONDENSE_OUT_MS = 200;
+  let condenseTimer;
+  const condenseAt = () => (nav.querySelector('.nav-utility')?.offsetHeight || 40);
+  const setCondensed = (on) => {
+    const condensed = navWrapper.classList.contains('is-condensed');
+    const condensing = navWrapper.classList.contains('is-condensing');
+    if (on && !condensed && !condensing) {
+      navWrapper.classList.add('is-condensing');
+      condenseTimer = setTimeout(() => {
+        navWrapper.classList.remove('is-condensing');
+        navWrapper.classList.add('is-condensed');
+      }, window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : CONDENSE_OUT_MS);
+    } else if (!on && (condensed || condensing)) {
+      clearTimeout(condenseTimer);
+      navWrapper.classList.remove('is-condensing', 'is-condensed');
     }
   };
-  window.addEventListener('scroll', applyCondensed, { passive: true });
-  isDesktop.addEventListener('change', applyCondensed);
-  applyCondensed();
+  let ticking = false;
+  const onScroll = () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      ticking = false;
+      setCondensed(isDesktop.matches && window.scrollY > condenseAt());
+    });
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  isDesktop.addEventListener('change', onScroll);
+  onScroll();
 }

@@ -6,7 +6,9 @@
   --parker-nav-text: #1f2327;
 }
 
+/* closed-nav height; header.js refines it to the measured value */
 header {
+  height: 139px;
   background-color: #fff;
 }
 
@@ -263,6 +265,10 @@ header nav .nav-search-submit::after {
 
 /* ===== desktop ===== */
 @media (width >= 900px) {
+  header {
+    height: 193px;
+  }
+
   header nav {
     grid-template:
       'utility utility' auto
@@ -473,36 +479,76 @@ header nav .nav-search-submit::after {
   }
 
   /* ===== condensed sticky header (on scroll) ===== */
-  header .nav-wrapper.is-condensed nav {
-    grid-template:
-      'brand sections search' auto / auto 1fr auto;
-    align-items: center;
-    column-gap: 32px;
-    transition: grid-template-columns 0.2s ease;
+
+  /* step 1: logo slides left and fades out while the full header is still in place */
+  header .nav-wrapper .nav-brand img {
+    transition: transform 0.2s ease-in, opacity 0.2s ease-in;
   }
 
-  /* hide the black utility bar when condensed */
+  header .nav-wrapper.is-condensing .nav-brand img {
+    transform: translateX(-16px);
+    opacity: 0;
+  }
+
+  /* step 2: compact bar pinned to the top, sliding down into view */
+  header .nav-wrapper.is-condensed {
+    position: fixed;
+    inset: 0 0 auto;
+    border-bottom-width: 2px;
+    background-color: #f7f7f7;
+    animation: nav-condensed-in 0.28s ease-out;
+  }
+
+  header .nav-wrapper.is-condensed nav {
+    position: relative;
+    grid-template: 'brand sections search' 52px / auto auto 1fr;
+    align-items: center;
+    gap: 0 52px;
+    padding: 0 76px 0 32px;
+    background-color: #f7f7f7;
+  }
+
+  /* utility links collapse; only the black tag square stays, flush right */
   header .nav-wrapper.is-condensed .nav-utility {
+    position: absolute;
+    inset: 0 0 0 auto;
+    width: 52px;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  header .nav-wrapper.is-condensed .nav-utility-inner {
     display: none;
   }
 
+  header .nav-wrapper.is-condensed .nav-utility-tag {
+    right: 16px;
+  }
+
   header .nav-wrapper.is-condensed .nav-brand {
-    padding: 6px 0;
-    transition: transform 0.2s ease;
+    padding: 0;
   }
 
   header .nav-wrapper.is-condensed .nav-brand img {
-    width: 96px;
+    width: 116px;
+    transition: none;
   }
 
   header .nav-wrapper.is-condensed .nav-sections {
     align-self: center;
   }
 
-  /* search collapses to just the gold icon button on the right */
+  header .nav-wrapper.is-condensed .nav-sections > ul > li {
+    padding: 0;
+    font-size: 17px;
+  }
+
+  /* search collapses to a plain magnifier icon after the last nav item */
   header .nav-wrapper.is-condensed .nav-search {
     align-self: center;
-    padding: 6px 0;
+    padding: 0;
+    margin-left: -28px;
   }
 
   header .nav-wrapper.is-condensed .nav-search input {
@@ -510,7 +556,21 @@ header nav .nav-search-submit::after {
   }
 
   header .nav-wrapper.is-condensed .nav-search-submit {
-    width: 44px;
-    height: 44px;
+    width: 32px;
+    height: 32px;
+    background-color: transparent;
+  }
+}
+
+@keyframes nav-condensed-in {
+  from { transform: translateY(-100%); }
+  to { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  header .nav-wrapper,
+  header .nav-wrapper .nav-brand img {
+    animation: none !important;
+    transition: none !important;
   }
 }
