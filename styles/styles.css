@@ -108,6 +108,13 @@ header {
   height: var(--header-height);
 }
 
+/* the site is capped at 1920px and centred on wider screens (header bar: header.css) */
+main,
+footer {
+  max-width: var(--content-max-width);
+  margin-inline: auto;
+}
+
 header .header,
 footer .footer {
   visibility: hidden;
