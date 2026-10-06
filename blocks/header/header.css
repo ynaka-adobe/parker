@@ -63,10 +63,14 @@ header nav .nav-hamburger {
   padding-left: 8px;
 }
 
-header nav .nav-hamburger button {
+header nav .nav-hamburger button,
+header nav .nav-hamburger button:hover,
+header nav .nav-hamburger button:focus {
   height: 44px;
   width: 44px;
+  margin: 0;
   border: 0;
+  border-radius: 0;
   background: transparent;
   cursor: pointer;
   padding: 0;
@@ -191,9 +195,14 @@ header nav .nav-sections li ul a:hover {
   color: var(--parker-gold);
 }
 
-/* chevron toggle button */
-header nav .nav-drop-toggle {
+/* chevron toggle button (not a pill CTA: opt out of the global button styles) */
+header nav .nav-drop-toggle,
+header nav .nav-drop-toggle:hover,
+header nav .nav-drop-toggle:focus {
+  margin: 0;
   border: 0;
+  border-radius: 0;
+  padding: 0;
   background: transparent;
   cursor: pointer;
   width: 32px;
@@ -270,11 +279,17 @@ header nav .nav-search-submit::after {
     height: 193px;
   }
 
+  /* source proportions: logo column ~23% of the bar, light-grey sub-header */
+  header .nav-wrapper,
+  header nav {
+    background-color: #f8f8f8;
+  }
+
   header nav {
     grid-template:
       'utility utility' auto
       'brand sections' auto
-      'brand search' auto / auto 1fr;
+      'brand search' auto / minmax(max-content, 23%) 1fr;
     row-gap: 4px;
     padding: 0 24px;
   }
@@ -402,11 +417,11 @@ header nav .nav-search-submit::after {
   header nav .nav-brand {
     grid-area: brand;
     align-self: center;
-    padding: 8px 24px 8px 0;
+    padding: 8px 24px 8px 12px;
   }
 
   header nav .nav-brand img {
-    width: 120px;
+    width: 150px;
   }
 
   header nav .nav-sections {
@@ -468,6 +483,12 @@ header nav .nav-search-submit::after {
     grid-area: search;
     align-self: start;
     padding: 22px 0 24px;
+  }
+
+  /* search stops short of the right edge, as on the source */
+  header nav .nav-search-form {
+    width: 91%;
+    max-width: 1280px;
   }
 
   header nav .nav-search input {
@@ -550,6 +571,10 @@ header nav .nav-search-submit::after {
     align-self: center;
     padding: 0;
     margin-left: -28px;
+  }
+
+  header .nav-wrapper.is-condensed .nav-search-form {
+    width: auto;
   }
 
   header .nav-wrapper.is-condensed .nav-search input {
