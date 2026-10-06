@@ -85,6 +85,10 @@ function toggleMenu(nav, forceExpanded = null) {
  * @param {Element} nav
  */
 function decorateDropdowns(nav) {
+  // delivered (aem.live) markup wraps a list item's label in <p> when the item has a
+  // nested list (<li><p><a>Products</a></p><ul>); unwrap so the label is li > a again
+  nav.querySelectorAll('.nav-sections li > p').forEach((p) => p.replaceWith(...p.childNodes));
+
   nav.querySelectorAll('.nav-sections li').forEach((li) => {
     if (!li.querySelector(':scope > ul')) return;
     li.classList.add('nav-drop');
