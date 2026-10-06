@@ -2,10 +2,10 @@
   "type": "da",
   "sites": {
     "parker": {
+      "libraryUrl": "https://main--sta-boilerplate--aemdemos.aem.page/tools/sidekick/library.json",
       "previewOrg": "ynaka-adobe",
       "previewSite": "parker",
       "contentHostUrl": "https://content.da.live/ynaka-adobe/parker/",
-      "libraryUrl": "https://main--sta-boilerplate--aemdemos.aem.page/tools/sidekick/library.json",
       "botProtected": true
     }
   }
