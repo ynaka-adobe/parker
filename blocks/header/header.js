@@ -32,6 +32,27 @@ function resolveImageSrcs(root, base) {
   });
 }
 
+// committed copy of the brand logo, used when the authored image can't load
+// (e.g. a sign-in-gated content.da.live URL synced into the local preview)
+const LOGO_FALLBACK = '/icons/parker-logo.png';
+
+/**
+ * Swap an image to a fallback source if it fails (or has already failed) to load.
+ * @param {HTMLImageElement} img
+ * @param {String} fallback
+ */
+function useFallbackOnError(img, fallback) {
+  if (!img) return;
+  const swap = () => {
+    if (img.getAttribute('src') === fallback) return;
+    img.closest('picture')?.querySelectorAll('source').forEach((s) => s.remove());
+    img.removeAttribute('srcset');
+    img.setAttribute('src', fallback);
+  };
+  img.addEventListener('error', swap, { once: true });
+  if (img.complete && img.naturalWidth === 0) swap();
+}
+
 /**
  * Collapse every open dropdown in the given container.
  * @param {Element} container
@@ -217,6 +238,7 @@ export default async function decorate(block) {
       if (brandP) {
         brandP.classList.add('nav-brand');
         nav.insertBefore(brandP, mainSection);
+        useFallbackOnError(brandP.querySelector('img'), LOGO_FALLBACK);
       }
     }
   }

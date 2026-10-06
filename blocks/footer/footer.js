@@ -28,6 +28,27 @@ function resolveImageSrcs(root, base) {
   });
 }
 
+// committed copy of the brand logo, used when the authored image can't load
+// (e.g. a sign-in-gated content.da.live URL synced into the local preview)
+const LOGO_FALLBACK = '/icons/parker-logo.png';
+
+/**
+ * Swap an image to a fallback source if it fails (or has already failed) to load.
+ * @param {HTMLImageElement} img
+ * @param {String} fallback
+ */
+function useFallbackOnError(img, fallback) {
+  if (!img) return;
+  const swap = () => {
+    if (img.getAttribute('src') === fallback) return;
+    img.closest('picture')?.querySelectorAll('source').forEach((s) => s.remove());
+    img.removeAttribute('srcset');
+    img.setAttribute('src', fallback);
+  };
+  img.addEventListener('error', swap, { once: true });
+  if (img.complete && img.naturalWidth === 0) swap();
+}
+
 /**
  * loads and decorates the footer
  * @param {Element} block The footer block element
@@ -48,6 +69,7 @@ export default async function decorate(block) {
     else if (i === cols.length - 1) col.classList.add('footer-legal');
     else col.classList.add('footer-col');
   });
+  useFallbackOnError(footer.querySelector('.footer-contact img'), LOGO_FALLBACK);
 
   // mark the social column so its links can render as icon buttons
   const socialCol = cols.find((c) => /Follow Us/i.test(c.textContent));
