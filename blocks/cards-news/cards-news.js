@@ -7,6 +7,11 @@ export default function decorate(block) {
     [...li.children].forEach((div) => {
       div.className = 'cards-news-card-body';
     });
+    // titles are plain links, not CTAs: undo the default button decoration
+    li.querySelectorAll('a.button').forEach((a) => {
+      a.classList.remove('button');
+      a.parentElement.classList.remove('button-container');
+    });
     ul.append(li);
   });
   block.textContent = '';

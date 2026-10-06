@@ -1,47 +1,118 @@
-/* columns-media: image + text side-by-side, image on either side.
-   Structural/functional only — no brand color/typography tokens. */
+/* columns-media: image + text side by side.
+   Default (About Parker, grey band): text left, full-bleed image right.
+   Blue band (Our Purpose): inset image left, white text right. */
+main > .section > .columns-media-wrapper {
+  max-width: none;
+  padding: 0;
+}
 
 .columns-media > div {
   display: flex;
   flex-direction: column;
-  gap: 24px;
 }
 
 .columns-media img {
-  width: 100%;
   display: block;
+  width: 100%;
 }
 
-/* Mobile-first: media stacks above text. */
-.columns-media > div > div {
-  order: 1;
-}
-
+/* mobile-first: media stacks above text */
 .columns-media > div > .columns-media-img-col {
   order: 0;
-  padding: 0;
 }
 
 .columns-media .columns-media-text-col {
+  order: 1;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  padding: 32px var(--gutter);
+}
+
+.columns-media .columns-media-text-col > :first-child {
+  margin-top: 0;
+}
+
+.columns-media .columns-media-text-col h2 {
+  margin: 0 0 16px;
+}
+
+.columns-media .columns-media-text-col p {
+  margin: 0 0 16px;
+}
+
+/* eyebrow above the heading (e.g. "About Parker") */
+.columns-media .columns-media-text-col > p:first-child:has(+ h2) {
+  margin-bottom: 8px;
+  font-size: var(--body-font-size-l);
+}
+
+.columns-media .columns-media-text-col p.button-container {
+  margin: 8px 0 0;
+}
+
+.columns-media .columns-media-text-col a.button:any-link {
+  margin: 0;
+}
+
+/* blue band: inset image, white copy */
+.section.sky-blue .columns-media > div {
+  padding: 40px var(--gutter);
+  gap: 32px;
+}
+
+.section.sky-blue .columns-media .columns-media-text-col {
+  padding: 0;
+}
+
+.section.sky-blue .columns-media .columns-media-text-col h2 + p {
+  font-size: var(--body-font-size-l);
 }
 
 @media (width >= 900px) {
   .columns-media > div {
-    align-items: center;
     flex-direction: row;
-    gap: 48px;
+    align-items: stretch;
+    max-width: var(--content-max-width);
+    margin: 0 auto;
   }
 
-  .columns-media > div > div {
-    flex: 1;
+  .columns-media > div > .columns-media-img-col,
+  .columns-media > div > .columns-media-text-col {
+    flex: 1 1 50%;
     order: unset;
   }
 
-  /* Reverse option: text left, media right (About Parker section). */
-  .columns-media.reverse > div {
+  .columns-media > div > .columns-media-text-col {
+    justify-content: center;
+    padding: 64px var(--gutter);
+  }
+
+  .columns-media .columns-media-img-col img {
+    height: 100%;
+    min-height: 432px;
+    object-fit: cover;
+  }
+
+  .section.sky-blue .columns-media > div {
     flex-direction: row-reverse;
+    align-items: center;
+    gap: 64px;
+    padding: 64px var(--gutter);
+  }
+
+  .section.sky-blue .columns-media > div > .columns-media-img-col {
+    flex: 0 0 45%;
+  }
+
+  .section.sky-blue .columns-media .columns-media-text-col {
+    flex: 1 1 auto;
+    padding: 0;
+  }
+
+  .section.sky-blue .columns-media .columns-media-img-col img {
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 16 / 9;
   }
 }

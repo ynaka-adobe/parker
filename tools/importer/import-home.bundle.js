@@ -205,6 +205,13 @@ var CustomImportScript = (() => {
         "#db-sync",
         "#embeddedMessagingSiteContextFrame"
       ]);
+      WebImporter.DOMUtils.remove(element, [
+        ".aem-GridColumn--default--hide",
+        "#db_lr_pixel_ad",
+        'img[src*="rlcdn.com"]',
+        'img[src^="blob:"]',
+        'img[width="0"][height="0"]'
+      ]);
     }
     if (hookName === H.after) {
       WebImporter.DOMUtils.remove(element, [

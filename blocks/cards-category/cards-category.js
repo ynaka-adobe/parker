@@ -20,5 +20,26 @@ export default function decorate(block) {
     img.closest('picture').replaceWith(optimizedPic);
   });
   block.textContent = '';
-  block.append(ul);
+
+  // horizontal slider: scroll the track one page at a time with prev/next arrows
+  const navButton = (dir, label) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = `cards-category-nav cards-category-${dir}`;
+    button.setAttribute('aria-label', label);
+    button.addEventListener('click', () => {
+      ul.scrollBy({ left: (dir === 'next' ? 1 : -1) * ul.clientWidth, behavior: 'smooth' });
+    });
+    return button;
+  };
+  const prev = navButton('prev', 'Previous categories');
+  const next = navButton('next', 'Next categories');
+  const updateNav = () => {
+    prev.disabled = ul.scrollLeft <= 1;
+    next.disabled = ul.scrollLeft + ul.clientWidth >= ul.scrollWidth - 1;
+  };
+  ul.addEventListener('scroll', updateNav, { passive: true });
+  new ResizeObserver(updateNav).observe(ul);
+
+  block.append(prev, ul, next);
 }

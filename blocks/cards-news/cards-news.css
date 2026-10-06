@@ -1,6 +1,4 @@
-/* cards-news: text-only vertical news list, items separated by rules.
-   Structural/functional only — no brand color/typography tokens. */
-
+/* cards-news: text-only vertical news list (title link + author/date line) */
 .cards-news > ul {
   list-style: none;
   margin: 0;
@@ -11,15 +9,34 @@
 
 .cards-news > ul > li {
   padding: 16px 0;
-  border-bottom: 1px solid #dadada;
-}
-
-.cards-news > ul > li:first-child {
-  border-top: 1px solid #dadada;
 }
 
 .cards-news .cards-news-card-body {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
+}
+
+.cards-news .cards-news-card-body p {
+  margin: 0;
+}
+
+.cards-news .cards-news-card-body p:first-child {
+  font-size: var(--heading-font-size-m);
+  line-height: 1.3;
+}
+
+.cards-news .cards-news-card-body a:any-link {
+  color: var(--text-color);
+  text-decoration: none;
+}
+
+.cards-news .cards-news-card-body a:hover {
+  color: var(--link-color);
+  text-decoration: underline;
+}
+
+.cards-news .cards-news-card-body p:not(:first-child) {
+  color: var(--text-muted-color);
+  font-size: var(--body-font-size-s);
 }

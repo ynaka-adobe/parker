@@ -19,6 +19,16 @@ export default function transform(hookName, element, payload) {
       '#db-sync',
       '#embeddedMessagingSiteContextFrame',
     ]);
+    // Authored-but-hidden grid columns (e.g. the inactive "Filtration Group" hero
+    // teaser: .cmp-parker-black-text.aem-GridColumn--default--hide) and
+    // tracking pixels (img#db_lr_pixel_ad -> id.rlcdn.com, zero-size/blob: imgs).
+    WebImporter.DOMUtils.remove(element, [
+      '.aem-GridColumn--default--hide',
+      '#db_lr_pixel_ad',
+      'img[src*="rlcdn.com"]',
+      'img[src^="blob:"]',
+      'img[width="0"][height="0"]',
+    ]);
   }
 
   if (hookName === H.after) {

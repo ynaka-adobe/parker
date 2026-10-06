@@ -1,6 +1,4 @@
-/* banner-cta: text-only promotional strip on a solid background.
-   Structural/functional only — no brand color/typography tokens. */
-
+/* banner-cta: text-only promotional strip on the gold band */
 .banner-cta {
   display: flex;
   flex-direction: column;
@@ -10,12 +8,55 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 12px;
-  padding: 32px 0;
+  padding: 48px 0;
+  color: var(--parker-black);
+}
+
+.banner-cta .banner-cta-body > * {
+  margin: 0 0 16px;
+}
+
+.banner-cta .banner-cta-body > :last-child {
+  margin-bottom: 0;
+}
+
+.banner-cta .banner-cta-body p {
+  max-width: 900px;
+}
+
+.banner-cta .banner-cta-body h2 {
+  color: var(--parker-black);
+  font-size: var(--heading-font-size-xxl);
+  font-weight: var(--font-weight-regular);
+  line-height: 1.2;
+}
+
+/* eyebrow */
+.banner-cta .banner-cta-body > p:first-child {
+  margin-bottom: 8px;
+  font-size: var(--body-font-size-m);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.banner-cta .banner-cta-body p.button-container {
+  margin-top: 8px;
+}
+
+.banner-cta a.button:any-link {
+  margin: 0;
+  background-color: var(--parker-black);
+  color: var(--background-color);
+}
+
+.banner-cta a.button:hover,
+.banner-cta a.button:focus {
+  background-color: #333;
+  color: var(--background-color);
 }
 
 @media (width >= 900px) {
   .banner-cta .banner-cta-body {
-    padding: 48px 0;
+    padding: 64px 0;
   }
 }

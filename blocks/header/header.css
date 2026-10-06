@@ -1,8 +1,7 @@
 /* Parker header — mobile-first */
 
+/* brand gold/black come from styles.css */
 :root {
-  --parker-gold: #ffb600;
-  --parker-black: #101820;
   --parker-nav-text: #1f2327;
 }
 

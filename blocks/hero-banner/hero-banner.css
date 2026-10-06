@@ -1,16 +1,22 @@
-/* hero-banner — full-bleed photographic banner with knockout text + yellow CTA */
-.hero-banner-container .hero-banner-wrapper {
-  max-width: unset;
+/* hero-banner — full-bleed photographic banner, left-aligned white text + gold CTA */
+main > .section:has(> .hero-banner-wrapper) {
+  margin: 0;
+}
+
+main > .section > .hero-banner-wrapper {
+  max-width: none;
   padding: 0;
 }
 
 .hero-banner {
   position: relative;
+  isolation: isolate;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  height: 536px;
-  padding: 48px 24px;
+  min-height: 480px;
+  padding: 48px var(--gutter);
+  box-sizing: border-box;
   overflow: hidden;
   color: var(--background-color);
 }
@@ -28,52 +34,52 @@
   object-fit: cover;
 }
 
-/* dark scrim so knockout text stays legible */
+/* dark scrim on the text side so the knockout copy stays legible */
 .hero-banner::after {
   content: "";
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(90deg, rgb(0 0 0 / 70%) 0%, rgb(0 0 0 / 35%) 55%, rgb(0 0 0 / 10%) 100%);
+  background: linear-gradient(90deg, rgb(0 0 0 / 70%) 0%, rgb(0 0 0 / 45%) 35%, rgb(0 0 0 / 0%) 65%);
 }
 
 .hero-banner > div {
-  max-width: 1200px;
   width: 100%;
-  margin: 0 auto;
+  max-width: 680px;
 }
 
 .hero-banner h1,
 .hero-banner h2 {
-  margin: 0 0 0.25em;
-  max-width: 640px;
+  margin: 0 0 24px;
   color: var(--background-color);
-  font-family: var(--heading-font-family);
-  font-weight: var(--font-weight-bold);
   font-size: var(--heading-font-size-xxl);
-  line-height: 1.1;
+  font-weight: var(--font-weight-regular);
+  line-height: 1.2;
 }
 
 .hero-banner p {
-  max-width: 520px;
-  margin: 0 0 1.5em;
-  font-size: 1.25rem;
+  margin: 0 0 24px;
+  color: var(--background-color);
+  font-size: var(--body-font-size-l);
   line-height: 1.4;
 }
 
-.hero-banner a.button:any-link,
-.hero-banner p strong {
-  display: inline-block;
-  background-color: var(--brand-yellow);
-  color: var(--text-strong-color);
-  font-weight: var(--font-weight-semibold);
-  padding: 0.625em 1.5em;
-  border-radius: var(--border-radius);
+.hero-banner p.button-container {
+  margin: 0;
+}
+
+.hero-banner a.button:any-link {
+  margin: 0;
 }
 
 @media (width >= 900px) {
   .hero-banner {
-    height: 536px;
-    padding: 64px 32px;
+    min-height: 0;
+    aspect-ratio: 3840 / 1646;
+    padding-block: 64px;
+  }
+
+  .hero-banner p {
+    max-width: 630px;
   }
 }
