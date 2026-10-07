@@ -21,15 +21,37 @@ export default function decorate(block) {
     img.closest('picture').replaceWith(optimizedPic);
   });
 
-  // teaser links are plain text links, not pill buttons
-  ul.querySelectorAll('.cards-teaser-card-body a.button').forEach((a) => {
-    a.classList.remove('button', 'primary', 'secondary');
-    const container = a.closest('.button-container');
-    if (container) {
-      container.classList.remove('button-container');
-      container.classList.add('cards-teaser-card-link');
-    }
-  });
+  const hasButtons = block.classList.contains('buttons');
+
+  if (hasButtons) {
+    // buttons option: the CTA keeps its pill-button decoration; flag its container for CSS
+    ul.querySelectorAll('.cards-teaser-card-body a.button').forEach((a) => {
+      a.closest('.button-container')?.classList.add('cards-teaser-card-cta');
+    });
+  } else {
+    // teaser links are plain text links, not pill buttons
+    ul.querySelectorAll('.cards-teaser-card-body a.button').forEach((a) => {
+      a.classList.remove('button', 'primary', 'secondary');
+      const container = a.closest('.button-container');
+      if (container) {
+        container.classList.remove('button-container');
+        container.classList.add('cards-teaser-card-link');
+      }
+    });
+  }
+
+  // text option only (not with buttons): whole card is clickable (stretched title link in CSS);
+  // flag cards whose link leaves this site so CSS can show the external-link icon.
+  if (block.classList.contains('text') && !hasButtons) {
+    ul.querySelectorAll(':scope > li').forEach((li) => {
+      const link = li.querySelector('.cards-teaser-card-body a[href]');
+      if (!link) return;
+      li.classList.add('cards-teaser-card-linked');
+      const external = link.target === '_blank'
+        || (/^https?:$/.test(link.protocol) && link.hostname !== window.location.hostname);
+      if (external) li.classList.add('cards-teaser-card-external');
+    });
+  }
 
   block.textContent = '';
   block.append(ul);

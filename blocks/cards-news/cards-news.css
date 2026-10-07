@@ -40,3 +40,32 @@
   color: var(--text-muted-color);
   font-size: var(--body-font-size-s);
 }
+
+/* columns option — items flow into a 1 / 2 / 3 column grid of compact link rows
+   (e.g. Find a Part categories). Scoped to .cards-news.columns so the default list is untouched. */
+.cards-news.columns > ul {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  column-gap: var(--gutter);
+}
+
+.cards-news.columns > ul > li {
+  padding: 12px 0;
+}
+
+.cards-news.columns .cards-news-card-body p:first-child {
+  font-size: var(--body-font-size-l);
+  line-height: 1.4;
+}
+
+@media (width >= 600px) {
+  .cards-news.columns > ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (width >= 900px) {
+  .cards-news.columns > ul {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

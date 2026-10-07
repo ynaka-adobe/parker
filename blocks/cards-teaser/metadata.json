@@ -9,7 +9,9 @@
     "colorScheme": "white background, dark text, blue text link",
     "purpose": "teaser tiles linking to sub-pages (e.g. Aerospace Submarkets)",
     "optionLayouts": {
-      "grid": "wrapping grid, 4 per row from 900px, 2 from 600px, 1 below; bordered tiles with padded text; 16:9 image on top"
+      "grid": "wrapping grid, 4 per row from 900px, 2 from 600px, 1 below; bordered tiles with padded text; 16:9 image on top",
+      "text": "text-only bordered white cards: centred title + short description, whole card clickable; up to 4 per row (2 from 600px, 1 below), short rows centred; a lone card is wider/taller; external links show a small external-link icon top right. Combines with grid.",
+      "buttons": "used with text ('text, buttons'): white cards with a soft box-shadow instead of a border, centred title and description, CTA rendered as a full-width gold pill button aligned at the bottom of each card; the card is NOT one big link; 3 per row from 900px (2 from 600px, 1 below)"
     }
   },
   "contentPattern": {
@@ -17,21 +19,39 @@
     "summary": "repeating teaser cards: image, H3, description, Learn More link",
     "imageCount": 1,
     "buttonCount": 0,
-    "hasDescription": true
+    "hasDescription": true,
+    "optionStructures": {
+      "text": "one cell per row: [H3 > link title, short description paragraph] (no picture cell)",
+      "buttons": "one cell per row: [H3 title (unlinked), short description paragraph, paragraph containing only the CTA link]"
+    }
   },
   "usage": {
     "pagesUsing": [
       "/us/en/markets/aerospace-and-defense",
       "/us/en/markets",
-      "/us/en/markets/interactive-library/parker-world"
+      "/us/en/markets/interactive-library/parker-world",
+      "/us/en/support/order-status",
+      "/us/en/support/cbc-report",
+      "/us/en/support/ethics-integrity",
+      "/us/en/support/place-an-order",
+      "/us/en/support/investors",
+      "/us/en/support"
     ],
-    "reuseCount": 3,
-    "lastUsed": "2026-10-07T05:37:03.889160Z"
+    "reuseCount": 5,
+    "lastUsed": "2026-10-07T16:24:25.848422Z"
   },
   "options": [
     {
       "class": "grid",
       "label": "Grid"
+    },
+    {
+      "class": "text",
+      "label": "Text only"
+    },
+    {
+      "class": "buttons",
+      "label": "Buttons"
     }
   ],
   "memberVariantIds": [

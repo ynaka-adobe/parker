@@ -64,6 +64,46 @@ var CustomImportScript = (() => {
   }
 
   // tools/importer/parsers/cards-teaser.js
+  var HELP_CARD = "a.ph-card-basic__link";
+  var HELP_DESC_CLASS = "ph-card-basic__desc";
+  try {
+    if (typeof document !== "undefined" && document.querySelectorAll) {
+      document.querySelectorAll(`${HELP_CARD} > span`).forEach((s) => s.classList.add(HELP_DESC_CLASS));
+    }
+  } catch (e) {
+  }
+  function isHelpCards(element) {
+    return element.matches(HELP_CARD) || !!element.querySelector(HELP_CARD);
+  }
+  var cleanText = (s) => s.replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
+  function parseHelpCards(element, document2) {
+    const links = element.matches(HELP_CARD) ? [element] : Array.from(element.querySelectorAll(HELP_CARD));
+    const cells = [];
+    links.forEach((link) => {
+      const descEl = link.querySelector(":scope > span");
+      const title = cleanText(Array.from(link.childNodes).filter((n) => n !== descEl).map((n) => n.textContent).join(" "));
+      const desc = descEl ? cleanText(descEl.textContent) : "";
+      if (!title && !desc) return;
+      const href = link.getAttribute("href");
+      const h3 = document2.createElement("h3");
+      if (href) {
+        const a = document2.createElement("a");
+        a.setAttribute("href", href);
+        a.textContent = title || desc;
+        h3.append(a);
+      } else {
+        h3.textContent = title || desc;
+      }
+      const cell = [h3];
+      if (desc && title) {
+        const p = document2.createElement("p");
+        p.textContent = desc;
+        cell.push(p);
+      }
+      cells.push([cell]);
+    });
+    return cells;
+  }
   function isCardGrid(element) {
     if (element.matches(".parker-carousel") || element.closest(".parker-carousel") || element.querySelector(".parker-carousel")) return false;
     const isLayoutCol = Array.from(element.classList).some((c) => c.startsWith("layout-col-"));
@@ -77,7 +117,86 @@ var CustomImportScript = (() => {
     el.replaceWith(h);
     return h;
   }
+  var LANDING_GRID = ".MuiGrid-container";
+  var gridItems = (grid) => Array.from(grid.children).filter((c) => c.matches(".MuiGrid-root"));
+  function isLandingTileGrid(element) {
+    return element.matches(LANDING_GRID) && !!element.closest("section.tile_container") && gridItems(element).some((item) => item.querySelector(":scope > div > a[href]"));
+  }
+  function isLandingButtonCards(element) {
+    return element.matches(LANDING_GRID) && !element.closest("section.tile_container") && gridItems(element).some((item) => item.querySelector(":scope > div > a.MuiLink-root[href]"));
+  }
+  function parseLandingTiles(element, document2) {
+    const cells = [];
+    gridItems(element).forEach((item) => {
+      const link = item.querySelector(":scope > div > a[href]");
+      if (!link) return;
+      const title = cleanText(link.textContent);
+      if (!title) return;
+      const h3 = document2.createElement("h3");
+      const a = document2.createElement("a");
+      a.setAttribute("href", link.getAttribute("href"));
+      a.textContent = title;
+      h3.append(a);
+      cells.push([[h3]]);
+    });
+    return cells;
+  }
+  function parseLandingButtonCards(element, document2) {
+    const cells = [];
+    gridItems(element).forEach((item) => {
+      const card = item.querySelector(":scope > div");
+      if (!card) return;
+      const cta = card.querySelector(":scope > a.MuiLink-root[href]");
+      const texts = Array.from(card.querySelectorAll(":scope > div")).map((d) => cleanText(d.textContent)).filter(Boolean);
+      const [title, ...descs] = texts;
+      if (!title && !cta) return;
+      const cell = [];
+      if (title) {
+        const h3 = document2.createElement("h3");
+        h3.textContent = title;
+        cell.push(h3);
+      }
+      descs.forEach((d) => {
+        const p = document2.createElement("p");
+        p.textContent = d;
+        cell.push(p);
+      });
+      if (cta && cleanText(cta.textContent)) {
+        const p = document2.createElement("p");
+        const strong = document2.createElement("strong");
+        const a = document2.createElement("a");
+        a.setAttribute("href", cta.getAttribute("href"));
+        a.textContent = cleanText(cta.textContent);
+        strong.append(a);
+        p.append(strong);
+        cell.push(p);
+      }
+      cells.push([cell]);
+    });
+    return cells;
+  }
   function parse2(element, { document: document2 }) {
+    if (!isHelpCards(element) && (isLandingTileGrid(element) || isLandingButtonCards(element))) {
+      const tiles = isLandingTileGrid(element);
+      const landingCells = tiles ? parseLandingTiles(element, document2) : parseLandingButtonCards(element, document2);
+      if (landingCells.length === 0) {
+        element.replaceWith(...element.childNodes);
+        return;
+      }
+      const name = tiles ? "cards-teaser (grid, text)" : "cards-teaser (text, buttons)";
+      element.replaceWith(WebImporter.Blocks.createBlock(document2, { name, cells: landingCells }));
+      return;
+    }
+    if (isHelpCards(element)) {
+      const helpCells = parseHelpCards(element, document2);
+      if (helpCells.length === 0) {
+        element.replaceWith(...element.childNodes);
+        return;
+      }
+      const block2 = WebImporter.Blocks.createBlock(document2, { name: "cards-teaser (grid, text)", cells: helpCells });
+      element.replaceWith(block2);
+      return;
+    }
     const grid = isCardGrid(element);
     const sectionHeading = element.querySelector(".slider-carousel-container > h2, :scope > h2") || Array.from(element.querySelectorAll("h2")).find((h) => !h.closest(".card"));
     const cards = Array.from(element.querySelectorAll(".card")).filter((card) => !card.closest(".slick-cloned"));
@@ -119,6 +238,13 @@ var CustomImportScript = (() => {
 
   // tools/importer/parsers/embed-app.js
   function parse3(element, { document: document2 }) {
+    const launchLink = element.matches(".excat-md-app") ? element.querySelector("a[href]") : null;
+    if (launchLink) {
+      const cells2 = [[launchLink]];
+      const block2 = WebImporter.Blocks.createBlock(document2, { name: "embed-app (launch)", cells: cells2 });
+      element.replaceWith(block2);
+      return;
+    }
     const iframe = element.querySelector(".parker-embed-wrapper iframe[src], iframe[src]");
     const src = iframe ? iframe.getAttribute("src") : "";
     if (!src) {
@@ -140,6 +266,11 @@ var CustomImportScript = (() => {
     return col.textContent.trim() === "" && !col.querySelector(MEDIA_SELECTOR);
   }
   function transform(hookName, element, payload) {
+    const support = isSupportPage(payload);
+    if (support && hookName === H.before && isSupportLandingPage(payload)) supportLandingBefore(element);
+    if (support && hookName === H.before && isMasterDirectoryPage(payload)) masterDirectoryBefore(element, payload);
+    if (support && hookName === H.before) supportBefore(element, payload);
+    if (support && hookName === H.after) supportAfter(element);
     if (hookName === H.before) {
       WebImporter.DOMUtils.remove(element, [
         ".parker-comchatskill",
@@ -186,8 +317,177 @@ var CustomImportScript = (() => {
       columns.forEach((col) => {
         if (isEmptyColumn(col)) col.remove();
       });
-      rewriteLinks(element);
+      rewriteLinks(element, payload);
     }
+  }
+  var HELP_ORIGIN = "https://help.parker.com";
+  var KEEP_HREF_ATTR = "data-excat-keep-href";
+  function pageUrl(payload) {
+    const raw = payload && payload.params && payload.params.originalURL;
+    if (!raw) return null;
+    try {
+      return new URL(raw);
+    } catch (e) {
+      return null;
+    }
+  }
+  function isSupportPage(payload) {
+    const url = pageUrl(payload);
+    if (url && url.hostname === "help.parker.com") return true;
+    const name = payload && payload.template && payload.template.name;
+    return typeof name === "string" && name.startsWith("support");
+  }
+  function retag2(el, tagName) {
+    const doc = el.ownerDocument;
+    const repl = doc.createElement(tagName);
+    repl.append(...el.childNodes);
+    el.replaceWith(repl);
+    return repl;
+  }
+  function trimText(el) {
+    const walker = el.ownerDocument.createTreeWalker(
+      el,
+      4
+      /* SHOW_TEXT */
+    );
+    const texts = [];
+    while (walker.nextNode()) texts.push(walker.currentNode);
+    const visible = texts.filter((t) => t.textContent.replace(/ /g, " ").trim());
+    if (!visible.length) return;
+    const first = visible[0];
+    const last = visible[visible.length - 1];
+    first.textContent = first.textContent.replace(/^[\s ]+/, "");
+    last.textContent = last.textContent.replace(/[\s ]+$/, "");
+  }
+  function normalizeTitle(text) {
+    return text.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]/g, "");
+  }
+  function makeLinkPara(doc, href, text, wrapTag) {
+    const p = doc.createElement("p");
+    const a = doc.createElement("a");
+    a.setAttribute("href", href);
+    a.textContent = text;
+    if (wrapTag) {
+      const wrap = doc.createElement(wrapTag);
+      wrap.append(a);
+      p.append(wrap);
+    } else {
+      p.append(a);
+    }
+    return { p, a };
+  }
+  var LANDING_PATH = "/us/en/support";
+  var LANDING_TITLE = "Help & Support | Parker US";
+  function isSupportLandingPage(payload) {
+    const url = pageUrl(payload);
+    if (url) return url.hostname === "help.parker.com" && url.pathname.replace(/\/+$/, "") === LANDING_PATH;
+    return !!(payload && payload.template && payload.template.name === "support-landing");
+  }
+  var MASTER_DIRECTORY_PATH = "/us/en/support/master-directory/global-offices";
+  function isMasterDirectoryPage(payload) {
+    const url = pageUrl(payload);
+    if (url) return url.hostname === "help.parker.com" && url.pathname.replace(/\/+$/, "") === MASTER_DIRECTORY_PATH;
+    return !!(payload && payload.template && payload.template.name === "master-directory");
+  }
+  function masterDirectoryBefore(element, payload) {
+    const doc = element.ownerDocument;
+    const main = element.querySelector("main.ph-main");
+    if (!main) return;
+    const url = pageUrl(payload);
+    const app = doc.createElement("div");
+    app.className = "excat-md-app";
+    const a = doc.createElement("a");
+    a.setAttribute("href", url ? url.href.split("?")[0] : `${HELP_ORIGIN}${MASTER_DIRECTORY_PATH}`);
+    a.setAttribute(KEEP_HREF_ATTR, "");
+    a.textContent = "Master Directory";
+    app.append(a);
+    main.replaceChildren(app);
+  }
+  var isTextDiv = (el) => el.tagName === "DIV" && el.children.length === 0 && !!el.textContent.replace(/\u00a0/g, " ").trim();
+  function supportLandingBefore(element) {
+    const doc = element.ownerDocument;
+    doc.title = LANDING_TITLE;
+    doc.querySelectorAll('meta[property="og:title"], meta[name="twitter:title"]').forEach((m) => m.setAttribute("content", LANDING_TITLE));
+    element.querySelectorAll(".parts-doc-search form.ph-form").forEach((form) => {
+      const { p, a } = makeLinkPara(doc, `${HELP_ORIGIN}${LANDING_PATH}`, "Search Part Documents", "strong");
+      a.setAttribute(KEEP_HREF_ATTR, "true");
+      form.replaceWith(p);
+    });
+    WebImporter.DOMUtils.remove(element, [
+      "main.ph-main > div > hr.MuiDivider-root",
+      ".col-12.text-center:has(> a.ph-overflow__read-more-toggle)",
+      "a.ph-overflow__read-more-toggle"
+    ]);
+    element.querySelectorAll("main.ph-main .jumbotron").forEach((jumbo) => {
+      const divs = Array.from(jumbo.children);
+      if (!divs.length || !divs.every(isTextDiv)) return;
+      const titleIndex = Math.max(divs.length - 2, 0);
+      divs.forEach((div, i) => trimText(retag2(div, i === titleIndex ? "h2" : "p")));
+      Array.from(jumbo.parentElement.children).filter((sib) => sib !== jumbo && isTextDiv(sib) && jumbo.compareDocumentPosition(sib) & 4).forEach((sib) => trimText(retag2(sib, "h3")));
+    });
+  }
+  function supportBefore(element, payload) {
+    const doc = element.ownerDocument;
+    const url = pageUrl(payload);
+    const origin = url && /^https?:$/.test(url.protocol) ? url.origin : HELP_ORIGIN;
+    WebImporter.DOMUtils.remove(element, [
+      ".container-fluid:has(> .ph-header-main__breadcrumbs)",
+      ".ph-header-main__breadcrumbs",
+      "div[hidden]",
+      "next-route-announcer",
+      "#transcend-consent-manager",
+      'iframe[width="0"][height="0"]',
+      'div[style*="display: none"]',
+      "style"
+    ]);
+    element.querySelectorAll('img[src^="/"]:not([src^="//"])').forEach((img) => {
+      img.setAttribute("src", `${origin}${img.getAttribute("src")}`);
+    });
+    element.querySelectorAll(".ph-header-main__title h1 ~ span").forEach((span) => {
+      const h1 = span.parentElement.querySelector("h1");
+      const text = span.textContent.trim();
+      if (!text || h1 && normalizeTitle(text) === normalizeTitle(h1.textContent)) {
+        span.remove();
+      } else {
+        const p = retag2(span, "p");
+        p.removeAttribute("style");
+      }
+    });
+    element.querySelectorAll("form.ph-form").forEach((form) => {
+      const { p, a } = makeLinkPara(
+        doc,
+        `${HELP_ORIGIN}/us/en/support/cross-reference`,
+        "Search the Cross-Reference Tool",
+        "strong"
+      );
+      a.setAttribute(KEEP_HREF_ATTR, "true");
+      form.replaceWith(p);
+    });
+    element.querySelectorAll([
+      ".ph-content-nav__history a:has(> button.MuiButton-root)",
+      ".ph-content-nav__history a:has(> span.accent-button)",
+      ".ph-content-nav__history a.accent-button"
+    ].join(", ")).forEach((link) => {
+      const { p } = makeLinkPara(doc, "/us/en/support", "Return to Help & Support", "em");
+      link.replaceWith(p);
+    });
+    element.querySelectorAll([
+      ".ph-content-nav__history a:has(> span.help)",
+      ".ph-content-nav__history a.help"
+    ].join(", ")).forEach((link) => {
+      const intro = doc.createElement("p");
+      intro.textContent = "Still Lost?";
+      const { p } = makeLinkPara(doc, link.getAttribute("href") || "/us/en/support/general-help", "General Help");
+      link.replaceWith(intro, p);
+    });
+  }
+  function supportAfter(element) {
+    const titleH1 = element.querySelector(".ph-header-main__title h1");
+    element.querySelectorAll("h1").forEach((h1) => {
+      if (h1 !== titleH1) retag2(h1, "h2");
+    });
+    element.querySelectorAll("h3.ht, .jumbotron > h3").forEach((h3) => retag2(h3, "p"));
+    element.querySelectorAll("h1, h2, h3, h4, h5, h6, .jumbotron > a").forEach(trimText);
   }
   var MIGRATED_PATHS = /* @__PURE__ */ new Set([
     "/us/en/home",
@@ -205,21 +505,73 @@ var CustomImportScript = (() => {
     "/us/en/markets/interactive-library/parker-world",
     "/us/en/markets/life-sciences",
     "/us/en/markets/off-highway",
-    "/us/en/markets/transportation"
+    "/us/en/markets/transportation",
+    // Help & Support (help.parker.com): landing, the 23 support-topic pages,
+    // and the master-directory global offices page.
+    "/us/en/support",
+    "/us/en/support/billing-shipping",
+    "/us/en/support/cad-files",
+    "/us/en/support/catalog-part-manuals",
+    "/us/en/support/cbc-report",
+    "/us/en/support/certificates-compliance",
+    "/us/en/support/contact-information",
+    "/us/en/support/cross-reference",
+    "/us/en/support/ethics-integrity",
+    "/us/en/support/find-a-part/18605",
+    "/us/en/support/general-help",
+    "/us/en/support/hr-benefits",
+    "/us/en/support/installation-maintenance",
+    "/us/en/support/investors",
+    "/us/en/support/optimization",
+    "/us/en/support/order-status",
+    "/us/en/support/part-configuration/configurator-help",
+    "/us/en/support/part-information/18605",
+    "/us/en/support/place-an-order",
+    "/us/en/support/price-quote",
+    "/us/en/support/repairs",
+    "/us/en/support/replacement",
+    "/us/en/support/software",
+    "/us/en/support/training-tutorials",
+    "/us/en/support/master-directory/global-offices"
   ]);
   var SOURCE_ORIGIN = "https://www.parker.com";
-  function rewriteLinks(element) {
+  var SOURCE_ORIGINS = /* @__PURE__ */ new Set([SOURCE_ORIGIN, HELP_ORIGIN]);
+  var TRACKING_PARAM = /^(brd|app|utm_.*)$/i;
+  function cleanSearch(url) {
+    const params = new URLSearchParams(url.search);
+    [...params.keys()].forEach((k) => {
+      if (TRACKING_PARAM.test(k)) params.delete(k);
+    });
+    const s = params.toString();
+    return s ? `?${s}` : "";
+  }
+  function rewriteLinks(element, payload) {
+    const page = pageUrl(payload);
+    const base = page && SOURCE_ORIGINS.has(page.origin) ? page : new URL(`${SOURCE_ORIGIN}/`);
     element.querySelectorAll("a[href]").forEach((a) => {
+      if (a.hasAttribute(KEEP_HREF_ATTR)) {
+        a.removeAttribute(KEEP_HREF_ATTR);
+        return;
+      }
       const href = a.getAttribute("href");
+      const isAbsolute = /^[a-z][a-z0-9+.-]*:/i.test(href) || href.startsWith("//");
+      const isRelative = !isAbsolute && !href.startsWith("#") && href.trim() !== "";
       let url;
-      if (href.startsWith("/") && !href.startsWith("//")) url = new URL(href, SOURCE_ORIGIN);
-      else if (href.startsWith(`${SOURCE_ORIGIN}/`)) url = new URL(href);
-      else return;
+      try {
+        if (isRelative) url = new URL(href, base);
+        else if (/^https?:\/\//i.test(href)) url = new URL(href);
+        else return;
+      } catch (e) {
+        return;
+      }
+      if (!SOURCE_ORIGINS.has(url.origin)) return;
       const path = url.pathname.replace(/\.html$/, "").replace(/\/$/, "") || "/";
       if (MIGRATED_PATHS.has(path)) {
-        a.setAttribute("href", `${path}${url.search}${url.hash}`);
-      } else if (href.startsWith("/") && path !== "/") {
-        a.setAttribute("href", `${SOURCE_ORIGIN}${href}`);
+        a.setAttribute("href", `${path}${cleanSearch(url)}${url.hash}`);
+      } else if (isRelative && path !== "/") {
+        a.setAttribute("href", href.startsWith("/") ? `${url.origin}${href}` : url.href);
+      } else if (isRelative && base.origin !== SOURCE_ORIGIN) {
+        a.setAttribute("href", url.href);
       }
     });
   }

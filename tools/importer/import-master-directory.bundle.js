@@ -35,325 +35,32 @@ var CustomImportScript = (() => {
   };
   var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-  // tools/importer/import-markets-2.js
-  var import_markets_2_exports = {};
-  __export(import_markets_2_exports, {
-    default: () => import_markets_2_default
+  // tools/importer/import-master-directory.js
+  var import_master_directory_exports = {};
+  __export(import_master_directory_exports, {
+    default: () => import_master_directory_default
   });
 
-  // tools/importer/parsers/cards-teaser.js
-  var HELP_CARD = "a.ph-card-basic__link";
-  var HELP_DESC_CLASS = "ph-card-basic__desc";
-  try {
-    if (typeof document !== "undefined" && document.querySelectorAll) {
-      document.querySelectorAll(`${HELP_CARD} > span`).forEach((s) => s.classList.add(HELP_DESC_CLASS));
-    }
-  } catch (e) {
-  }
-  function isHelpCards(element) {
-    return element.matches(HELP_CARD) || !!element.querySelector(HELP_CARD);
-  }
-  var cleanText = (s) => s.replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
-  function parseHelpCards(element, document2) {
-    const links = element.matches(HELP_CARD) ? [element] : Array.from(element.querySelectorAll(HELP_CARD));
-    const cells = [];
-    links.forEach((link) => {
-      const descEl = link.querySelector(":scope > span");
-      const title = cleanText(Array.from(link.childNodes).filter((n) => n !== descEl).map((n) => n.textContent).join(" "));
-      const desc = descEl ? cleanText(descEl.textContent) : "";
-      if (!title && !desc) return;
-      const href = link.getAttribute("href");
-      const h3 = document2.createElement("h3");
-      if (href) {
-        const a = document2.createElement("a");
-        a.setAttribute("href", href);
-        a.textContent = title || desc;
-        h3.append(a);
-      } else {
-        h3.textContent = title || desc;
-      }
-      const cell = [h3];
-      if (desc && title) {
-        const p = document2.createElement("p");
-        p.textContent = desc;
-        cell.push(p);
-      }
-      cells.push([cell]);
-    });
-    return cells;
-  }
-  function isCardGrid(element) {
-    if (element.matches(".parker-carousel") || element.closest(".parker-carousel") || element.querySelector(".parker-carousel")) return false;
-    const isLayoutCol = Array.from(element.classList).some((c) => c.startsWith("layout-col-"));
-    return isLayoutCol && !!element.querySelector(".cmp-parker-card-container .card");
-  }
-  function retag(document2, el, tagName) {
-    if (!el || el.tagName.toLowerCase() === tagName) return el;
-    const h = document2.createElement(tagName);
-    Array.from(el.attributes).forEach((a) => h.setAttribute(a.name, a.value));
-    h.append(...el.childNodes);
-    el.replaceWith(h);
-    return h;
-  }
-  var LANDING_GRID = ".MuiGrid-container";
-  var gridItems = (grid) => Array.from(grid.children).filter((c) => c.matches(".MuiGrid-root"));
-  function isLandingTileGrid(element) {
-    return element.matches(LANDING_GRID) && !!element.closest("section.tile_container") && gridItems(element).some((item) => item.querySelector(":scope > div > a[href]"));
-  }
-  function isLandingButtonCards(element) {
-    return element.matches(LANDING_GRID) && !element.closest("section.tile_container") && gridItems(element).some((item) => item.querySelector(":scope > div > a.MuiLink-root[href]"));
-  }
-  function parseLandingTiles(element, document2) {
-    const cells = [];
-    gridItems(element).forEach((item) => {
-      const link = item.querySelector(":scope > div > a[href]");
-      if (!link) return;
-      const title = cleanText(link.textContent);
-      if (!title) return;
-      const h3 = document2.createElement("h3");
-      const a = document2.createElement("a");
-      a.setAttribute("href", link.getAttribute("href"));
-      a.textContent = title;
-      h3.append(a);
-      cells.push([[h3]]);
-    });
-    return cells;
-  }
-  function parseLandingButtonCards(element, document2) {
-    const cells = [];
-    gridItems(element).forEach((item) => {
-      const card = item.querySelector(":scope > div");
-      if (!card) return;
-      const cta = card.querySelector(":scope > a.MuiLink-root[href]");
-      const texts = Array.from(card.querySelectorAll(":scope > div")).map((d) => cleanText(d.textContent)).filter(Boolean);
-      const [title, ...descs] = texts;
-      if (!title && !cta) return;
-      const cell = [];
-      if (title) {
-        const h3 = document2.createElement("h3");
-        h3.textContent = title;
-        cell.push(h3);
-      }
-      descs.forEach((d) => {
-        const p = document2.createElement("p");
-        p.textContent = d;
-        cell.push(p);
-      });
-      if (cta && cleanText(cta.textContent)) {
-        const p = document2.createElement("p");
-        const strong = document2.createElement("strong");
-        const a = document2.createElement("a");
-        a.setAttribute("href", cta.getAttribute("href"));
-        a.textContent = cleanText(cta.textContent);
-        strong.append(a);
-        p.append(strong);
-        cell.push(p);
-      }
-      cells.push([cell]);
-    });
-    return cells;
-  }
+  // tools/importer/parsers/embed-app.js
   function parse(element, { document: document2 }) {
-    if (!isHelpCards(element) && (isLandingTileGrid(element) || isLandingButtonCards(element))) {
-      const tiles = isLandingTileGrid(element);
-      const landingCells = tiles ? parseLandingTiles(element, document2) : parseLandingButtonCards(element, document2);
-      if (landingCells.length === 0) {
-        element.replaceWith(...element.childNodes);
-        return;
-      }
-      const name = tiles ? "cards-teaser (grid, text)" : "cards-teaser (text, buttons)";
-      element.replaceWith(WebImporter.Blocks.createBlock(document2, { name, cells: landingCells }));
-      return;
-    }
-    if (isHelpCards(element)) {
-      const helpCells = parseHelpCards(element, document2);
-      if (helpCells.length === 0) {
-        element.replaceWith(...element.childNodes);
-        return;
-      }
-      const block2 = WebImporter.Blocks.createBlock(document2, { name: "cards-teaser (grid, text)", cells: helpCells });
+    const launchLink = element.matches(".excat-md-app") ? element.querySelector("a[href]") : null;
+    if (launchLink) {
+      const cells2 = [[launchLink]];
+      const block2 = WebImporter.Blocks.createBlock(document2, { name: "embed-app (launch)", cells: cells2 });
       element.replaceWith(block2);
       return;
     }
-    const grid = isCardGrid(element);
-    const sectionHeading = element.querySelector(".slider-carousel-container > h2, :scope > h2") || Array.from(element.querySelectorAll("h2")).find((h) => !h.closest(".card"));
-    const cards = Array.from(element.querySelectorAll(".card")).filter((card) => !card.closest(".slick-cloned"));
-    const cells = [];
-    const seen = /* @__PURE__ */ new Set();
-    cards.forEach((card) => {
-      const image = card.querySelector(".card-img-top, picture img, img");
-      const body = card.querySelector(".card-body") || card;
-      let title = body.querySelector(".card-title, h3, h2, h4");
-      if (grid && title && /^H[1-6]$/.test(title.tagName)) title = retag(document2, title, "h3");
-      const descRoot = body.querySelector(".card-description") || body;
-      const descParas = Array.from(descRoot.querySelectorAll("p")).filter((p) => !p.closest(".card-details") && !p.closest(".btn-align")).filter((p) => p.textContent.replace(/\u00a0/g, " ").trim());
-      const ctaLinks = Array.from(body.querySelectorAll(".btn-align a[href], a.btn[href]"));
-      if (!grid) {
-        const key = `${title ? title.textContent.trim() : ""}|${ctaLinks[0] ? ctaLinks[0].getAttribute("href") : ""}`;
-        if (seen.has(key)) return;
-        seen.add(key);
-      }
-      const textCell = [];
-      if (title) textCell.push(title);
-      textCell.push(...descParas);
-      ctaLinks.forEach((a) => {
-        const p = document2.createElement("p");
-        p.append(a);
-        textCell.push(p);
-      });
-      if (image || textCell.length > 0) {
-        cells.push([image || "", textCell]);
-      }
-    });
-    if (cells.length === 0) {
+    const iframe = element.querySelector(".parker-embed-wrapper iframe[src], iframe[src]");
+    const src = iframe ? iframe.getAttribute("src") : "";
+    if (!src) {
       element.replaceWith(...element.childNodes);
       return;
     }
-    const block = grid ? WebImporter.Blocks.createBlock(document2, { name: "cards-teaser (grid)", cells }) : WebImporter.Blocks.createBlock(document2, { name: "cards-teaser", cells });
-    if (sectionHeading) element.before(sectionHeading);
-    element.replaceWith(block);
-  }
-
-  // tools/importer/parsers/carousel-hero.js
-  function parse2(element, { document: document2 }) {
-    const items = Array.from(element.querySelectorAll(".cmp-carousel__item"));
-    const cells = [];
-    items.forEach((item) => {
-      const image = item.querySelector(".cmp-teaser__image img, .cmp-image__image, picture img, img");
-      const content = item.querySelector(".cmp-teaser__content");
-      const contentCell = [];
-      if (content) {
-        const eyebrow = content.querySelector(".cmp-teaser__header-text");
-        const heading = content.querySelector(".cmp-teaser__title h1, .cmp-teaser__title h2, .cmp-teaser__title-link, h1, h2, h3");
-        const description = content.querySelector(".cmp-teaser__description");
-        const ctaLinks = Array.from(content.querySelectorAll(".btn-align a, a.btn"));
-        if (eyebrow) contentCell.push(eyebrow);
-        if (heading) contentCell.push(heading);
-        if (description) contentCell.push(description);
-        contentCell.push(...ctaLinks);
-      }
-      if (image || contentCell.length > 0) {
-        cells.push([image || "", contentCell]);
-      }
-    });
-    if (cells.length === 0) {
-      element.replaceWith(...element.childNodes);
-      return;
-    }
-    const block = WebImporter.Blocks.createBlock(document2, { name: "carousel-hero", cells });
-    element.replaceWith(block);
-  }
-
-  // tools/importer/parsers/columns-media.js
-  function bootstrapOrder(col) {
-    let order = 0;
-    Array.from(col.classList).forEach((c) => {
-      const m = c.match(/^order-(?:(?:sm|md|lg|xl)-)?(first|last|\d+)$/);
-      if (!m) return;
-      if (m[1] === "first") order = -1;
-      else if (m[1] === "last") order = 99;
-      else order = parseInt(m[1], 10);
-    });
-    return order;
-  }
-  var isHelpMediaRow = (element) => !!element.querySelector(".ph-bg__img-block");
-  function parseHelpMediaRow(element, document2) {
-    const imgCol = element.querySelector(".ph-bg__img-block");
-    const cols = Array.from(imgCol.parentElement.children).map((col, i) => ({ col, i, order: bootstrapOrder(col) })).sort((a, b) => a.order - b.order || a.i - b.i).map((c) => c.col);
-    const row = [];
-    let hasContent = false;
-    cols.forEach((col) => {
-      if (col === imgCol) {
-        const img = col.querySelector("img");
-        if (img) hasContent = true;
-        row.push(img || "");
-        return;
-      }
-      const textCell = [];
-      let heading = col.querySelector("h1, h2, h3, h4");
-      if (heading && heading.tagName === "H1") {
-        const h2 = document2.createElement("h2");
-        h2.append(...heading.childNodes);
-        heading.replaceWith(h2);
-        heading = h2;
-      }
-      if (heading) textCell.push(heading);
-      Array.from(col.querySelectorAll("p")).forEach((p) => {
-        if (p.textContent.replace(/\u00a0/g, " ").trim() || p.querySelector("img, a")) textCell.push(p);
-      });
-      if (textCell.length) {
-        hasContent = true;
-        row.push(textCell);
-      }
-    });
-    return hasContent ? [row] : [];
-  }
-  function visualSide(el) {
-    if (!el || !el.classList) return null;
-    if (el.classList.contains("order-left")) return "left";
-    if (el.classList.contains("order-right")) return "right";
-    return null;
-  }
-  var FULL_BLEED_YELLOW_PAGES = ["/us/en/markets.html"];
-  function pagePath(url, params) {
-    const raw = params && params.originalURL || url || "";
-    try {
-      return new URL(raw).pathname;
-    } catch (e) {
-      return "";
-    }
-  }
-  function parse3(element, { document: document2, url, params }) {
-    if (isHelpMediaRow(element)) {
-      const helpCells = parseHelpMediaRow(element, document2);
-      if (helpCells.length === 0) {
-        element.replaceWith(...element.childNodes);
-        return;
-      }
-      const block2 = WebImporter.Blocks.createBlock(document2, { name: "columns-media", cells: helpCells });
-      element.replaceWith(block2);
-      return;
-    }
-    const textBox = element.querySelector('.left-box, .image-box-container__opacity-overlay, [class*="left-box"]');
-    const mediaBox = element.querySelector('.image-wrapper, .image-container, [class*="image-wrapper"]');
-    const image = element.querySelector(".image-wrapper img, .image-container img, picture img, img");
-    const textCell = [];
-    if (textBox) {
-      const eyebrow = textBox.querySelector(".cmp-parker-image-box-container__header-text");
-      const heading = textBox.querySelector(".image-box-container__title, h1, h2, h3");
-      const subtitle = textBox.querySelector(".image-box-container__subtitle");
-      const description = textBox.querySelector(".image-box-container__description");
-      const ctaLinks = Array.from(textBox.querySelectorAll(".btn-align a, a.btn"));
-      if (eyebrow) textCell.push(eyebrow);
-      if (heading) textCell.push(heading);
-      if (subtitle) textCell.push(subtitle);
-      if (description) textCell.push(description);
-      textCell.push(...ctaLinks);
-    }
-    const mediaCell = [];
-    if (image) {
-      mediaCell.push(image);
-    } else if (mediaBox) {
-      mediaCell.push(mediaBox);
-    }
-    if (textCell.length === 0 && mediaCell.length === 0) {
-      element.replaceWith(...element.childNodes);
-      return;
-    }
-    let imageFirst = false;
-    if (!element.classList.contains("cmp-parker-ibd-align-center")) {
-      const textCol = textBox && textBox.closest(".left-box") || textBox;
-      const mediaCol = element.querySelector(".image-wrapper") || mediaBox;
-      const mediaSide = visualSide(mediaCol);
-      const textSide = visualSide(textCol);
-      if (mediaSide === "left" || mediaSide === null && textSide === "right") {
-        imageFirst = true;
-      }
-    }
-    const cells = [];
-    cells.push(imageFirst ? [mediaCell, textCell] : [textCell, mediaCell]);
-    const fullBleed = element.classList.contains("cmp-parker-secondary-img-box-theme") || element.classList.contains("cmp-parker-yellow-theme") && FULL_BLEED_YELLOW_PAGES.includes(pagePath(url, params));
-    const block = fullBleed ? WebImporter.Blocks.createBlock(document2, { name: "columns-media (full-bleed)", cells }) : WebImporter.Blocks.createBlock(document2, { name: "columns-media", cells });
+    const link = document2.createElement("a");
+    link.href = src;
+    link.textContent = src;
+    const cells = [[link]];
+    const block = WebImporter.Blocks.createBlock(document2, { name: "embed-app", cells });
     element.replaceWith(block);
   }
 
@@ -435,7 +142,7 @@ var CustomImportScript = (() => {
     const name = payload && payload.template && payload.template.name;
     return typeof name === "string" && name.startsWith("support");
   }
-  function retag2(el, tagName) {
+  function retag(el, tagName) {
     const doc = el.ownerDocument;
     const repl = doc.createElement(tagName);
     repl.append(...el.childNodes);
@@ -520,8 +227,8 @@ var CustomImportScript = (() => {
       const divs = Array.from(jumbo.children);
       if (!divs.length || !divs.every(isTextDiv)) return;
       const titleIndex = Math.max(divs.length - 2, 0);
-      divs.forEach((div, i) => trimText(retag2(div, i === titleIndex ? "h2" : "p")));
-      Array.from(jumbo.parentElement.children).filter((sib) => sib !== jumbo && isTextDiv(sib) && jumbo.compareDocumentPosition(sib) & 4).forEach((sib) => trimText(retag2(sib, "h3")));
+      divs.forEach((div, i) => trimText(retag(div, i === titleIndex ? "h2" : "p")));
+      Array.from(jumbo.parentElement.children).filter((sib) => sib !== jumbo && isTextDiv(sib) && jumbo.compareDocumentPosition(sib) & 4).forEach((sib) => trimText(retag(sib, "h3")));
     });
   }
   function supportBefore(element, payload) {
@@ -547,7 +254,7 @@ var CustomImportScript = (() => {
       if (!text || h1 && normalizeTitle(text) === normalizeTitle(h1.textContent)) {
         span.remove();
       } else {
-        const p = retag2(span, "p");
+        const p = retag(span, "p");
         p.removeAttribute("style");
       }
     });
@@ -582,9 +289,9 @@ var CustomImportScript = (() => {
   function supportAfter(element) {
     const titleH1 = element.querySelector(".ph-header-main__title h1");
     element.querySelectorAll("h1").forEach((h1) => {
-      if (h1 !== titleH1) retag2(h1, "h2");
+      if (h1 !== titleH1) retag(h1, "h2");
     });
-    element.querySelectorAll("h3.ht, .jumbotron > h3").forEach((h3) => retag2(h3, "p"));
+    element.querySelectorAll("h3.ht, .jumbotron > h3").forEach((h3) => retag(h3, "p"));
     element.querySelectorAll("h1, h2, h3, h4, h5, h6, .jumbotron > a").forEach(trimText);
   }
   var MIGRATED_PATHS = /* @__PURE__ */ new Set([
@@ -789,36 +496,21 @@ var CustomImportScript = (() => {
     }
   }
 
-  // tools/importer/import-markets-2.js
+  // tools/importer/import-master-directory.js
   var parsers = {
-    "cards-teaser": parse,
-    "carousel-hero": parse2,
-    "columns-media": parse3
+    "embed-app": parse
   };
   var PAGE_TEMPLATE = {
-    "name": "markets-2",
-    "description": 'Markets landing page (/us/en/markets.html): grey title band (H1), 8-slide full-bleed hero carousel (carousel-hero, one row per .cmp-carousel__item), gold Parker World text+photo band (columns-media full-bleed), grey "Key Trends" heading band + intro paragraph + 4 trend tiles, grey "Key Markets" heading band + intro paragraph + 6 market tiles, grey "Additional Markets" heading band + 2 market tiles (all tile groups = cards-teaser with OPTION "grid": emit "cards-teaser (grid)" for every cards-teaser instance on this template), charcoal "Browse Parker Products Through Our Interactives" band (columns-media, default/inset look). columns-media OPTION "full-bleed": add it ONLY for the gold Parker World band (grid column .cmp-parker-yellow-theme, matched by the first columns-media instance selector); the charcoal interactives band (.cmp-parker-charcoal-theme.cmp-parker-secondary-img-box-theme) has an inset tablet image and must stay plain "columns-media" here, unlike the markets template where cmp-parker-secondary-img-box-theme implies full-bleed. The Additional Markets heading and its tiles share one grid column: the heading is the grey section, the inner .layout-col-4 tile row starts a new unstyled section. Dropped by cleanup: hidden mobile-only teaser (.aem-GridColumn--default--hide) and the empty spacer text column; neither gets a section. Card headings are h4 in source (author as h3); hidden .card-details published dates are not authored.',
+    "name": "master-directory",
+    "description": "Help & Support Master Directory (Global Sales Offices): live, data-driven directory app; imported as title band + embed-app (launch) block linking to the live directory",
     "urls": [
-      "https://www.parker.com/us/en/markets.html"
+      "https://help.parker.com/us/en/support/master-directory/global-offices"
     ],
     "blocks": [
       {
-        "name": "carousel-hero",
+        "name": "embed-app",
         "instances": [
-          ".cmp-carousel"
-        ]
-      },
-      {
-        "name": "columns-media",
-        "instances": [
-          ".cmp-parker-yellow-theme.aem-GridColumn:has(> .image-box-container .image-wrapper)",
-          ".cmp-parker-charcoal-theme.aem-GridColumn:has(> .image-box-container .image-wrapper)"
-        ]
-      },
-      {
-        "name": "cards-teaser",
-        "instances": [
-          ".layout-col-4:has(.cmp-parker-card-container .card)"
+          ".excat-md-app"
         ]
       }
     ],
@@ -827,123 +519,24 @@ var CustomImportScript = (() => {
         "id": "title-bar",
         "name": "Page title band",
         "selector": [
-          ".aem-GridColumn:has(> .cmp-title h1)"
+          ".main-wrapper > .container-fluid:has(> .ph-header-main__title)",
+          ".ph-header-main__title"
         ],
         "style": "grey",
         "blocks": [],
         "defaultContent": [
-          ".cmp-title h1"
+          ".ph-header-main__title h1"
         ]
       },
       {
-        "id": "hero-carousel",
-        "name": "Hero carousel (8 slides)",
+        "id": "directory",
+        "name": "directory",
         "selector": [
-          ".aem-GridColumn:has(> .cmp-carousel)"
+          "main.ph-main"
         ],
         "style": null,
         "blocks": [
-          "carousel-hero"
-        ],
-        "defaultContent": []
-      },
-      {
-        "id": "parker-world",
-        "name": "Parker World band, gold (columns-media full-bleed)",
-        "selector": [
-          ".cmp-parker-yellow-theme.aem-GridColumn"
-        ],
-        "style": "gold",
-        "blocks": [
-          "columns-media"
-        ],
-        "defaultContent": []
-      },
-      {
-        "id": "key-trends-title",
-        "name": "Key Trends heading band",
-        "selector": [
-          ".aem-GridColumn:has(> .cmp-title h2)"
-        ],
-        "style": "grey",
-        "blocks": [],
-        "defaultContent": [
-          ".cmp-title h2"
-        ]
-      },
-      {
-        "id": "key-trends",
-        "name": "Key Trends intro + 4 trend tiles (cards-teaser grid)",
-        "selector": [
-          ".aem-GridColumn:has(> .title-description-container)"
-        ],
-        "style": null,
-        "blocks": [
-          "cards-teaser"
-        ],
-        "defaultContent": [
-          ".title-description-container p"
-        ]
-      },
-      {
-        "id": "key-markets-title",
-        "name": "Key Markets heading band",
-        "selector": [
-          ".layout-col-4.aem-GridColumn ~ .aem-GridColumn:has(> .cmp-title h2)"
-        ],
-        "style": "grey",
-        "blocks": [],
-        "defaultContent": [
-          ".cmp-title h2"
-        ]
-      },
-      {
-        "id": "key-markets",
-        "name": "Key Markets intro + 6 market tiles (cards-teaser grid)",
-        "selector": [
-          ".layout-col-4.aem-GridColumn ~ .aem-GridColumn:has(> .title-description-container)"
-        ],
-        "style": null,
-        "blocks": [
-          "cards-teaser"
-        ],
-        "defaultContent": [
-          ".title-description-container p"
-        ]
-      },
-      {
-        "id": "additional-markets-title",
-        "name": "Additional Markets heading band",
-        "selector": [
-          ".aem-GridColumn:has(> .aem-container:not(.aem-Grid) > div > .cmp-title)"
-        ],
-        "style": "grey",
-        "blocks": [],
-        "defaultContent": [
-          ".cmp-title h2"
-        ]
-      },
-      {
-        "id": "additional-markets",
-        "name": "Additional Markets 2 tiles (cards-teaser grid)",
-        "selector": [
-          ".aem-container:not(.aem-Grid) > .layout-col-4:has(.cmp-parker-card-container .card)"
-        ],
-        "style": null,
-        "blocks": [
-          "cards-teaser"
-        ],
-        "defaultContent": []
-      },
-      {
-        "id": "browse-interactives",
-        "name": "Browse interactives band, charcoal (columns-media)",
-        "selector": [
-          ".cmp-parker-charcoal-theme.aem-GridColumn"
-        ],
-        "style": "charcoal",
-        "blocks": [
-          "columns-media"
+          "embed-app"
         ],
         "defaultContent": []
       }
@@ -995,7 +588,7 @@ var CustomImportScript = (() => {
     console.log(`Found ${pageBlocks.length} block instances on page`);
     return pageBlocks;
   }
-  var import_markets_2_default = {
+  var import_master_directory_default = {
     transform: (payload) => {
       const {
         document: document2,
@@ -1038,5 +631,5 @@ var CustomImportScript = (() => {
       }];
     }
   };
-  return __toCommonJS(import_markets_2_exports);
+  return __toCommonJS(import_master_directory_exports);
 })();

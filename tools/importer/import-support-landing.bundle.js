@@ -35,57 +35,159 @@ var CustomImportScript = (() => {
   };
   var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-  // tools/importer/import-markets.js
-  var import_markets_exports = {};
-  __export(import_markets_exports, {
-    default: () => import_markets_default
+  // tools/importer/import-support-landing.js
+  var import_support_landing_exports = {};
+  __export(import_support_landing_exports, {
+    default: () => import_support_landing_default
   });
 
-  // tools/importer/parsers/banner-cta.js
-  function parse(element, { document: document2 }) {
-    const scope = element.querySelector(".image-box-container__opacity-overlay, .left-box") || element;
-    const eyebrow = scope.querySelector(".cmp-parker-image-box-container__header-text, .image-box-container__header p");
-    const heading = scope.querySelector(".image-box-container__title, h1, h2, h3");
-    const description = scope.querySelector(".image-box-container__description");
-    const ctaLinks = Array.from(scope.querySelectorAll(".btn-align a, a.btn"));
-    if (!eyebrow && !heading && !description && ctaLinks.length === 0) {
-      element.replaceWith(...element.childNodes);
-      return;
-    }
-    const contentCell = [];
-    if (eyebrow) contentCell.push(eyebrow);
-    if (heading) contentCell.push(heading);
-    if (description) contentCell.push(description);
-    contentCell.push(...ctaLinks);
-    const cells = [];
-    cells.push([contentCell]);
-    const block = WebImporter.Blocks.createBlock(document2, { name: "banner-cta", cells });
-    element.replaceWith(block);
-  }
-
-  // tools/importer/parsers/banner-inline.js
-  function parse2(element, { document: document2 }) {
-    const heading = element.querySelector(".image-box-container__title, h2, h3");
-    const descParas = Array.from(element.querySelectorAll(".image-box-container__description")).flatMap((d) => {
-      const ps = Array.from(d.querySelectorAll("p"));
-      if (ps.length) return ps;
-      return d.textContent.trim() ? [d] : [];
-    }).filter((p) => p.textContent.replace(/\u00a0/g, " ").trim());
-    const ctaLinks = Array.from(element.querySelectorAll(".btn-align a[href], a.btn[href]"));
-    if (!heading && descParas.length === 0 && ctaLinks.length === 0) {
-      element.replaceWith(...element.childNodes);
-      return;
-    }
-    const contentCell = [];
-    if (heading) contentCell.push(heading);
-    contentCell.push(...descParas);
-    ctaLinks.forEach((a) => {
-      const p = document2.createElement("p");
-      p.append(a);
-      contentCell.push(p);
+  // tools/importer/parsers/cards-contact.js
+  var NBSP = /\u00a0/g;
+  var clean = (s) => s.replace(NBSP, " ").replace(/\s+/g, " ").trim();
+  var PHONE_RE = /^\+?[\d][\d\s().-]{6,}$/;
+  function tidyPara(p) {
+    p.querySelectorAll("span").forEach((s) => s.replaceWith(...s.childNodes));
+    p.removeAttribute("class");
+    p.querySelectorAll("a").forEach((a) => {
+      a.removeAttribute("class");
+      a.removeAttribute("target");
     });
-    const cells = [[contentCell]];
-    const block = WebImporter.Blocks.createBlock(document2, { name: "banner-inline", cells });
+    const walker = p.ownerDocument.createTreeWalker(
+      p,
+      4
+      /* SHOW_TEXT */
+    );
+    const texts = [];
+    while (walker.nextNode()) texts.push(walker.currentNode);
+    texts.forEach((t) => {
+      t.textContent = t.textContent.replace(NBSP, " ").replace(/ {2,}/g, " ");
+    });
+    const isJunk = (n) => n && (n.nodeType === 3 && !n.textContent.trim() || n.nodeName === "BR");
+    while (isJunk(p.lastChild)) p.lastChild.remove();
+    while (isJunk(p.firstChild)) p.firstChild.remove();
+    if (p.firstChild && p.firstChild.nodeType === 3) p.firstChild.textContent = p.firstChild.textContent.replace(/^\s+/, "");
+    if (p.lastChild && p.lastChild.nodeType === 3) p.lastChild.textContent = p.lastChild.textContent.replace(/\s+$/, "");
+    return p;
+  }
+  function phonePara(document2, phoneEl) {
+    const p = document2.createElement("p");
+    const existing = phoneEl.querySelector('a[href^="tel:"]');
+    if (existing) {
+      existing.removeAttribute("class");
+      p.append(existing);
+      return p;
+    }
+    const text = clean(phoneEl.textContent);
+    const a = document2.createElement("a");
+    a.setAttribute("href", `tel:${text.replace(/[^\d+-]/g, "")}`);
+    a.textContent = text;
+    p.append(a);
+    return p;
+  }
+  var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i;
+  function isLandingContactGrid(element) {
+    return element.matches(".MuiGrid-container") && !!element.querySelector('a[href^="tel:"]') && !element.querySelector("h2.hhr");
+  }
+  function linkPara(document2, href, text) {
+    const p = document2.createElement("p");
+    const a = document2.createElement("a");
+    a.setAttribute("href", href);
+    a.textContent = text;
+    p.append(a);
+    return p;
+  }
+  function parseLandingContactGrid(element, document2) {
+    const cells = [];
+    Array.from(element.children).filter((c) => c.matches(".MuiGrid-root")).forEach((item) => {
+      const card = item.querySelector(":scope > div") || item;
+      const regionEl = card.querySelector(":scope > div");
+      const region = regionEl ? clean(regionEl.textContent) : "";
+      let phone = null;
+      let email = null;
+      Array.from(card.querySelectorAll(":scope > a")).forEach((a) => {
+        const text = clean(a.textContent);
+        const href = (a.getAttribute("href") || "").trim();
+        if (!text && !href) return;
+        if (!email && (/^mailto:/i.test(href) || !href && EMAIL_RE.test(text))) {
+          email = linkPara(document2, href || `mailto:${text}`, text || href.replace(/^mailto:/i, ""));
+        } else if (!phone && (/^tel:/i.test(href) || !href && PHONE_RE.test(text))) {
+          phone = linkPara(document2, href || `tel:${text.replace(/[^\d+-]/g, "")}`, text || href.replace(/^tel:/i, ""));
+        }
+      });
+      if (!phone || !email) {
+        const rest = clean(Array.from(card.childNodes).filter((n) => n !== regionEl && !(n.nodeType === 1 && n.matches("a[href]"))).map((n) => ` ${n.textContent} `).join(" "));
+        const emailMatch = rest.match(/[^\s@]+@[^\s@]+\.[a-z]{2,}/i);
+        if (!email && emailMatch) email = linkPara(document2, `mailto:${emailMatch[0]}`, emailMatch[0]);
+        const phoneMatch = rest.replace(emailMatch ? emailMatch[0] : "", " ").match(/\+?\d[\d\s().-]{5,}\d/);
+        if (!phone && phoneMatch) {
+          const text = phoneMatch[0].trim();
+          phone = linkPara(document2, `tel:${text.replace(/[^\d+-]/g, "")}`, text);
+        }
+      }
+      if (!region && !phone && !email) return;
+      const h3 = document2.createElement("h3");
+      h3.textContent = region;
+      cells.push([h3, phone || "", email || ""]);
+    });
+    return cells;
+  }
+  function parse(element, { document: document2 }) {
+    if (isLandingContactGrid(element)) {
+      const landingCells = parseLandingContactGrid(element, document2);
+      if (landingCells.length === 0) {
+        element.replaceWith(...element.childNodes);
+        return;
+      }
+      element.replaceWith(WebImporter.Blocks.createBlock(document2, { name: "cards-contact (grid)", cells: landingCells }));
+      return;
+    }
+    const groupHeadings = Array.from(element.querySelectorAll(":scope > h2.hhr"));
+    const firstGroup = groupHeadings[0];
+    const leading = Array.from(element.querySelectorAll(":scope > h1, :scope > h2:not(.hhr)")).filter((h) => !firstGroup || h.compareDocumentPosition(firstGroup) & 4).filter((h) => clean(h.textContent));
+    const cells = [];
+    groupHeadings.forEach((heading) => {
+      const title = clean(heading.textContent);
+      if (!title) return;
+      const h3 = document2.createElement("h3");
+      h3.textContent = title;
+      const cols = [];
+      let sib = heading.nextElementSibling;
+      while (sib && !sib.matches("h2.hhr")) {
+        if (sib.matches(".ph-content-section__info__cols, .row")) cols.push(...Array.from(sib.children));
+        else cols.push(sib);
+        sib = sib.nextElementSibling;
+      }
+      let phone = null;
+      const details = [];
+      cols.forEach((col) => {
+        const phoneEl = col.matches("h2, h3") ? col : col.querySelector(":scope > h2, :scope > h3");
+        if (!phone && phoneEl && PHONE_RE.test(clean(phoneEl.textContent))) {
+          phone = phonePara(document2, phoneEl);
+          return;
+        }
+        const paras = col.matches("p") ? [col] : Array.from(col.querySelectorAll("p"));
+        if (paras.length) {
+          paras.forEach((p) => {
+            if (clean(p.textContent) || p.querySelector("a")) details.push(tidyPara(p));
+          });
+        } else if (clean(col.textContent) || col.querySelector("a")) {
+          const p = document2.createElement("p");
+          p.append(...col.childNodes);
+          details.push(tidyPara(p));
+        }
+      });
+      cells.push([h3, phone || "", details.length ? details : ""]);
+    });
+    if (cells.length === 0) {
+      element.replaceWith(...element.childNodes);
+      return;
+    }
+    const block = WebImporter.Blocks.createBlock(document2, { name: "cards-contact", cells });
+    leading.forEach((h) => {
+      const h2 = document2.createElement("h2");
+      h2.textContent = clean(h.textContent);
+      element.before(h2);
+    });
     element.replaceWith(block);
   }
 
@@ -181,7 +283,7 @@ var CustomImportScript = (() => {
     });
     return cells;
   }
-  function parse3(element, { document: document2 }) {
+  function parse2(element, { document: document2 }) {
     if (isLandingLinkList(element)) {
       const landingCells = parseLandingLinkList(element, document2);
       if (landingCells.length === 0) {
@@ -338,7 +440,7 @@ var CustomImportScript = (() => {
     });
     return cells;
   }
-  function parse4(element, { document: document2 }) {
+  function parse3(element, { document: document2 }) {
     if (!isHelpCards(element) && (isLandingTileGrid(element) || isLandingButtonCards(element))) {
       const tiles = isLandingTileGrid(element);
       const landingCells = tiles ? parseLandingTiles(element, document2) : parseLandingButtonCards(element, document2);
@@ -396,172 +498,6 @@ var CustomImportScript = (() => {
     }
     const block = grid ? WebImporter.Blocks.createBlock(document2, { name: "cards-teaser (grid)", cells }) : WebImporter.Blocks.createBlock(document2, { name: "cards-teaser", cells });
     if (sectionHeading) element.before(sectionHeading);
-    element.replaceWith(block);
-  }
-
-  // tools/importer/parsers/columns-media.js
-  function bootstrapOrder(col) {
-    let order = 0;
-    Array.from(col.classList).forEach((c) => {
-      const m = c.match(/^order-(?:(?:sm|md|lg|xl)-)?(first|last|\d+)$/);
-      if (!m) return;
-      if (m[1] === "first") order = -1;
-      else if (m[1] === "last") order = 99;
-      else order = parseInt(m[1], 10);
-    });
-    return order;
-  }
-  var isHelpMediaRow = (element) => !!element.querySelector(".ph-bg__img-block");
-  function parseHelpMediaRow(element, document2) {
-    const imgCol = element.querySelector(".ph-bg__img-block");
-    const cols = Array.from(imgCol.parentElement.children).map((col, i) => ({ col, i, order: bootstrapOrder(col) })).sort((a, b) => a.order - b.order || a.i - b.i).map((c) => c.col);
-    const row = [];
-    let hasContent = false;
-    cols.forEach((col) => {
-      if (col === imgCol) {
-        const img = col.querySelector("img");
-        if (img) hasContent = true;
-        row.push(img || "");
-        return;
-      }
-      const textCell = [];
-      let heading = col.querySelector("h1, h2, h3, h4");
-      if (heading && heading.tagName === "H1") {
-        const h2 = document2.createElement("h2");
-        h2.append(...heading.childNodes);
-        heading.replaceWith(h2);
-        heading = h2;
-      }
-      if (heading) textCell.push(heading);
-      Array.from(col.querySelectorAll("p")).forEach((p) => {
-        if (p.textContent.replace(/\u00a0/g, " ").trim() || p.querySelector("img, a")) textCell.push(p);
-      });
-      if (textCell.length) {
-        hasContent = true;
-        row.push(textCell);
-      }
-    });
-    return hasContent ? [row] : [];
-  }
-  function visualSide(el) {
-    if (!el || !el.classList) return null;
-    if (el.classList.contains("order-left")) return "left";
-    if (el.classList.contains("order-right")) return "right";
-    return null;
-  }
-  var FULL_BLEED_YELLOW_PAGES = ["/us/en/markets.html"];
-  function pagePath(url, params) {
-    const raw = params && params.originalURL || url || "";
-    try {
-      return new URL(raw).pathname;
-    } catch (e) {
-      return "";
-    }
-  }
-  function parse5(element, { document: document2, url, params }) {
-    if (isHelpMediaRow(element)) {
-      const helpCells = parseHelpMediaRow(element, document2);
-      if (helpCells.length === 0) {
-        element.replaceWith(...element.childNodes);
-        return;
-      }
-      const block2 = WebImporter.Blocks.createBlock(document2, { name: "columns-media", cells: helpCells });
-      element.replaceWith(block2);
-      return;
-    }
-    const textBox = element.querySelector('.left-box, .image-box-container__opacity-overlay, [class*="left-box"]');
-    const mediaBox = element.querySelector('.image-wrapper, .image-container, [class*="image-wrapper"]');
-    const image = element.querySelector(".image-wrapper img, .image-container img, picture img, img");
-    const textCell = [];
-    if (textBox) {
-      const eyebrow = textBox.querySelector(".cmp-parker-image-box-container__header-text");
-      const heading = textBox.querySelector(".image-box-container__title, h1, h2, h3");
-      const subtitle = textBox.querySelector(".image-box-container__subtitle");
-      const description = textBox.querySelector(".image-box-container__description");
-      const ctaLinks = Array.from(textBox.querySelectorAll(".btn-align a, a.btn"));
-      if (eyebrow) textCell.push(eyebrow);
-      if (heading) textCell.push(heading);
-      if (subtitle) textCell.push(subtitle);
-      if (description) textCell.push(description);
-      textCell.push(...ctaLinks);
-    }
-    const mediaCell = [];
-    if (image) {
-      mediaCell.push(image);
-    } else if (mediaBox) {
-      mediaCell.push(mediaBox);
-    }
-    if (textCell.length === 0 && mediaCell.length === 0) {
-      element.replaceWith(...element.childNodes);
-      return;
-    }
-    let imageFirst = false;
-    if (!element.classList.contains("cmp-parker-ibd-align-center")) {
-      const textCol = textBox && textBox.closest(".left-box") || textBox;
-      const mediaCol = element.querySelector(".image-wrapper") || mediaBox;
-      const mediaSide = visualSide(mediaCol);
-      const textSide = visualSide(textCol);
-      if (mediaSide === "left" || mediaSide === null && textSide === "right") {
-        imageFirst = true;
-      }
-    }
-    const cells = [];
-    cells.push(imageFirst ? [mediaCell, textCell] : [textCell, mediaCell]);
-    const fullBleed = element.classList.contains("cmp-parker-secondary-img-box-theme") || element.classList.contains("cmp-parker-yellow-theme") && FULL_BLEED_YELLOW_PAGES.includes(pagePath(url, params));
-    const block = fullBleed ? WebImporter.Blocks.createBlock(document2, { name: "columns-media (full-bleed)", cells }) : WebImporter.Blocks.createBlock(document2, { name: "columns-media", cells });
-    element.replaceWith(block);
-  }
-
-  // tools/importer/parsers/hero-banner.js
-  function parse6(element, { document: document2 }) {
-    const bgImage = element.querySelector(".cmp-teaser__image img, .cmp-image__image, picture img, img");
-    const heading = element.querySelector('.cmp-teaser__title h1, .cmp-teaser__title h2, .cmp-teaser__title-link, [class*="hero-text"], h1, h2');
-    const description = element.querySelector(".cmp-teaser__description, .cmp-teaser__header p");
-    const ctaLinks = Array.from(element.querySelectorAll(".btn-align a, a.btn, .cmp-teaser__action-link"));
-    if (!heading && !description && !bgImage) {
-      element.replaceWith(...element.childNodes);
-      return;
-    }
-    const cells = [];
-    if (bgImage) cells.push([bgImage]);
-    const contentCell = [];
-    if (heading) contentCell.push(heading);
-    if (description) contentCell.push(description);
-    contentCell.push(...ctaLinks);
-    cells.push([contentCell]);
-    const block = WebImporter.Blocks.createBlock(document2, { name: "hero-banner", cells });
-    element.replaceWith(block);
-  }
-
-  // tools/importer/parsers/hero-card.js
-  function parse7(element, { document: document2 }) {
-    const image = element.querySelector(".cmp-teaser__image img, .cmp-image__image, picture img, img");
-    const eyebrow = element.querySelector(".cmp-teaser__header-text, .cmp-teaser__header p");
-    const heading = element.querySelector(".cmp-teaser__title h2, .cmp-teaser__title h1, .cmp-teaser__title h3, .cmp-teaser__title-link, h2");
-    const descRoot = element.querySelector(".cmp-teaser__description");
-    const descParas = descRoot ? (descRoot.querySelectorAll("p").length ? Array.from(descRoot.querySelectorAll("p")) : [descRoot]).filter((p) => p.textContent.replace(/\u00a0/g, " ").trim()) : [];
-    const ctaLinks = Array.from(element.querySelectorAll(".btn-align a[href], a.btn[href], .cmp-teaser__action-link[href]"));
-    if (!image && !heading && descParas.length === 0) {
-      element.replaceWith(...element.childNodes);
-      return;
-    }
-    const cells = [];
-    if (image) cells.push([image]);
-    const contentCell = [];
-    if (eyebrow && eyebrow.textContent.trim()) {
-      const p = document2.createElement("p");
-      p.textContent = eyebrow.textContent.trim();
-      contentCell.push(p);
-    }
-    if (heading) contentCell.push(heading);
-    contentCell.push(...descParas);
-    ctaLinks.forEach((a) => {
-      const p = document2.createElement("p");
-      p.append(a);
-      contentCell.push(p);
-    });
-    cells.push([contentCell]);
-    const block = WebImporter.Blocks.createBlock(document2, { name: "hero-card", cells });
     element.replaceWith(block);
   }
 
@@ -997,297 +933,136 @@ var CustomImportScript = (() => {
     }
   }
 
-  // tools/importer/import-markets.js
+  // tools/importer/import-support-landing.js
   var parsers = {
-    "banner-cta": parse,
-    "banner-inline": parse2,
-    "cards-news": parse3,
-    "cards-teaser": parse4,
-    "columns-media": parse5,
-    "hero-banner": parse6,
-    "hero-card": parse7
+    "cards-contact": parse,
+    "cards-news": parse2,
+    "cards-teaser": parse3
   };
   var PAGE_TEMPLATE = {
-    "name": "markets",
-    "description": 'Market and trend pages (/us/en/markets/*): grey title band (H1), full-bleed hero, image+text bands (columns-media), submarket cards (cards-teaser), blue inline CTA strip (banner-inline), featured white-paper card over photo (hero-card), blog link list (cards-news), grey rich-text/FAQ default content, gold closing CTA (banner-cta). columns-media OPTION "full-bleed": add it when the matched source grid column has class cmp-parker-secondary-img-box-theme (matched by the first columns-media instance selector) - on the representative page that is the sky-blue Ebrake section (ebrake-video) and the charcoal Next-Generation Technologies section (next-gen-tech); all other columns-media instances (white browse-products, grey bands) use the default/inset look. Skipped sections (breadcrumb, empty-4-4-4, empty-container) carry no content: remove the breadcrumb in cleanup and do not emit a section break for them.',
-    "urls": [
-      "https://www.parker.com/us/en/markets/aerospace-and-defense.html",
-      "https://www.parker.com/us/en/markets/aerospace-industry-trends.html",
-      "https://www.parker.com/us/en/markets/clean-tech-trends.html",
-      "https://www.parker.com/us/en/markets/digitalization-trends.html",
-      "https://www.parker.com/us/en/markets/electrification-trends.html",
-      "https://www.parker.com/us/en/markets/electronics-and-semiconductors.html",
-      "https://www.parker.com/us/en/markets/energy.html",
-      "https://www.parker.com/us/en/markets/hvac-and-refrigeration.html",
-      "https://www.parker.com/us/en/markets/in-plant-and-industrial-equipment.html",
-      "https://www.parker.com/us/en/markets/interactive-library.html",
-      "https://www.parker.com/us/en/markets/life-sciences.html",
-      "https://www.parker.com/us/en/markets/off-highway.html",
-      "https://www.parker.com/us/en/markets/transportation.html"
-    ],
+    "name": "support-landing",
+    "representativeUrl": "https://help.parker.com/us/en/support",
+    "description": "Help & Support landing page: topic tiles, contact cards, more-help links, search tools",
     "blocks": [
-      {
-        "name": "hero-banner",
-        "instances": [
-          ".left-to-right-gradient.aem-GridColumn",
-          ".cmp-parker-dark-opacity-50.aem-GridColumn",
-          ".right-to-left-gradient.aem-GridColumn",
-          ".aem-GridColumn:not(.cmp-parker-white-background):has(> .cq-dd-image)"
-        ]
-      },
-      {
-        "name": "columns-media",
-        "instances": [
-          ".cmp-parker-secondary-img-box-theme.aem-GridColumn:has(> .image-box-container .image-wrapper)",
-          ".aem-GridColumn:has(> .image-box-container .image-wrapper)"
-        ]
-      },
       {
         "name": "cards-teaser",
         "instances": [
-          ".parker-carousel",
-          ".layout-col-4:has(.cmp-parker-card-container .card)",
-          ".layout-col-4-4-4:has(.cmp-parker-card-container .card)",
-          '[class*="layout-col-"]:has(> .aem-container > .cmp-parker-border > .cmp-parker-card-container .card)'
+          "main.ph-main > section.tile_container .MuiGrid-container",
+          "main.ph-main .MuiGrid-container:has(a.MuiLink-root)"
         ]
       },
       {
-        "name": "banner-inline",
+        "name": "cards-contact",
         "instances": [
-          ".layout-col-8-4.aem-GridColumn:has(.image-box-container):not(:has(.image-wrapper))"
-        ]
-      },
-      {
-        "name": "hero-card",
-        "instances": [
-          ".cmp-parker-white-background.aem-GridColumn:has(> .cq-dd-image)"
+          'main.ph-main .MuiGrid-container:has(a[href^="tel:"])'
         ]
       },
       {
         "name": "cards-news",
         "instances": [
-          '.layout-col-6-6.cmp-container_contentwrapper.aem-GridColumn:has(a[href*="blog.parker.com"])'
-        ]
-      },
-      {
-        "name": "banner-cta",
-        "instances": [
-          ".cmp-parker-gold-theme.cmp-parker-secondary-img-box-theme.aem-GridColumn"
+          "main.ph-main .ph-content-section ul:has(> li > a)"
         ]
       }
+    ],
+    "urlPattern": "/us/en/support",
+    "urls": [
+      "https://help.parker.com/us/en/support"
     ],
     "sections": [
       {
         "id": "title-bar",
         "name": "Page title band",
         "selector": [
-          ".aem-GridColumn:has(> .cmp-title)"
+          ".main-wrapper > .container-fluid:has(> .ph-header-main__title)",
+          ".ph-header-main__title"
         ],
         "style": "grey",
         "blocks": [],
         "defaultContent": [
-          ".cmp-title h1"
+          ".ph-header-main__title h1"
         ]
       },
       {
-        "id": "breadcrumb",
-        "name": "Breadcrumb (skipped - generated from page path, not authored)",
+        "id": "help-topics",
+        "name": "What can we help you with? - topic tiles",
         "selector": [
-          ".aem-GridColumn:has(> nav.cmp-breadcrumb)"
-        ],
-        "style": null,
-        "blocks": [],
-        "defaultContent": []
-      },
-      {
-        "id": "hero",
-        "name": "Market hero",
-        "selector": [
-          ".left-to-right-gradient.aem-GridColumn",
-          ".cmp-parker-dark-opacity-50.aem-GridColumn",
-          ".right-to-left-gradient.aem-GridColumn",
-          ".aem-GridColumn:not(.cmp-parker-white-background):has(> .cq-dd-image)"
-        ],
-        "style": null,
-        "blocks": [
-          "hero-banner"
-        ],
-        "defaultContent": []
-      },
-      {
-        "id": "browse-products",
-        "name": "Interactive product browser promo",
-        "selector": [
-          ".aem-GridColumn--offset--default--0.aem-GridColumn--default--none:not(.cmp-parker-secondary-img-box-theme):has(> .image-box-container)"
-        ],
-        "style": null,
-        "blocks": [
-          "columns-media"
-        ],
-        "defaultContent": []
-      },
-      {
-        "id": "innovations",
-        "name": "Rich-text intro",
-        "selector": [
-          ".grey-bg.aem-GridColumn:has(> .aem-container > div > .title-description-container)",
-          ".grey-bg.aem-GridColumn:not(.cmp-container_contentwrapper):has(> .aem-container)"
-        ],
-        "style": "grey",
-        "blocks": [],
-        "defaultContent": [
-          ".title-description-container h2",
-          ".title-description-container p",
-          ".title-description-container ul"
-        ]
-      },
-      {
-        "id": "submarkets",
-        "name": "Submarket tiles slider",
-        "selector": [
-          ".aem-GridColumn:has(> .aem-container > div > .parker-carousel)",
-          ".aem-GridColumn:has(> .parker-carousel)"
+          "main.ph-main > section.ph-content-section.tile_container",
+          "main.ph-main > section.tile_container"
         ],
         "style": null,
         "blocks": [
           "cards-teaser"
         ],
         "defaultContent": [
-          ".slider-carousel-container > h2"
+          "main.ph-main > section.tile_container .jumbotron > div:nth-child(1)",
+          "main.ph-main > section.tile_container .jumbotron > div:nth-child(2)",
+          "main.ph-main > section.tile_container .jumbotron > div:nth-child(3)"
         ]
       },
       {
-        "id": "empty-4-4-4",
-        "name": "Empty 4-4-4 layout container (skipped)",
+        "id": "contact-information",
+        "name": "Contact Information - contact tiles and More Contact Information cards",
         "selector": [
-          ".layout-col-4-4-4.cmp-container_contentwrapper.aem-GridColumn"
-        ],
-        "style": null,
-        "blocks": [],
-        "defaultContent": []
-      },
-      {
-        "id": "ebrake-video",
-        "name": "Image + text band, blue (columns-media full-bleed)",
-        "selector": [
-          ".cmp-parker-purpose-blue-theme.cmp-parker-secondary-img-box-theme.aem-GridColumn",
-          ".cmp-parker-blue-theme.aem-GridColumn:has(> .image-box-container)"
-        ],
-        "style": "sky-blue",
-        "blocks": [
-          "columns-media"
-        ],
-        "defaultContent": []
-      },
-      {
-        "id": "next-gen-video",
-        "name": "Image + text band, grey (image left)",
-        "selector": [
-          ".grey-bg.aem-GridColumn:not(.cmp-parker-secondary-img-box-theme):has(> .image-box-container)"
-        ],
-        "style": "grey",
-        "blocks": [
-          "columns-media"
-        ],
-        "defaultContent": []
-      },
-      {
-        "id": "next-gen-tech",
-        "name": "Image + text band, charcoal (columns-media full-bleed)",
-        "selector": [
-          ".cmp-parker-charcoal-theme.cmp-parker-secondary-img-box-theme.aem-GridColumn"
-        ],
-        "style": "charcoal",
-        "blocks": [
-          "columns-media"
-        ],
-        "defaultContent": []
-      },
-      {
-        "id": "electroflight",
-        "name": "Image + text band, grey (second grey band)",
-        "selector": [
-          ".grey-bg.aem-GridColumn:not(.cmp-parker-secondary-img-box-theme):has(> .image-box-container) ~ .grey-bg.aem-GridColumn:not(.cmp-parker-secondary-img-box-theme):has(> .image-box-container)"
-        ],
-        "style": "grey",
-        "blocks": [
-          "columns-media"
-        ],
-        "defaultContent": []
-      },
-      {
-        "id": "webinars",
-        "name": "Inline CTA strip",
-        "selector": [
-          ".layout-col-8-4.aem-GridColumn"
-        ],
-        "style": "sky-blue",
-        "blocks": [
-          "banner-inline"
-        ],
-        "defaultContent": []
-      },
-      {
-        "id": "featured-white-paper",
-        "name": "Featured resource teaser",
-        "selector": [
-          ".cmp-parker-white-background.aem-GridColumn"
+          'main.ph-main > div:has(a[href^="tel:"])',
+          "main.ph-main > div:nth-of-type(1)"
         ],
         "style": null,
         "blocks": [
-          "hero-card"
+          "cards-contact",
+          "cards-teaser"
         ],
-        "defaultContent": []
+        "defaultContent": [
+          'main.ph-main > div:has(a[href^="tel:"]) .jumbotron > div:nth-child(1)',
+          'main.ph-main > div:has(a[href^="tel:"]) .jumbotron > div:nth-child(2)',
+          'main.ph-main > div:has(a[href^="tel:"]) .col-12 > div.css-1fx295f'
+        ]
       },
       {
-        "id": "education",
-        "name": "Blog link list",
+        "id": "more-help",
+        "name": "More Help - category link list",
         "selector": [
-          '.layout-col-6-6.cmp-container_contentwrapper.aem-GridColumn:has(a[href*="blog.parker.com"])'
+          'main.ph-main > div:has(a[href*="/support/certificates-compliance"])',
+          "main.ph-main > div:nth-of-type(2)"
         ],
         "style": null,
         "blocks": [
           "cards-news"
         ],
         "defaultContent": [
-          ".col-ml-mr:first-child h2"
+          "main.ph-main > div:nth-of-type(2) .jumbotron > div:nth-child(1)",
+          "main.ph-main > div:nth-of-type(2) .jumbotron > div:nth-child(2)"
         ]
       },
       {
-        "id": "empty-container",
-        "name": "Empty container (skipped)",
+        "id": "part-documents",
+        "name": "Part Documents | Advanced Search",
         "selector": [
-          '.layout-col-6-6.cmp-container_contentwrapper.aem-GridColumn:has(a[href*="blog.parker.com"]) + .aem-GridColumn:not(.grey-bg):not(.cmp-parker-gold-theme)'
+          "main.ph-main > div:has(.parts-doc-search)",
+          "main.ph-main > div:nth-of-type(3)"
         ],
         "style": null,
         "blocks": [],
-        "defaultContent": []
-      },
-      {
-        "id": "faqs",
-        "name": "Static FAQ text",
-        "selector": [
-          ".grey-bg.cmp-container_contentwrapper.aem-GridColumn:has(> .aem-container > .grey-bg.col-ml-mr)",
-          ".grey-bg.cmp-container_contentwrapper.aem-GridColumn:has(> .aem-container > .col-ml-mr)"
-        ],
-        "style": "grey",
-        "blocks": [],
         "defaultContent": [
-          ".col-ml-mr h2",
-          ".col-ml-mr p"
+          ".parts-doc-search .jumbotron > div:nth-child(1)",
+          ".parts-doc-search .jumbotron > div:nth-child(2)",
+          ".parts-doc-search .col-md-5 > ul",
+          ".parts-doc-search form.ph-form"
         ]
       },
       {
-        "id": "contact-cta",
-        "name": "Closing CTA strip",
+        "id": "cross-reference",
+        "name": "Cross Reference",
         "selector": [
-          ".cmp-parker-gold-theme.cmp-parker-secondary-img-box-theme.aem-GridColumn"
+          "main.ph-main > div:nth-of-type(4)",
+          "main.ph-main > div:last-of-type"
         ],
-        "style": "gold",
-        "blocks": [
-          "banner-cta"
-        ],
-        "defaultContent": []
+        "style": null,
+        "blocks": [],
+        "defaultContent": [
+          "main.ph-main > div:last-of-type .jumbotron > div:nth-child(1)",
+          "main.ph-main > div:last-of-type .jumbotron > div:nth-child(2)",
+          "main.ph-main > div:last-of-type form.ph-form"
+        ]
       }
     ]
   };
@@ -1337,7 +1112,7 @@ var CustomImportScript = (() => {
     console.log(`Found ${pageBlocks.length} block instances on page`);
     return pageBlocks;
   }
-  var import_markets_default = {
+  var import_support_landing_default = {
     transform: (payload) => {
       const {
         document: document2,
@@ -1380,5 +1155,5 @@ var CustomImportScript = (() => {
       }];
     }
   };
-  return __toCommonJS(import_markets_exports);
+  return __toCommonJS(import_support_landing_exports);
 })();

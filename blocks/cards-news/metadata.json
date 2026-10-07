@@ -1,26 +1,37 @@
 {
   "variantName": "cards-news",
   "baseBlock": "cards",
-  "canonicalModel": "container",
+  "canonicalModel": "collection",
   "visualCharacteristics": {
     "layout": "vertical-list",
     "density": "compact",
     "tone": "neutral",
-    "imageTreatment": "none"
+    "imageTreatment": "none",
+    "optionLayouts": {
+      "columns": "multi-column link list: items flow into a 3-column grid from 900px (2 from 600px, 1 below), compact rows, no separators"
+    }
   },
   "contentPattern": "Text-only news list; each item is a linked article title with a source/date meta line, items separated by horizontal rules. No images.",
   "usage": {
     "pagesFound": [
       "/us/en/home"
     ],
-    "reuseCount": 2,
+    "reuseCount": 4,
     "reuseGuidance": "Use for a stacked list of news/article links with a title and a source/date meta line, no thumbnails. One row per news item.",
     "pagesUsing": [
-      "/us/en/markets/aerospace-and-defense"
+      "/us/en/markets/aerospace-and-defense",
+      "/us/en/support/find-a-part/18605",
+      "/us/en/support/part-information/18605",
+      "/us/en/support"
     ],
-    "lastUsed": "2026-10-07T02:16:45.174Z"
+    "lastUsed": "2026-10-07T16:24:25.848422Z"
   },
-  "options": [],
+  "options": [
+    {
+      "class": "columns",
+      "label": "Columns"
+    }
+  ],
   "memberVariantIds": [
     "cards-news"
   ]

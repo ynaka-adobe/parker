@@ -23,7 +23,69 @@
  *    [text | media] so the home import stays byte-identical.
  *  - "Watch Video" CTAs (Scene7 VideoViewer URLs) are plain .btn-align links
  *    and are kept as links.
+ *
+ * Help & Support (help.parker.com/us/en/support/order-status, template
+ * support-topic): the matched element is .row.rowValign with two Bootstrap
+ * columns: .ph-bg__img-block (img) and a text column (h2/h3 heading + p).
+ * Emitted as plain "columns-media", one row of two cells in source visual order
+ * ([picture | text] on order-status). Visual order = DOM order unless a column
+ * carries a Bootstrap order-* / order-md-* class. Taken only when the element
+ * contains .ph-bg__img-block, which no www.parker.com template has.
  */
+
+// Bootstrap order value for a column ("order-md-2", "order-first", "order-last"); 0 when unset.
+function bootstrapOrder(col) {
+  let order = 0;
+  Array.from(col.classList).forEach((c) => {
+    const m = c.match(/^order-(?:(?:sm|md|lg|xl)-)?(first|last|\d+)$/);
+    if (!m) return;
+    if (m[1] === 'first') order = -1;
+    else if (m[1] === 'last') order = 99;
+    else order = parseInt(m[1], 10);
+  });
+  return order;
+}
+
+const isHelpMediaRow = (element) => !!element.querySelector('.ph-bg__img-block');
+
+// help.parker.com image + text row -> one row [picture | text] in visual order
+function parseHelpMediaRow(element, document) {
+  const imgCol = element.querySelector('.ph-bg__img-block');
+  const cols = Array.from(imgCol.parentElement.children)
+    .map((col, i) => ({ col, i, order: bootstrapOrder(col) }))
+    .sort((a, b) => (a.order - b.order) || (a.i - b.i))
+    .map((c) => c.col);
+
+  const row = [];
+  let hasContent = false;
+  cols.forEach((col) => {
+    if (col === imgCol) {
+      const img = col.querySelector('img');
+      if (img) hasContent = true;
+      row.push(img || ''); // keep the column count stable
+      return;
+    }
+    const textCell = [];
+    let heading = col.querySelector('h1, h2, h3, h4');
+    if (heading && heading.tagName === 'H1') {
+      // keep a single page H1: author an in-content h1 as h2
+      const h2 = document.createElement('h2');
+      h2.append(...heading.childNodes);
+      heading.replaceWith(h2);
+      heading = h2;
+    }
+    if (heading) textCell.push(heading);
+    Array.from(col.querySelectorAll('p')).forEach((p) => {
+      if (p.textContent.replace(/\u00a0/g, ' ').trim() || p.querySelector('img, a')) textCell.push(p);
+    });
+    if (textCell.length) {
+      hasContent = true;
+      row.push(textCell);
+    }
+  });
+
+  return hasContent ? [row] : [];
+}
 
 // Returns 'left' | 'right' | null from Bootstrap-style order-left/order-right classes
 function visualSide(el) {
@@ -49,6 +111,18 @@ function pagePath(url, params) {
 }
 
 export default function parse(element, { document, url, params }) {
+  // Help & Support image + text row (help.parker.com) - separate branch
+  if (isHelpMediaRow(element)) {
+    const helpCells = parseHelpMediaRow(element, document);
+    if (helpCells.length === 0) {
+      element.replaceWith(...element.childNodes);
+      return;
+    }
+    const block = WebImporter.Blocks.createBlock(document, { name: 'columns-media', cells: helpCells });
+    element.replaceWith(block);
+    return;
+  }
+
   // Text column: heading, subtitle, description, CTA
   const textBox = element.querySelector('.left-box, .image-box-container__opacity-overlay, [class*="left-box"]');
 

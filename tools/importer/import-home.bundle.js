@@ -90,6 +90,59 @@ var CustomImportScript = (() => {
   }
 
   // tools/importer/parsers/cards-news.js
+  var CATEGORY_BASE = "https://ph.parker.com/us/en/category";
+  var CATEGORY_FALLBACK = CATEGORY_BASE;
+  var PRODUCT_CATEGORIES = {
+    "Adhesives, Coatings and Encapsulants": "adhesives-coatings-and-encapsulants",
+    "Aerospace Systems and Technologies": "aerospace-systems-and-technologies",
+    "Air Preparation (FRL) and Dryers": "air-preparation-frl-and-dryers",
+    "Bioprocessing and Medical Technologies": "bioprocessing-and-medical-technologies",
+    "Cylinders and Actuators": "cylinders-and-actuators",
+    "EMI Shielding": "emi-shielding",
+    "Filters, Collectors, Separators, Purifiers": "filters-collectors-separators-purifiers",
+    "Fittings and Quick Couplings": "fittings-and-quick-couplings",
+    "Gas Generators": "gas-generators",
+    "Hose, Piping and Tubing": "hose-piping-and-tubing",
+    "Motors, Drives and Controllers": "motors-drives-and-controllers",
+    "Mounting and Vibration Control": "mounting-and-vibration-control",
+    "Power Take Offs and Drive Systems": "power-take-offs-and-drive-systems",
+    "Pumps": "pumps",
+    "Refrigeration and Air Conditioning": "refrigeration-and-air-conditioning",
+    "Regulators, Monitors, Sensors and Flow Control": "regulators-monitors-sensors-and-flow-control",
+    "Seals and O-Rings": "seals-and-o-rings",
+    "Thermal and Power Management": "thermal-and-power-management",
+    "Valves": "valves"
+  };
+  var CATEGORY_ALIASES = {
+    "Regulators, Monitoring, Sensors and Flow Control": "Regulators, Monitors, Sensors and Flow Control"
+  };
+  var normName = (s) => s.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]/g, "");
+  var CATEGORY_BY_NORM = {};
+  Object.keys(PRODUCT_CATEGORIES).forEach((name) => {
+    CATEGORY_BY_NORM[normName(name)] = `${CATEGORY_BASE}/${PRODUCT_CATEGORIES[name]}`;
+  });
+  Object.keys(CATEGORY_ALIASES).forEach((alias) => {
+    CATEGORY_BY_NORM[normName(alias)] = CATEGORY_BY_NORM[normName(CATEGORY_ALIASES[alias])];
+  });
+  var isHelpCategoryList = (element) => element.matches("ul.ph-grid-3") || !!element.querySelector("ul.ph-grid-3");
+  function parseCategoryList(element, document2) {
+    const lists = element.matches("ul.ph-grid-3") ? [element] : Array.from(element.querySelectorAll("ul.ph-grid-3"));
+    const cells = [];
+    lists.forEach((ul) => {
+      Array.from(ul.querySelectorAll(":scope > li")).forEach((li) => {
+        const name = li.textContent.replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
+        if (!name) return;
+        const srcLink = li.querySelector("a[href]");
+        const a = document2.createElement("a");
+        a.setAttribute("href", srcLink ? srcLink.getAttribute("href") : CATEGORY_BY_NORM[normName(name)] || CATEGORY_FALLBACK);
+        a.textContent = name;
+        const p = document2.createElement("p");
+        p.append(a);
+        cells.push([p]);
+      });
+    });
+    return cells;
+  }
   var isBlank = (el) => !el || !el.textContent.replace(/\u00a0/g, " ").trim();
   function parseLinkList(element, document2) {
     const sectionHeading = Array.from(element.querySelectorAll("h2, h3")).find((h) => !isBlank(h));
@@ -111,7 +164,43 @@ var CustomImportScript = (() => {
     });
     return { sectionHeading, cells };
   }
+  var isLandingLinkList = (element) => element.matches("ul:not(.ph-grid-3)") && !!element.querySelector(":scope > li > a[href]");
+  function parseLandingLinkList(element, document2) {
+    const cells = [];
+    Array.from(element.querySelectorAll(":scope > li")).forEach((li) => {
+      const link = li.querySelector(":scope > a[href]");
+      if (!link) return;
+      const text = link.textContent.replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
+      if (!text) return;
+      const a = document2.createElement("a");
+      a.setAttribute("href", link.getAttribute("href"));
+      a.textContent = text;
+      const p = document2.createElement("p");
+      p.append(a);
+      cells.push([p]);
+    });
+    return cells;
+  }
   function parse3(element, { document: document2 }) {
+    if (isLandingLinkList(element)) {
+      const landingCells = parseLandingLinkList(element, document2);
+      if (landingCells.length === 0) {
+        element.replaceWith(...element.childNodes);
+        return;
+      }
+      element.replaceWith(WebImporter.Blocks.createBlock(document2, { name: "cards-news (columns)", cells: landingCells }));
+      return;
+    }
+    if (isHelpCategoryList(element)) {
+      const helpCells = parseCategoryList(element, document2);
+      if (helpCells.length === 0) {
+        element.replaceWith(...element.childNodes);
+        return;
+      }
+      const block2 = WebImporter.Blocks.createBlock(document2, { name: "cards-news (columns)", cells: helpCells });
+      element.replaceWith(block2);
+      return;
+    }
     const items = Array.from(element.querySelectorAll(".cmp-news-v2-component__list"));
     let cells = [];
     let sectionHeading = null;
@@ -168,6 +257,49 @@ var CustomImportScript = (() => {
   }
 
   // tools/importer/parsers/columns-media.js
+  function bootstrapOrder(col) {
+    let order = 0;
+    Array.from(col.classList).forEach((c) => {
+      const m = c.match(/^order-(?:(?:sm|md|lg|xl)-)?(first|last|\d+)$/);
+      if (!m) return;
+      if (m[1] === "first") order = -1;
+      else if (m[1] === "last") order = 99;
+      else order = parseInt(m[1], 10);
+    });
+    return order;
+  }
+  var isHelpMediaRow = (element) => !!element.querySelector(".ph-bg__img-block");
+  function parseHelpMediaRow(element, document2) {
+    const imgCol = element.querySelector(".ph-bg__img-block");
+    const cols = Array.from(imgCol.parentElement.children).map((col, i) => ({ col, i, order: bootstrapOrder(col) })).sort((a, b) => a.order - b.order || a.i - b.i).map((c) => c.col);
+    const row = [];
+    let hasContent = false;
+    cols.forEach((col) => {
+      if (col === imgCol) {
+        const img = col.querySelector("img");
+        if (img) hasContent = true;
+        row.push(img || "");
+        return;
+      }
+      const textCell = [];
+      let heading = col.querySelector("h1, h2, h3, h4");
+      if (heading && heading.tagName === "H1") {
+        const h2 = document2.createElement("h2");
+        h2.append(...heading.childNodes);
+        heading.replaceWith(h2);
+        heading = h2;
+      }
+      if (heading) textCell.push(heading);
+      Array.from(col.querySelectorAll("p")).forEach((p) => {
+        if (p.textContent.replace(/\u00a0/g, " ").trim() || p.querySelector("img, a")) textCell.push(p);
+      });
+      if (textCell.length) {
+        hasContent = true;
+        row.push(textCell);
+      }
+    });
+    return hasContent ? [row] : [];
+  }
   function visualSide(el) {
     if (!el || !el.classList) return null;
     if (el.classList.contains("order-left")) return "left";
@@ -184,6 +316,16 @@ var CustomImportScript = (() => {
     }
   }
   function parse5(element, { document: document2, url, params }) {
+    if (isHelpMediaRow(element)) {
+      const helpCells = parseHelpMediaRow(element, document2);
+      if (helpCells.length === 0) {
+        element.replaceWith(...element.childNodes);
+        return;
+      }
+      const block2 = WebImporter.Blocks.createBlock(document2, { name: "columns-media", cells: helpCells });
+      element.replaceWith(block2);
+      return;
+    }
     const textBox = element.querySelector('.left-box, .image-box-container__opacity-overlay, [class*="left-box"]');
     const mediaBox = element.querySelector('.image-wrapper, .image-container, [class*="image-wrapper"]');
     const image = element.querySelector(".image-wrapper img, .image-container img, picture img, img");
@@ -255,6 +397,11 @@ var CustomImportScript = (() => {
     return col.textContent.trim() === "" && !col.querySelector(MEDIA_SELECTOR);
   }
   function transform(hookName, element, payload) {
+    const support = isSupportPage(payload);
+    if (support && hookName === H.before && isSupportLandingPage(payload)) supportLandingBefore(element);
+    if (support && hookName === H.before && isMasterDirectoryPage(payload)) masterDirectoryBefore(element, payload);
+    if (support && hookName === H.before) supportBefore(element, payload);
+    if (support && hookName === H.after) supportAfter(element);
     if (hookName === H.before) {
       WebImporter.DOMUtils.remove(element, [
         ".parker-comchatskill",
@@ -301,8 +448,177 @@ var CustomImportScript = (() => {
       columns.forEach((col) => {
         if (isEmptyColumn(col)) col.remove();
       });
-      rewriteLinks(element);
+      rewriteLinks(element, payload);
     }
+  }
+  var HELP_ORIGIN = "https://help.parker.com";
+  var KEEP_HREF_ATTR = "data-excat-keep-href";
+  function pageUrl(payload) {
+    const raw = payload && payload.params && payload.params.originalURL;
+    if (!raw) return null;
+    try {
+      return new URL(raw);
+    } catch (e) {
+      return null;
+    }
+  }
+  function isSupportPage(payload) {
+    const url = pageUrl(payload);
+    if (url && url.hostname === "help.parker.com") return true;
+    const name = payload && payload.template && payload.template.name;
+    return typeof name === "string" && name.startsWith("support");
+  }
+  function retag(el, tagName) {
+    const doc = el.ownerDocument;
+    const repl = doc.createElement(tagName);
+    repl.append(...el.childNodes);
+    el.replaceWith(repl);
+    return repl;
+  }
+  function trimText(el) {
+    const walker = el.ownerDocument.createTreeWalker(
+      el,
+      4
+      /* SHOW_TEXT */
+    );
+    const texts = [];
+    while (walker.nextNode()) texts.push(walker.currentNode);
+    const visible = texts.filter((t) => t.textContent.replace(/ /g, " ").trim());
+    if (!visible.length) return;
+    const first = visible[0];
+    const last = visible[visible.length - 1];
+    first.textContent = first.textContent.replace(/^[\s ]+/, "");
+    last.textContent = last.textContent.replace(/[\s ]+$/, "");
+  }
+  function normalizeTitle(text) {
+    return text.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]/g, "");
+  }
+  function makeLinkPara(doc, href, text, wrapTag) {
+    const p = doc.createElement("p");
+    const a = doc.createElement("a");
+    a.setAttribute("href", href);
+    a.textContent = text;
+    if (wrapTag) {
+      const wrap = doc.createElement(wrapTag);
+      wrap.append(a);
+      p.append(wrap);
+    } else {
+      p.append(a);
+    }
+    return { p, a };
+  }
+  var LANDING_PATH = "/us/en/support";
+  var LANDING_TITLE = "Help & Support | Parker US";
+  function isSupportLandingPage(payload) {
+    const url = pageUrl(payload);
+    if (url) return url.hostname === "help.parker.com" && url.pathname.replace(/\/+$/, "") === LANDING_PATH;
+    return !!(payload && payload.template && payload.template.name === "support-landing");
+  }
+  var MASTER_DIRECTORY_PATH = "/us/en/support/master-directory/global-offices";
+  function isMasterDirectoryPage(payload) {
+    const url = pageUrl(payload);
+    if (url) return url.hostname === "help.parker.com" && url.pathname.replace(/\/+$/, "") === MASTER_DIRECTORY_PATH;
+    return !!(payload && payload.template && payload.template.name === "master-directory");
+  }
+  function masterDirectoryBefore(element, payload) {
+    const doc = element.ownerDocument;
+    const main = element.querySelector("main.ph-main");
+    if (!main) return;
+    const url = pageUrl(payload);
+    const app = doc.createElement("div");
+    app.className = "excat-md-app";
+    const a = doc.createElement("a");
+    a.setAttribute("href", url ? url.href.split("?")[0] : `${HELP_ORIGIN}${MASTER_DIRECTORY_PATH}`);
+    a.setAttribute(KEEP_HREF_ATTR, "");
+    a.textContent = "Master Directory";
+    app.append(a);
+    main.replaceChildren(app);
+  }
+  var isTextDiv = (el) => el.tagName === "DIV" && el.children.length === 0 && !!el.textContent.replace(/\u00a0/g, " ").trim();
+  function supportLandingBefore(element) {
+    const doc = element.ownerDocument;
+    doc.title = LANDING_TITLE;
+    doc.querySelectorAll('meta[property="og:title"], meta[name="twitter:title"]').forEach((m) => m.setAttribute("content", LANDING_TITLE));
+    element.querySelectorAll(".parts-doc-search form.ph-form").forEach((form) => {
+      const { p, a } = makeLinkPara(doc, `${HELP_ORIGIN}${LANDING_PATH}`, "Search Part Documents", "strong");
+      a.setAttribute(KEEP_HREF_ATTR, "true");
+      form.replaceWith(p);
+    });
+    WebImporter.DOMUtils.remove(element, [
+      "main.ph-main > div > hr.MuiDivider-root",
+      ".col-12.text-center:has(> a.ph-overflow__read-more-toggle)",
+      "a.ph-overflow__read-more-toggle"
+    ]);
+    element.querySelectorAll("main.ph-main .jumbotron").forEach((jumbo) => {
+      const divs = Array.from(jumbo.children);
+      if (!divs.length || !divs.every(isTextDiv)) return;
+      const titleIndex = Math.max(divs.length - 2, 0);
+      divs.forEach((div, i) => trimText(retag(div, i === titleIndex ? "h2" : "p")));
+      Array.from(jumbo.parentElement.children).filter((sib) => sib !== jumbo && isTextDiv(sib) && jumbo.compareDocumentPosition(sib) & 4).forEach((sib) => trimText(retag(sib, "h3")));
+    });
+  }
+  function supportBefore(element, payload) {
+    const doc = element.ownerDocument;
+    const url = pageUrl(payload);
+    const origin = url && /^https?:$/.test(url.protocol) ? url.origin : HELP_ORIGIN;
+    WebImporter.DOMUtils.remove(element, [
+      ".container-fluid:has(> .ph-header-main__breadcrumbs)",
+      ".ph-header-main__breadcrumbs",
+      "div[hidden]",
+      "next-route-announcer",
+      "#transcend-consent-manager",
+      'iframe[width="0"][height="0"]',
+      'div[style*="display: none"]',
+      "style"
+    ]);
+    element.querySelectorAll('img[src^="/"]:not([src^="//"])').forEach((img) => {
+      img.setAttribute("src", `${origin}${img.getAttribute("src")}`);
+    });
+    element.querySelectorAll(".ph-header-main__title h1 ~ span").forEach((span) => {
+      const h1 = span.parentElement.querySelector("h1");
+      const text = span.textContent.trim();
+      if (!text || h1 && normalizeTitle(text) === normalizeTitle(h1.textContent)) {
+        span.remove();
+      } else {
+        const p = retag(span, "p");
+        p.removeAttribute("style");
+      }
+    });
+    element.querySelectorAll("form.ph-form").forEach((form) => {
+      const { p, a } = makeLinkPara(
+        doc,
+        `${HELP_ORIGIN}/us/en/support/cross-reference`,
+        "Search the Cross-Reference Tool",
+        "strong"
+      );
+      a.setAttribute(KEEP_HREF_ATTR, "true");
+      form.replaceWith(p);
+    });
+    element.querySelectorAll([
+      ".ph-content-nav__history a:has(> button.MuiButton-root)",
+      ".ph-content-nav__history a:has(> span.accent-button)",
+      ".ph-content-nav__history a.accent-button"
+    ].join(", ")).forEach((link) => {
+      const { p } = makeLinkPara(doc, "/us/en/support", "Return to Help & Support", "em");
+      link.replaceWith(p);
+    });
+    element.querySelectorAll([
+      ".ph-content-nav__history a:has(> span.help)",
+      ".ph-content-nav__history a.help"
+    ].join(", ")).forEach((link) => {
+      const intro = doc.createElement("p");
+      intro.textContent = "Still Lost?";
+      const { p } = makeLinkPara(doc, link.getAttribute("href") || "/us/en/support/general-help", "General Help");
+      link.replaceWith(intro, p);
+    });
+  }
+  function supportAfter(element) {
+    const titleH1 = element.querySelector(".ph-header-main__title h1");
+    element.querySelectorAll("h1").forEach((h1) => {
+      if (h1 !== titleH1) retag(h1, "h2");
+    });
+    element.querySelectorAll("h3.ht, .jumbotron > h3").forEach((h3) => retag(h3, "p"));
+    element.querySelectorAll("h1, h2, h3, h4, h5, h6, .jumbotron > a").forEach(trimText);
   }
   var MIGRATED_PATHS = /* @__PURE__ */ new Set([
     "/us/en/home",
@@ -320,21 +636,73 @@ var CustomImportScript = (() => {
     "/us/en/markets/interactive-library/parker-world",
     "/us/en/markets/life-sciences",
     "/us/en/markets/off-highway",
-    "/us/en/markets/transportation"
+    "/us/en/markets/transportation",
+    // Help & Support (help.parker.com): landing, the 23 support-topic pages,
+    // and the master-directory global offices page.
+    "/us/en/support",
+    "/us/en/support/billing-shipping",
+    "/us/en/support/cad-files",
+    "/us/en/support/catalog-part-manuals",
+    "/us/en/support/cbc-report",
+    "/us/en/support/certificates-compliance",
+    "/us/en/support/contact-information",
+    "/us/en/support/cross-reference",
+    "/us/en/support/ethics-integrity",
+    "/us/en/support/find-a-part/18605",
+    "/us/en/support/general-help",
+    "/us/en/support/hr-benefits",
+    "/us/en/support/installation-maintenance",
+    "/us/en/support/investors",
+    "/us/en/support/optimization",
+    "/us/en/support/order-status",
+    "/us/en/support/part-configuration/configurator-help",
+    "/us/en/support/part-information/18605",
+    "/us/en/support/place-an-order",
+    "/us/en/support/price-quote",
+    "/us/en/support/repairs",
+    "/us/en/support/replacement",
+    "/us/en/support/software",
+    "/us/en/support/training-tutorials",
+    "/us/en/support/master-directory/global-offices"
   ]);
   var SOURCE_ORIGIN = "https://www.parker.com";
-  function rewriteLinks(element) {
+  var SOURCE_ORIGINS = /* @__PURE__ */ new Set([SOURCE_ORIGIN, HELP_ORIGIN]);
+  var TRACKING_PARAM = /^(brd|app|utm_.*)$/i;
+  function cleanSearch(url) {
+    const params = new URLSearchParams(url.search);
+    [...params.keys()].forEach((k) => {
+      if (TRACKING_PARAM.test(k)) params.delete(k);
+    });
+    const s = params.toString();
+    return s ? `?${s}` : "";
+  }
+  function rewriteLinks(element, payload) {
+    const page = pageUrl(payload);
+    const base = page && SOURCE_ORIGINS.has(page.origin) ? page : new URL(`${SOURCE_ORIGIN}/`);
     element.querySelectorAll("a[href]").forEach((a) => {
+      if (a.hasAttribute(KEEP_HREF_ATTR)) {
+        a.removeAttribute(KEEP_HREF_ATTR);
+        return;
+      }
       const href = a.getAttribute("href");
+      const isAbsolute = /^[a-z][a-z0-9+.-]*:/i.test(href) || href.startsWith("//");
+      const isRelative = !isAbsolute && !href.startsWith("#") && href.trim() !== "";
       let url;
-      if (href.startsWith("/") && !href.startsWith("//")) url = new URL(href, SOURCE_ORIGIN);
-      else if (href.startsWith(`${SOURCE_ORIGIN}/`)) url = new URL(href);
-      else return;
+      try {
+        if (isRelative) url = new URL(href, base);
+        else if (/^https?:\/\//i.test(href)) url = new URL(href);
+        else return;
+      } catch (e) {
+        return;
+      }
+      if (!SOURCE_ORIGINS.has(url.origin)) return;
       const path = url.pathname.replace(/\.html$/, "").replace(/\/$/, "") || "/";
       if (MIGRATED_PATHS.has(path)) {
-        a.setAttribute("href", `${path}${url.search}${url.hash}`);
-      } else if (href.startsWith("/") && path !== "/") {
-        a.setAttribute("href", `${SOURCE_ORIGIN}${href}`);
+        a.setAttribute("href", `${path}${cleanSearch(url)}${url.hash}`);
+      } else if (isRelative && path !== "/") {
+        a.setAttribute("href", href.startsWith("/") ? `${url.origin}${href}` : url.href);
+      } else if (isRelative && base.origin !== SOURCE_ORIGIN) {
+        a.setAttribute("href", url.href);
       }
     });
   }

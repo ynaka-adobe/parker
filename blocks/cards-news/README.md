@@ -4,13 +4,15 @@ Custom **cards** block.
 
 ## Authoring (Document Authoring)
 
-Model: `container`
+Model: `collection`
 
-Single block table. Content: one row, one cell of content.
+Repeating rows — one row per item. Each item: one row, one cell of content.
 
 ## Supported variations
 
-No variations.
+| Variation | Option class |
+| --- | --- |
+| Columns | `columns` |
 
 ## Universal Editor fields
 

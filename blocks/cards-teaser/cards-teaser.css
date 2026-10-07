@@ -123,3 +123,163 @@
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
+
+/* text option — text-only bordered cards (centred title + short description), whole card
+   clickable; up to 4 per row with short rows centred; a lone card is wider and taller.
+   Scoped to .cards-teaser.text (also combines with .grid) so other renderings are untouched. */
+.cards-teaser.text {
+  --cards-teaser-text-card-width: 100%;
+}
+
+.cards-teaser.text > ul {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  overflow-x: visible;
+  scroll-snap-type: none;
+}
+
+.cards-teaser.text > ul > li {
+  position: relative;
+  box-sizing: border-box;
+  flex: 0 1 var(--cards-teaser-text-card-width);
+  border: 1px solid var(--parker-rule-color);
+  background-color: var(--background-color);
+  text-align: center;
+}
+
+.cards-teaser.text > ul > li:focus-within {
+  outline: 2px solid var(--link-color);
+  outline-offset: 2px;
+}
+
+.cards-teaser.text .cards-teaser-card-body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  padding: 24px 32px;
+}
+
+.cards-teaser.text .cards-teaser-card-body :is(h2, h3, h4, h5, h6) {
+  margin: 0 0 16px;
+  font-size: var(--heading-font-size-xs);
+  line-height: 1.4;
+}
+
+.cards-teaser.text .cards-teaser-card-body :is(h2, h3, h4, h5, h6):last-child {
+  margin-bottom: 0;
+}
+
+.cards-teaser.text .cards-teaser-card-body :is(h2, h3, h4, h5, h6) a:any-link {
+  color: var(--text-color);
+  font-size: inherit;
+  text-decoration: none;
+}
+
+.cards-teaser.text .cards-teaser-card-body :is(h2, h3, h4, h5, h6) a:focus-visible {
+  outline: none;
+}
+
+/* stretch the card's link over the whole tile */
+.cards-teaser.text .cards-teaser-card-linked .cards-teaser-card-body a:any-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.cards-teaser.text .cards-teaser-card-body p {
+  margin: 0;
+  color: var(--text-color);
+  font-size: var(--body-font-size-s);
+}
+
+.cards-teaser.text .cards-teaser-card-body p.cards-teaser-card-link {
+  margin: 16px 0 0;
+}
+
+.cards-teaser.text .cards-teaser-card-external::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 20px;
+  height: 20px;
+  background-color: var(--text-muted-color);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'%3E%3Cpath d='M14 4h6v6M20 4 10 14M18 14v6H4V6h6'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* a single text card is a wider, taller tile with a larger centred title */
+.cards-teaser.text > ul > li:only-child {
+  flex-basis: min(100%, 430px);
+}
+
+.cards-teaser.text > ul > li:only-child .cards-teaser-card-body {
+  justify-content: center;
+  min-height: 220px;
+}
+
+.cards-teaser.text > ul > li:only-child .cards-teaser-card-body :is(h2, h3, h4, h5, h6) {
+  font-size: var(--heading-font-size-m);
+}
+
+@media (width >= 600px) {
+  .cards-teaser.text {
+    --cards-teaser-text-card-width: calc((100% - var(--cards-teaser-gap)) / 2);
+  }
+}
+
+@media (width >= 900px) {
+  .cards-teaser.text {
+    --cards-teaser-text-card-width: calc((100% - 3 * var(--cards-teaser-gap)) / 4);
+  }
+
+  .cards-teaser.text > ul {
+    max-width: 920px;
+    margin-inline: auto;
+  }
+}
+
+/* buttons option — cards with a CTA pill button at the bottom (used with text): soft shadow
+   instead of a border, card is not one big link, buttons aligned across cards, 3 per row.
+   Scoped to .cards-teaser.buttons so the default, grid and text renderings are untouched;
+   card-level overrides of the text option are scoped to .cards-teaser.text.buttons. */
+.cards-teaser.text.buttons > ul > li {
+  border: 0;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
+}
+
+.cards-teaser.text.buttons > ul > li:focus-within {
+  outline: none;
+}
+
+.cards-teaser.text.buttons > ul > li .cards-teaser-card-body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  padding: 24px 16px;
+}
+
+.cards-teaser.buttons .cards-teaser-card-body p.cards-teaser-card-cta {
+  margin: auto 0 0;
+  padding-top: 16px;
+}
+
+.cards-teaser.buttons .cards-teaser-card-body a.button:any-link {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 8px 16px;
+  color: var(--parker-black);
+  font-size: var(--body-font-size-s);
+  white-space: normal;
+}
+
+@media (width >= 900px) {
+  .cards-teaser.buttons {
+    --cards-teaser-text-card-width: calc((100% - 2 * var(--cards-teaser-gap)) / 3);
+  }
+
+  .cards-teaser.buttons > ul {
+    max-width: none;
+  }
+}

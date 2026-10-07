@@ -1,0 +1,39 @@
+{
+  "variantName": "cards-contact",
+  "baseBlock": "cards",
+  "canonicalModel": "collection",
+  "visualCharacteristics": {
+    "layout": "vertical contact directory, centred ~1060px column, text left aligned; each group: bold heading with a thin grey rule under it, then phone number (larger text) on the left and details on the right (stacks on mobile); generous spacing between groups",
+    "imageTreatment": "none",
+    "density": "sparse",
+    "colorScheme": "dark text on white, grey rules",
+    "purpose": "contact directory (e.g. HR & Benefits)",
+    "optionLayouts": {
+      "grid": "light-grey filled tiles, 3 per row from 900px (2 from 600px, 1 below); bold heading with phone and email stacked under it in small text; no rules"
+    }
+  },
+  "contentPattern": {
+    "structure": "one row per contact group, 3 cells: [H3 group heading] | [phone (tel: link), may be empty] | [details: address lines, links, email]",
+    "summary": "contact directory list",
+    "imageCount": 0,
+    "buttonCount": 0,
+    "hasDescription": true
+  },
+  "usage": {
+    "pagesUsing": [
+      "/us/en/support/hr-benefits",
+      "/us/en/support"
+    ],
+    "reuseCount": 1,
+    "lastUsed": "2026-10-07T16:24:25.848422Z"
+  },
+  "options": [
+    {
+      "class": "grid",
+      "label": "Grid"
+    }
+  ],
+  "memberVariantIds": [
+    "cards-contact"
+  ]
+}

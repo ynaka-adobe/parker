@@ -13,6 +13,8 @@ Repeating rows — one row per item. Each item: [picture] | [H3 title, short des
 | Variation | Option class |
 | --- | --- |
 | Grid | `grid` |
+| Text only | `text` |
+| Buttons | `buttons` |
 
 ## Universal Editor fields
 

@@ -1,0 +1,79 @@
+/* columns-contact — contact panel (e.g. General Help): heading + intro text on the left,
+   large phone number, email and gold pill CTA on the right. Mobile: columns stack. */
+.columns-contact > div {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.columns-contact > div > div {
+  min-width: 0;
+}
+
+.columns-contact .columns-contact-intro > :first-child,
+.columns-contact .columns-contact-details > :first-child {
+  margin-top: 0;
+}
+
+.columns-contact .columns-contact-intro :is(h1, h2, h3) {
+  margin: 0 0 24px;
+  color: var(--heading-color);
+  font-size: var(--heading-font-size-l);
+  font-weight: var(--font-weight-regular);
+  line-height: 1.25;
+}
+
+.columns-contact .columns-contact-intro p {
+  margin: 0 0 12px;
+  color: var(--text-color);
+  font-size: var(--body-font-size-l);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.6;
+}
+
+.columns-contact .columns-contact-details p {
+  margin: 0 0 16px;
+}
+
+.columns-contact .columns-contact-details p.columns-contact-phone {
+  margin-bottom: 20px;
+  font-size: var(--heading-font-size-l);
+  line-height: 1.2;
+}
+
+.columns-contact .columns-contact-details p.columns-contact-email {
+  font-size: var(--body-font-size-s);
+  font-weight: var(--font-weight-bold);
+}
+
+.columns-contact .columns-contact-details p:not(.button-container) a:any-link {
+  color: var(--text-strong-color);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.columns-contact .columns-contact-details p:not(.button-container) a:hover {
+  color: var(--link-color);
+  text-decoration: underline;
+}
+
+.columns-contact .columns-contact-details p.button-container {
+  margin: 8px 0 0;
+}
+
+.columns-contact .columns-contact-details a.button:any-link {
+  margin: 0;
+}
+
+@media (width >= 600px) {
+  .columns-contact > div {
+    flex-direction: row;
+    gap: 24px;
+  }
+
+  .columns-contact > div > div {
+    flex: 1 1 0;
+  }
+}

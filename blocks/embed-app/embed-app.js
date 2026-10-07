@@ -70,7 +70,7 @@ function buildLaunchPanel(url, name) {
   a.href = url.href;
   a.target = '_blank';
   a.rel = 'noopener';
-  a.textContent = `Launch ${DEFAULT_APP_NAME}`;
+  a.textContent = `Launch ${name}`;
   cta.append(a);
 
   panel.append(heading, copy, cta);
@@ -149,7 +149,8 @@ export default function decorate(block) {
   if (!config) return;
   const { url, name } = config;
 
-  if (isEmbeddableHost()) {
+  // 'launch' option: always open in a new tab (apps that can't be framed anywhere)
+  if (isEmbeddableHost() && !block.classList.contains('launch')) {
     block.replaceChildren(buildFrame(block, url, name));
     block.classList.add('embed-app-is-embedded');
   } else {

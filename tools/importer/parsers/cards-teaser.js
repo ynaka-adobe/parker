@@ -20,7 +20,84 @@
  * content outside the block. The hidden published date (.card-details) is dropped
  * and the link label is the authored text (e.g. "Explore Now").
  * The .parker-carousel path is unchanged (plain "cards-teaser", title tag kept).
+ *
+ * Help & Support source (help.parker.com/us/en/support/*, template support-topic):
+ * option cards are <a class="ph-card-basic__link" href>Title<span>Description</span></a>,
+ * either inside a MUI grid (.MuiGrid-container > ... > .MuiCard-root > a), a
+ * .ph-grid-2 of <article>s, or a lone featured card directly in / after the
+ * .jumbotron (the matched element is then the link itself). Title-only cards
+ * have no <span>. No images, so this follows the Cards (no images) convention:
+ * emitted as "cards-teaser (grid, text)", one single-cell row per card
+ * [h3 > a (title text, trimmed), p (description, if any)].
+ * Only taken when the element is/contains a.ph-card-basic__link, which no
+ * www.parker.com template has, so the branches below are untouched.
+ *
+ * Help & Support landing (help.parker.com/us/en/support, template
+ * support-landing): MUI tile grid and "More Contact Information" card grid -
+ * see the LANDING section above parse(); taken only for .MuiGrid-container
+ * elements without a.ph-card-basic__link.
  */
+
+const HELP_CARD = 'a.ph-card-basic__link';
+const HELP_DESC_CLASS = 'ph-card-basic__desc';
+
+// html2md preProcess runs BEFORE any transform/parser: it unwraps every class-less
+// <span> (removeSpans) and then rewrites each <a>'s innerHTML, which merges the
+// title and description text nodes into one ("On the WebsiteLog in to ...").
+// The bundled import script is evaluated in the page before html2md is called, so
+// tag the description spans here (a classed span is kept by removeSpans). Matches
+// nothing on www.parker.com pages, so other templates' DOMs are untouched.
+try {
+  if (typeof document !== 'undefined' && document.querySelectorAll) {
+    document.querySelectorAll(`${HELP_CARD} > span`).forEach((s) => s.classList.add(HELP_DESC_CLASS));
+  }
+} catch (e) { /* not in a browser page context */ }
+
+// True for the help.parker.com option-card markup (matched element = link or container).
+function isHelpCards(element) {
+  return element.matches(HELP_CARD) || !!element.querySelector(HELP_CARD);
+}
+
+const cleanText = (s) => s.replace(/\u00a0/g, ' ').replace(/\s+/g, ' ').trim();
+
+// One single-cell row per card: [h3 > a title, p description]
+function parseHelpCards(element, document) {
+  const links = element.matches(HELP_CARD)
+    ? [element]
+    : Array.from(element.querySelectorAll(HELP_CARD));
+
+  const cells = [];
+  links.forEach((link) => {
+    const descEl = link.querySelector(':scope > span');
+    // Title = the link's own text outside the description span
+    const title = cleanText(Array.from(link.childNodes)
+      .filter((n) => n !== descEl)
+      .map((n) => n.textContent)
+      .join(' '));
+    const desc = descEl ? cleanText(descEl.textContent) : '';
+    if (!title && !desc) return;
+
+    const href = link.getAttribute('href');
+    const h3 = document.createElement('h3');
+    if (href) {
+      const a = document.createElement('a');
+      a.setAttribute('href', href);
+      a.textContent = title || desc;
+      h3.append(a);
+    } else {
+      h3.textContent = title || desc;
+    }
+    const cell = [h3];
+    if (desc && title) {
+      const p = document.createElement('p');
+      p.textContent = desc;
+      cell.push(p);
+    }
+    cells.push([cell]);
+  });
+
+  return cells;
+}
 
 // True when the matched element is a card grid rather than the slick slider.
 function isCardGrid(element) {
@@ -40,7 +117,118 @@ function retag(document, el, tagName) {
   return h;
 }
 
+// ---------------------------------------------------------------------------
+// Help & Support LANDING page (help.parker.com/us/en/support, template
+// support-landing). Two MUI grids, neither of which has a.ph-card-basic__link
+// (so isHelpCards() is false for them) nor any www.parker.com class.
+// No images -> Cards (no images) convention: 1 column, one card per row.
+//
+// 1. Topic tiles - main.ph-main > section.tile_container .MuiGrid-container:
+//      .MuiGrid-container > .MuiGrid-root (x12) > div > a[href] "Title"
+//    -> "cards-teaser (grid, text)", one single-cell row per tile [h3 > a].
+// 2. "More Contact Information" cards - .MuiGrid-container whose items are
+//      .MuiGrid-root > div > [div title, div description, a.MuiLink-root CTA]
+//    -> "cards-teaser (text, buttons)", one single-cell row per card
+//       [h3 title (unlinked), p description, p > strong > a CTA].
+// Both iterate the grid items (block-level .MuiGrid-root divs), never links.
+// ---------------------------------------------------------------------------
+
+const LANDING_GRID = '.MuiGrid-container';
+
+const gridItems = (grid) => Array.from(grid.children).filter((c) => c.matches('.MuiGrid-root'));
+
+function isLandingTileGrid(element) {
+  return element.matches(LANDING_GRID) && !!element.closest('section.tile_container')
+    && gridItems(element).some((item) => item.querySelector(':scope > div > a[href]'));
+}
+
+function isLandingButtonCards(element) {
+  return element.matches(LANDING_GRID) && !element.closest('section.tile_container')
+    && gridItems(element).some((item) => item.querySelector(':scope > div > a.MuiLink-root[href]'));
+}
+
+function parseLandingTiles(element, document) {
+  const cells = [];
+  gridItems(element).forEach((item) => {
+    const link = item.querySelector(':scope > div > a[href]');
+    if (!link) return;
+    const title = cleanText(link.textContent);
+    if (!title) return;
+    const h3 = document.createElement('h3');
+    const a = document.createElement('a');
+    a.setAttribute('href', link.getAttribute('href'));
+    a.textContent = title;
+    h3.append(a);
+    cells.push([[h3]]);
+  });
+  return cells;
+}
+
+function parseLandingButtonCards(element, document) {
+  const cells = [];
+  gridItems(element).forEach((item) => {
+    const card = item.querySelector(':scope > div');
+    if (!card) return;
+    const cta = card.querySelector(':scope > a.MuiLink-root[href]');
+    const texts = Array.from(card.querySelectorAll(':scope > div'))
+      .map((d) => cleanText(d.textContent))
+      .filter(Boolean);
+    const [title, ...descs] = texts;
+    if (!title && !cta) return;
+    const cell = [];
+    if (title) {
+      const h3 = document.createElement('h3');
+      h3.textContent = title;
+      cell.push(h3);
+    }
+    descs.forEach((d) => {
+      const p = document.createElement('p');
+      p.textContent = d;
+      cell.push(p);
+    });
+    if (cta && cleanText(cta.textContent)) {
+      const p = document.createElement('p');
+      const strong = document.createElement('strong');
+      const a = document.createElement('a');
+      a.setAttribute('href', cta.getAttribute('href'));
+      a.textContent = cleanText(cta.textContent);
+      strong.append(a);
+      p.append(strong);
+      cell.push(p);
+    }
+    cells.push([cell]);
+  });
+  return cells;
+}
+
 export default function parse(element, { document }) {
+  // Help & Support landing page grids (help.parker.com/us/en/support) - separate branches
+  if (!isHelpCards(element) && (isLandingTileGrid(element) || isLandingButtonCards(element))) {
+    const tiles = isLandingTileGrid(element);
+    const landingCells = tiles
+      ? parseLandingTiles(element, document)
+      : parseLandingButtonCards(element, document);
+    if (landingCells.length === 0) {
+      element.replaceWith(...element.childNodes);
+      return;
+    }
+    const name = tiles ? 'cards-teaser (grid, text)' : 'cards-teaser (text, buttons)';
+    element.replaceWith(WebImporter.Blocks.createBlock(document, { name, cells: landingCells }));
+    return;
+  }
+
+  // Help & Support option cards (help.parker.com) - separate branch
+  if (isHelpCards(element)) {
+    const helpCells = parseHelpCards(element, document);
+    if (helpCells.length === 0) {
+      element.replaceWith(...element.childNodes);
+      return;
+    }
+    const block = WebImporter.Blocks.createBlock(document, { name: 'cards-teaser (grid, text)', cells: helpCells });
+    element.replaceWith(block);
+    return;
+  }
+
   const grid = isCardGrid(element);
 
   // Section heading sitting above the slider (default content, not part of the block)

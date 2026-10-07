@@ -9,15 +9,21 @@
     "density": "spacious",
     "colorScheme": "black frame inside a grey section"
   },
-  "contentPattern": "External interactive app embed: a single cell with a link to the app URL. Renders an iframe on allow-listed hosts (www.parker.com) and a dark launch panel with a 'Launch Parker World' button elsewhere.",
+  "contentPattern": "External interactive app embed: a single cell with a link to the app URL (link text = app name; a bare URL falls back to 'Parker World'). Renders an iframe on allow-listed hosts (www.parker.com) and a dark launch panel with a 'Launch <app name>' button elsewhere. The 'launch' option always shows the launch panel.",
   "usage": {
     "pagesUsing": [
-      "/us/en/markets/interactive-library/parker-world"
+      "/us/en/markets/interactive-library/parker-world",
+      "/us/en/support/master-directory/global-offices"
     ],
-    "reuseCount": 1,
+    "reuseCount": 2,
     "lastUsed": "2026-10-07T00:00:00.000Z"
   },
-  "options": [],
+  "options": [
+    {
+      "class": "launch",
+      "label": "Launch panel only"
+    }
+  ],
   "memberVariantIds": [
     "embed-app"
   ]

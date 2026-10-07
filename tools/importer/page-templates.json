@@ -687,6 +687,299 @@
           ]
         }
       ]
+    },
+    {
+      "name": "support-landing",
+      "representativeUrl": "https://help.parker.com/us/en/support",
+      "description": "Help & Support landing page: topic tiles, contact cards, more-help links, search tools",
+      "blocks": [
+        {
+          "name": "cards-teaser",
+          "instances": [
+            "main.ph-main > section.tile_container .MuiGrid-container",
+            "main.ph-main .MuiGrid-container:has(a.MuiLink-root)"
+          ]
+        },
+        {
+          "name": "cards-contact",
+          "instances": [
+            "main.ph-main .MuiGrid-container:has(a[href^=\"tel:\"])"
+          ]
+        },
+        {
+          "name": "cards-news",
+          "instances": [
+            "main.ph-main .ph-content-section ul:has(> li > a)"
+          ]
+        }
+      ],
+      "urlPattern": "/us/en/support",
+      "urls": [
+        "https://help.parker.com/us/en/support"
+      ],
+      "sections": [
+        {
+          "id": "title-bar",
+          "name": "Page title band",
+          "selector": [
+            ".main-wrapper > .container-fluid:has(> .ph-header-main__title)",
+            ".ph-header-main__title"
+          ],
+          "style": "grey",
+          "blocks": [],
+          "defaultContent": [
+            ".ph-header-main__title h1"
+          ]
+        },
+        {
+          "id": "help-topics",
+          "name": "What can we help you with? - topic tiles",
+          "selector": [
+            "main.ph-main > section.ph-content-section.tile_container",
+            "main.ph-main > section.tile_container"
+          ],
+          "style": null,
+          "blocks": [
+            "cards-teaser"
+          ],
+          "defaultContent": [
+            "main.ph-main > section.tile_container .jumbotron > div:nth-child(1)",
+            "main.ph-main > section.tile_container .jumbotron > div:nth-child(2)",
+            "main.ph-main > section.tile_container .jumbotron > div:nth-child(3)"
+          ]
+        },
+        {
+          "id": "contact-information",
+          "name": "Contact Information - contact tiles and More Contact Information cards",
+          "selector": [
+            "main.ph-main > div:has(a[href^=\"tel:\"])",
+            "main.ph-main > div:nth-of-type(1)"
+          ],
+          "style": null,
+          "blocks": [
+            "cards-contact",
+            "cards-teaser"
+          ],
+          "defaultContent": [
+            "main.ph-main > div:has(a[href^=\"tel:\"]) .jumbotron > div:nth-child(1)",
+            "main.ph-main > div:has(a[href^=\"tel:\"]) .jumbotron > div:nth-child(2)",
+            "main.ph-main > div:has(a[href^=\"tel:\"]) .col-12 > div.css-1fx295f"
+          ]
+        },
+        {
+          "id": "more-help",
+          "name": "More Help - category link list",
+          "selector": [
+            "main.ph-main > div:has(a[href*=\"/support/certificates-compliance\"])",
+            "main.ph-main > div:nth-of-type(2)"
+          ],
+          "style": null,
+          "blocks": [
+            "cards-news"
+          ],
+          "defaultContent": [
+            "main.ph-main > div:nth-of-type(2) .jumbotron > div:nth-child(1)",
+            "main.ph-main > div:nth-of-type(2) .jumbotron > div:nth-child(2)"
+          ]
+        },
+        {
+          "id": "part-documents",
+          "name": "Part Documents | Advanced Search",
+          "selector": [
+            "main.ph-main > div:has(.parts-doc-search)",
+            "main.ph-main > div:nth-of-type(3)"
+          ],
+          "style": null,
+          "blocks": [],
+          "defaultContent": [
+            ".parts-doc-search .jumbotron > div:nth-child(1)",
+            ".parts-doc-search .jumbotron > div:nth-child(2)",
+            ".parts-doc-search .col-md-5 > ul",
+            ".parts-doc-search form.ph-form"
+          ]
+        },
+        {
+          "id": "cross-reference",
+          "name": "Cross Reference",
+          "selector": [
+            "main.ph-main > div:nth-of-type(4)",
+            "main.ph-main > div:last-of-type"
+          ],
+          "style": null,
+          "blocks": [],
+          "defaultContent": [
+            "main.ph-main > div:last-of-type .jumbotron > div:nth-child(1)",
+            "main.ph-main > div:last-of-type .jumbotron > div:nth-child(2)",
+            "main.ph-main > div:last-of-type form.ph-form"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "support-topic",
+      "representativeUrl": "https://help.parker.com/us/en/support/order-status",
+      "description": "Help & Support topic (decision-tree) pages: title band, question heading + intro, option cards, optional image+text, category link lists, contact listings, Still Lost / General Help link",
+      "blocks": [
+        {
+          "name": "cards-teaser",
+          "instances": [
+            ".MuiGrid-container:has(.ph-card-basic__link):not(.MuiGrid-container .MuiGrid-container)",
+            ".ph-grid-2:has(.ph-card-basic__link)",
+            ".jumbotron > a.ph-card-basic__link",
+            ".jumbotron + div > a.ph-card-basic__link"
+          ]
+        },
+        {
+          "name": "columns-media",
+          "instances": [
+            ".row.rowValign"
+          ]
+        },
+        {
+          "name": "cards-news",
+          "instances": [
+            "ul.ph-grid-3"
+          ]
+        },
+        {
+          "name": "cards-contact",
+          "instances": [
+            ".ph-content-section__info:has(> h2.hhr)"
+          ]
+        },
+        {
+          "name": "columns-contact",
+          "instances": [
+            ".row:has(> .ph-content-section__topic + .ph-content-section__info)"
+          ]
+        }
+      ],
+      "urlPattern": "/us/en/support/*",
+      "urls": [
+        "https://help.parker.com/us/en/support/billing-shipping",
+        "https://help.parker.com/us/en/support/cad-files",
+        "https://help.parker.com/us/en/support/catalog-part-manuals",
+        "https://help.parker.com/us/en/support/cbc-report",
+        "https://help.parker.com/us/en/support/certificates-compliance",
+        "https://help.parker.com/us/en/support/contact-information",
+        "https://help.parker.com/us/en/support/cross-reference",
+        "https://help.parker.com/us/en/support/ethics-integrity",
+        "https://help.parker.com/us/en/support/find-a-part/18605",
+        "https://help.parker.com/us/en/support/general-help",
+        "https://help.parker.com/us/en/support/hr-benefits",
+        "https://help.parker.com/us/en/support/installation-maintenance",
+        "https://help.parker.com/us/en/support/investors",
+        "https://help.parker.com/us/en/support/optimization",
+        "https://help.parker.com/us/en/support/order-status",
+        "https://help.parker.com/us/en/support/part-configuration/configurator-help",
+        "https://help.parker.com/us/en/support/part-information/18605",
+        "https://help.parker.com/us/en/support/place-an-order",
+        "https://help.parker.com/us/en/support/price-quote",
+        "https://help.parker.com/us/en/support/repairs",
+        "https://help.parker.com/us/en/support/replacement",
+        "https://help.parker.com/us/en/support/software",
+        "https://help.parker.com/us/en/support/training-tutorials"
+      ],
+      "sections": [
+        {
+          "id": "title-bar",
+          "name": "Page title band",
+          "selector": [
+            ".main-wrapper > .container-fluid:has(> .ph-header-main__title)",
+            ".ph-header-main__title"
+          ],
+          "style": "grey",
+          "blocks": [],
+          "defaultContent": [
+            ".ph-header-main__title h1"
+          ]
+        },
+        {
+          "id": "topic-content",
+          "name": "Question heading + intro, option cards, image+text, category list or contact content",
+          "selector": [
+            "main.ph-main"
+          ],
+          "style": null,
+          "blocks": [
+            "cards-teaser",
+            "columns-media",
+            "cards-news",
+            "cards-contact",
+            "columns-contact"
+          ],
+          "defaultContent": [
+            ".jumbotron > h1",
+            ".jumbotron > h2",
+            ".jumbotron > h3",
+            ".jumbotron > p",
+            ".ph-content-section__info > h1",
+            "main.ph-main h1.py-5",
+            "main.ph-main .text-center > a[href^=\"mailto:\"]",
+            "main.ph-main h4",
+            ".help-container .text-center > img",
+            "form.ph-form"
+          ]
+        },
+        {
+          "id": "help-nav",
+          "name": "Return to Help & Support button / Still Lost - General Help link",
+          "selector": [
+            "main.ph-main > section.ph-content-section:has(.ph-content-nav__history)"
+          ],
+          "style": null,
+          "blocks": [],
+          "defaultContent": [
+            ".ph-content-nav__history a[href=\"/us/en/support\"]",
+            ".ph-content-nav__history a[href*=\"general-help\"] h5",
+            ".ph-content-nav__history a[href*=\"general-help\"] h3"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "master-directory",
+      "urls": [
+        "https://help.parker.com/us/en/support/master-directory/global-offices"
+      ],
+      "representativeUrl": "https://help.parker.com/us/en/support/master-directory/global-offices",
+      "description": "Help & Support Master Directory (Global Sales Offices): live, data-driven directory app; imported as title band + embed-app (launch) block linking to the live directory",
+      "blocks": [
+        {
+          "name": "embed-app",
+          "instances": [
+            ".excat-md-app"
+          ]
+        }
+      ],
+      "urlPattern": "/us/en/support/master-directory/*",
+      "sections": [
+        {
+          "id": "title-bar",
+          "name": "Page title band",
+          "selector": [
+            ".main-wrapper > .container-fluid:has(> .ph-header-main__title)",
+            ".ph-header-main__title"
+          ],
+          "style": "grey",
+          "blocks": [],
+          "defaultContent": [
+            ".ph-header-main__title h1"
+          ]
+        },
+        {
+          "id": "directory",
+          "name": "directory",
+          "selector": [
+            "main.ph-main"
+          ],
+          "style": null,
+          "blocks": [
+            "embed-app"
+          ],
+          "defaultContent": []
+        }
+      ]
     }
   ]
 }

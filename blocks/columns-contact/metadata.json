@@ -1,0 +1,31 @@
+{
+  "variantName": "columns-contact",
+  "baseBlock": "columns",
+  "canonicalModel": "standalone",
+  "visualCharacteristics": {
+    "layout": "two columns side by side (stack on mobile), centred ~800px wide; left: heading + short intro text; right: large phone number, email, gold pill button",
+    "imageTreatment": "none",
+    "density": "sparse",
+    "colorScheme": "white background, dark text, gold button",
+    "purpose": "contact panel (e.g. General Help)"
+  },
+  "contentPattern": {
+    "structure": "one row, 2 cells: [H2 heading + intro paragraph] | [p > tel: link, p > mailto: link, p > strong > a CTA]",
+    "summary": "contact panel with heading, phone, email and CTA button",
+    "imageCount": 0,
+    "buttonCount": 1,
+    "hasDescription": true
+  },
+  "usage": {
+    "pagesUsing": [
+      "/us/en/support/general-help",
+      "/us/en/support"
+    ],
+    "reuseCount": 1,
+    "lastUsed": "2026-10-07T16:24:25.848422Z"
+  },
+  "options": [],
+  "memberVariantIds": [
+    "columns-contact"
+  ]
+}
