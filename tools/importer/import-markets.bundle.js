@@ -35,10 +35,10 @@ var CustomImportScript = (() => {
   };
   var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-  // tools/importer/import-home.js
-  var import_home_exports = {};
-  __export(import_home_exports, {
-    default: () => import_home_default
+  // tools/importer/import-markets.js
+  var import_markets_exports = {};
+  __export(import_markets_exports, {
+    default: () => import_markets_default
   });
 
   // tools/importer/parsers/banner-cta.js
@@ -63,29 +63,29 @@ var CustomImportScript = (() => {
     element.replaceWith(block);
   }
 
-  // tools/importer/parsers/cards-category.js
+  // tools/importer/parsers/banner-inline.js
   function parse2(element, { document: document2 }) {
-    const cards = Array.from(element.querySelectorAll(".card"));
-    const cells = [];
-    cards.forEach((card) => {
-      const image = card.querySelector(".card-img-top, picture img, img");
-      const body = card.querySelector(".card-body") || card;
-      const title = body.querySelector(".card-title, h1, h2, h3, h4, h5, h6");
-      const description = body.querySelector(".card-description");
-      const ctaLinks = Array.from(card.querySelectorAll("a[href]"));
-      const textCell = [];
-      if (title) textCell.push(title);
-      if (description && description.textContent.trim()) textCell.push(description);
-      textCell.push(...ctaLinks);
-      if (image || textCell.length > 0) {
-        cells.push([image || "", textCell]);
-      }
-    });
-    if (cells.length === 0) {
+    const heading = element.querySelector(".image-box-container__title, h2, h3");
+    const descParas = Array.from(element.querySelectorAll(".image-box-container__description")).flatMap((d) => {
+      const ps = Array.from(d.querySelectorAll("p"));
+      if (ps.length) return ps;
+      return d.textContent.trim() ? [d] : [];
+    }).filter((p) => p.textContent.replace(/\u00a0/g, " ").trim());
+    const ctaLinks = Array.from(element.querySelectorAll(".btn-align a[href], a.btn[href]"));
+    if (!heading && descParas.length === 0 && ctaLinks.length === 0) {
       element.replaceWith(...element.childNodes);
       return;
     }
-    const block = WebImporter.Blocks.createBlock(document2, { name: "cards-category", cells });
+    const contentCell = [];
+    if (heading) contentCell.push(heading);
+    contentCell.push(...descParas);
+    ctaLinks.forEach((a) => {
+      const p = document2.createElement("p");
+      p.append(a);
+      contentCell.push(p);
+    });
+    const cells = [[contentCell]];
+    const block = WebImporter.Blocks.createBlock(document2, { name: "banner-inline", cells });
     element.replaceWith(block);
   }
 
@@ -137,33 +137,40 @@ var CustomImportScript = (() => {
     element.replaceWith(block);
   }
 
-  // tools/importer/parsers/carousel-hero.js
+  // tools/importer/parsers/cards-teaser.js
   function parse4(element, { document: document2 }) {
-    const items = Array.from(element.querySelectorAll(".cmp-carousel__item"));
+    const sectionHeading = element.querySelector(".slider-carousel-container > h2, :scope > h2") || Array.from(element.querySelectorAll("h2")).find((h) => !h.closest(".card"));
+    const cards = Array.from(element.querySelectorAll(".card")).filter((card) => !card.closest(".slick-cloned"));
     const cells = [];
-    items.forEach((item) => {
-      const image = item.querySelector(".cmp-teaser__image img, .cmp-image__image, picture img, img");
-      const content = item.querySelector(".cmp-teaser__content");
-      const contentCell = [];
-      if (content) {
-        const eyebrow = content.querySelector(".cmp-teaser__header-text");
-        const heading = content.querySelector(".cmp-teaser__title h1, .cmp-teaser__title h2, .cmp-teaser__title-link, h1, h2, h3");
-        const description = content.querySelector(".cmp-teaser__description");
-        const ctaLinks = Array.from(content.querySelectorAll(".btn-align a, a.btn"));
-        if (eyebrow) contentCell.push(eyebrow);
-        if (heading) contentCell.push(heading);
-        if (description) contentCell.push(description);
-        contentCell.push(...ctaLinks);
-      }
-      if (image || contentCell.length > 0) {
-        cells.push([image || "", contentCell]);
+    const seen = /* @__PURE__ */ new Set();
+    cards.forEach((card) => {
+      const image = card.querySelector(".card-img-top, picture img, img");
+      const body = card.querySelector(".card-body") || card;
+      const title = body.querySelector(".card-title, h3, h2, h4");
+      const descRoot = body.querySelector(".card-description") || body;
+      const descParas = Array.from(descRoot.querySelectorAll("p")).filter((p) => !p.closest(".card-details") && !p.closest(".btn-align")).filter((p) => p.textContent.replace(/\u00a0/g, " ").trim());
+      const ctaLinks = Array.from(body.querySelectorAll(".btn-align a[href], a.btn[href]"));
+      const key = `${title ? title.textContent.trim() : ""}|${ctaLinks[0] ? ctaLinks[0].getAttribute("href") : ""}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      const textCell = [];
+      if (title) textCell.push(title);
+      textCell.push(...descParas);
+      ctaLinks.forEach((a) => {
+        const p = document2.createElement("p");
+        p.append(a);
+        textCell.push(p);
+      });
+      if (image || textCell.length > 0) {
+        cells.push([image || "", textCell]);
       }
     });
     if (cells.length === 0) {
       element.replaceWith(...element.childNodes);
       return;
     }
-    const block = WebImporter.Blocks.createBlock(document2, { name: "carousel-hero", cells });
+    const block = WebImporter.Blocks.createBlock(document2, { name: "cards-teaser", cells });
+    if (sectionHeading) element.before(sectionHeading);
     element.replaceWith(block);
   }
 
@@ -239,6 +246,38 @@ var CustomImportScript = (() => {
     element.replaceWith(block);
   }
 
+  // tools/importer/parsers/hero-card.js
+  function parse7(element, { document: document2 }) {
+    const image = element.querySelector(".cmp-teaser__image img, .cmp-image__image, picture img, img");
+    const eyebrow = element.querySelector(".cmp-teaser__header-text, .cmp-teaser__header p");
+    const heading = element.querySelector(".cmp-teaser__title h2, .cmp-teaser__title h1, .cmp-teaser__title h3, .cmp-teaser__title-link, h2");
+    const descRoot = element.querySelector(".cmp-teaser__description");
+    const descParas = descRoot ? (descRoot.querySelectorAll("p").length ? Array.from(descRoot.querySelectorAll("p")) : [descRoot]).filter((p) => p.textContent.replace(/\u00a0/g, " ").trim()) : [];
+    const ctaLinks = Array.from(element.querySelectorAll(".btn-align a[href], a.btn[href], .cmp-teaser__action-link[href]"));
+    if (!image && !heading && descParas.length === 0) {
+      element.replaceWith(...element.childNodes);
+      return;
+    }
+    const cells = [];
+    if (image) cells.push([image]);
+    const contentCell = [];
+    if (eyebrow && eyebrow.textContent.trim()) {
+      const p = document2.createElement("p");
+      p.textContent = eyebrow.textContent.trim();
+      contentCell.push(p);
+    }
+    if (heading) contentCell.push(heading);
+    contentCell.push(...descParas);
+    ctaLinks.forEach((a) => {
+      const p = document2.createElement("p");
+      p.append(a);
+      contentCell.push(p);
+    });
+    cells.push([contentCell]);
+    const block = WebImporter.Blocks.createBlock(document2, { name: "hero-card", cells });
+    element.replaceWith(block);
+  }
+
   // tools/importer/transformers/parker-cleanup.js
   var H = { before: "beforeTransform", after: "afterTransform" };
   var MEDIA_SELECTOR = "img, picture, video, iframe, svg, table";
@@ -254,12 +293,15 @@ var CustomImportScript = (() => {
       ]);
       WebImporter.DOMUtils.remove(element, [
         "#embedded-messaging",
-        'div[id^="ZN_"]'
+        'div[id^="ZN_"]',
+        // live-rendered pages keep the SPA's <noscript>"You need to enable JavaScript…"
+        "noscript"
       ]);
       WebImporter.DOMUtils.remove(element, [
         ".aem-GridColumn--default--hide",
         "#db_lr_pixel_ad",
         'img[src*="rlcdn.com"]',
+        'img[src*="/akam/"]',
         'img[src^="blob:"]',
         'img[width="0"][height="0"]'
       ]);
@@ -400,111 +442,295 @@ var CustomImportScript = (() => {
     }
   }
 
-  // tools/importer/import-home.js
+  // tools/importer/import-markets.js
   var parsers = {
     "banner-cta": parse,
-    "cards-category": parse2,
+    "banner-inline": parse2,
     "cards-news": parse3,
-    "carousel-hero": parse4,
+    "cards-teaser": parse4,
     "columns-media": parse5,
-    "hero-banner": parse6
+    "hero-banner": parse6,
+    "hero-card": parse7
   };
   var PAGE_TEMPLATE = {
-    name: "home",
-    description: "Parker home page",
-    urls: [
-      "https://www.parker.com/us/en/home.html"
+    "name": "markets",
+    "description": 'Market and trend pages (/us/en/markets/*): grey title band (H1), full-bleed hero, image+text bands (columns-media), submarket cards (cards-teaser), blue inline CTA strip (banner-inline), featured white-paper card over photo (hero-card), blog link list (cards-news), grey rich-text/FAQ default content, gold closing CTA (banner-cta). columns-media OPTION "full-bleed": add it when the matched source grid column has class cmp-parker-secondary-img-box-theme (matched by the first columns-media instance selector) - on the representative page that is the sky-blue Ebrake section (ebrake-video) and the charcoal Next-Generation Technologies section (next-gen-tech); all other columns-media instances (white browse-products, grey bands) use the default/inset look. Skipped sections (breadcrumb, empty-4-4-4, empty-container) carry no content: remove the breadcrumb in cleanup and do not emit a section break for them.',
+    "urls": [
+      "https://www.parker.com/us/en/markets/aerospace-and-defense.html",
+      "https://www.parker.com/us/en/markets/aerospace-industry-trends.html",
+      "https://www.parker.com/us/en/markets/clean-tech-trends.html",
+      "https://www.parker.com/us/en/markets/digitalization-trends.html",
+      "https://www.parker.com/us/en/markets/electrification-trends.html",
+      "https://www.parker.com/us/en/markets/electronics-and-semiconductors.html",
+      "https://www.parker.com/us/en/markets/energy.html",
+      "https://www.parker.com/us/en/markets/hvac-and-refrigeration.html",
+      "https://www.parker.com/us/en/markets/in-plant-and-industrial-equipment.html",
+      "https://www.parker.com/us/en/markets/interactive-library.html",
+      "https://www.parker.com/us/en/markets/life-sciences.html",
+      "https://www.parker.com/us/en/markets/off-highway.html",
+      "https://www.parker.com/us/en/markets/transportation.html"
     ],
-    blocks: [
+    "blocks": [
       {
-        name: "hero-banner",
-        instances: [".left-to-right-gradient.aem-GridColumn"]
+        "name": "hero-banner",
+        "instances": [
+          ".left-to-right-gradient.aem-GridColumn",
+          ".cmp-parker-dark-opacity-50.aem-GridColumn",
+          ".right-to-left-gradient.aem-GridColumn",
+          ".aem-GridColumn:not(.cmp-parker-white-background):has(> .cq-dd-image)"
+        ]
       },
       {
-        name: "columns-media",
-        instances: [".cmp-parker-blue-theme.cmp-parker-ibd-align-center", ".grey-bg.aem-GridColumn"]
+        "name": "columns-media",
+        "instances": [
+          ".cmp-parker-secondary-img-box-theme.aem-GridColumn:has(> .image-box-container .image-wrapper)",
+          ".aem-GridColumn:has(> .image-box-container .image-wrapper)"
+        ]
       },
       {
-        name: "carousel-hero",
-        instances: [".cmp-carousel"]
+        "name": "cards-teaser",
+        "instances": [
+          ".parker-carousel",
+          ".layout-col-4:has(.cmp-parker-card-container .card)"
+        ]
       },
       {
-        name: "banner-cta",
-        instances: [".cmp-parker-gold-theme.cmp-parker-secondary-img-box-theme"]
+        "name": "banner-inline",
+        "instances": [
+          ".layout-col-8-4.aem-GridColumn:has(.image-box-container):not(:has(.image-wrapper))"
+        ]
       },
       {
-        name: "cards-category",
-        instances: [".parker-carousel"]
+        "name": "hero-card",
+        "instances": [
+          ".cmp-parker-white-background.aem-GridColumn:has(> .cq-dd-image)"
+        ]
       },
       {
-        name: "cards-news",
-        instances: [".cmp-news-v2-component__container"]
+        "name": "cards-news",
+        "instances": [
+          '.layout-col-6-6.cmp-container_contentwrapper.aem-GridColumn:has(a[href*="blog.parker.com"])'
+        ]
+      },
+      {
+        "name": "banner-cta",
+        "instances": [
+          ".cmp-parker-gold-theme.cmp-parker-secondary-img-box-theme.aem-GridColumn"
+        ]
       }
     ],
-    sections: [
+    "sections": [
       {
-        id: "section-1",
-        name: "hero",
-        selector: [".left-to-right-gradient.aem-GridColumn"],
-        style: null,
-        blocks: ["hero-banner"],
-        defaultContent: []
+        "id": "title-bar",
+        "name": "Page title band",
+        "selector": [
+          ".aem-GridColumn:has(> .cmp-title)"
+        ],
+        "style": "grey",
+        "blocks": [],
+        "defaultContent": [
+          ".cmp-title h1"
+        ]
       },
       {
-        id: "section-2",
-        name: "our-purpose",
-        selector: [".cmp-parker-blue-theme.cmp-parker-ibd-align-center"],
-        style: "sky-blue",
-        blocks: ["columns-media"],
-        defaultContent: []
+        "id": "breadcrumb",
+        "name": "Breadcrumb (skipped - generated from page path, not authored)",
+        "selector": [
+          ".aem-GridColumn:has(> nav.cmp-breadcrumb)"
+        ],
+        "style": null,
+        "blocks": [],
+        "defaultContent": []
       },
       {
-        id: "section-3",
-        name: "trends-carousel",
-        selector: [".cmp-carousel"],
-        style: null,
-        blocks: ["carousel-hero"],
-        defaultContent: []
+        "id": "hero",
+        "name": "Market hero",
+        "selector": [
+          ".left-to-right-gradient.aem-GridColumn",
+          ".cmp-parker-dark-opacity-50.aem-GridColumn",
+          ".right-to-left-gradient.aem-GridColumn",
+          ".aem-GridColumn:not(.cmp-parker-white-background):has(> .cq-dd-image)"
+        ],
+        "style": null,
+        "blocks": [
+          "hero-banner"
+        ],
+        "defaultContent": []
       },
       {
-        id: "section-4",
-        name: "products-cta",
-        selector: [".cmp-parker-gold-theme.cmp-parker-secondary-img-box-theme"],
-        style: "gold",
-        blocks: ["banner-cta"],
-        defaultContent: []
+        "id": "browse-products",
+        "name": "Interactive product browser promo",
+        "selector": [
+          ".aem-GridColumn--offset--default--0.aem-GridColumn--default--none:not(.cmp-parker-secondary-img-box-theme):has(> .image-box-container)"
+        ],
+        "style": null,
+        "blocks": [
+          "columns-media"
+        ],
+        "defaultContent": []
       },
       {
-        id: "section-5",
-        name: "featured-categories-heading",
-        selector: ["#spa-root > div > div > div.aem-container.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(1) > div.aem-container.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(7)", "div.aem-GridColumn:has(> .cmp-titlelink_container)"],
-        style: null,
-        blocks: [],
-        defaultContent: ["h2"]
+        "id": "innovations",
+        "name": "Rich-text intro",
+        "selector": [
+          ".grey-bg.aem-GridColumn:has(> .aem-container > div > .title-description-container)",
+          ".grey-bg.aem-GridColumn:not(.cmp-container_contentwrapper):has(> .aem-container)"
+        ],
+        "style": "grey",
+        "blocks": [],
+        "defaultContent": [
+          ".title-description-container h2",
+          ".title-description-container p",
+          ".title-description-container ul"
+        ]
       },
       {
-        id: "section-6",
-        name: "featured-categories",
-        selector: [".parker-carousel"],
-        style: null,
-        blocks: ["cards-category"],
-        defaultContent: []
+        "id": "submarkets",
+        "name": "Submarket tiles slider",
+        "selector": [
+          ".aem-GridColumn:has(> .aem-container > div > .parker-carousel)",
+          ".aem-GridColumn:has(> .parker-carousel)"
+        ],
+        "style": null,
+        "blocks": [
+          "cards-teaser"
+        ],
+        "defaultContent": [
+          ".slider-carousel-container > h2"
+        ]
       },
       {
-        id: "section-7",
-        name: "about-parker",
-        selector: [".grey-bg.aem-GridColumn"],
-        style: "grey",
-        blocks: ["columns-media"],
-        defaultContent: []
+        "id": "empty-4-4-4",
+        "name": "Empty 4-4-4 layout container (skipped)",
+        "selector": [
+          ".layout-col-4-4-4.cmp-container_contentwrapper.aem-GridColumn"
+        ],
+        "style": null,
+        "blocks": [],
+        "defaultContent": []
       },
       {
-        id: "section-8",
-        name: "featured-news",
-        selector: [".cmp-container_contentwrapper"],
-        style: null,
-        blocks: ["cards-news"],
-        defaultContent: ["h2"]
+        "id": "ebrake-video",
+        "name": "Image + text band, blue (columns-media full-bleed)",
+        "selector": [
+          ".cmp-parker-purpose-blue-theme.cmp-parker-secondary-img-box-theme.aem-GridColumn",
+          ".cmp-parker-blue-theme.aem-GridColumn:has(> .image-box-container)"
+        ],
+        "style": "sky-blue",
+        "blocks": [
+          "columns-media"
+        ],
+        "defaultContent": []
+      },
+      {
+        "id": "next-gen-video",
+        "name": "Image + text band, grey (image left)",
+        "selector": [
+          ".grey-bg.aem-GridColumn:not(.cmp-parker-secondary-img-box-theme):has(> .image-box-container)"
+        ],
+        "style": "grey",
+        "blocks": [
+          "columns-media"
+        ],
+        "defaultContent": []
+      },
+      {
+        "id": "next-gen-tech",
+        "name": "Image + text band, charcoal (columns-media full-bleed)",
+        "selector": [
+          ".cmp-parker-charcoal-theme.cmp-parker-secondary-img-box-theme.aem-GridColumn"
+        ],
+        "style": "charcoal",
+        "blocks": [
+          "columns-media"
+        ],
+        "defaultContent": []
+      },
+      {
+        "id": "electroflight",
+        "name": "Image + text band, grey (second grey band)",
+        "selector": [
+          ".grey-bg.aem-GridColumn:not(.cmp-parker-secondary-img-box-theme):has(> .image-box-container) ~ .grey-bg.aem-GridColumn:not(.cmp-parker-secondary-img-box-theme):has(> .image-box-container)"
+        ],
+        "style": "grey",
+        "blocks": [
+          "columns-media"
+        ],
+        "defaultContent": []
+      },
+      {
+        "id": "webinars",
+        "name": "Inline CTA strip",
+        "selector": [
+          ".layout-col-8-4.aem-GridColumn"
+        ],
+        "style": "sky-blue",
+        "blocks": [
+          "banner-inline"
+        ],
+        "defaultContent": []
+      },
+      {
+        "id": "featured-white-paper",
+        "name": "Featured resource teaser",
+        "selector": [
+          ".cmp-parker-white-background.aem-GridColumn"
+        ],
+        "style": null,
+        "blocks": [
+          "hero-card"
+        ],
+        "defaultContent": []
+      },
+      {
+        "id": "education",
+        "name": "Blog link list",
+        "selector": [
+          '.layout-col-6-6.cmp-container_contentwrapper.aem-GridColumn:has(a[href*="blog.parker.com"])'
+        ],
+        "style": null,
+        "blocks": [
+          "cards-news"
+        ],
+        "defaultContent": [
+          ".col-ml-mr:first-child h2"
+        ]
+      },
+      {
+        "id": "empty-container",
+        "name": "Empty container (skipped)",
+        "selector": [
+          '.layout-col-6-6.cmp-container_contentwrapper.aem-GridColumn:has(a[href*="blog.parker.com"]) + .aem-GridColumn:not(.grey-bg):not(.cmp-parker-gold-theme)'
+        ],
+        "style": null,
+        "blocks": [],
+        "defaultContent": []
+      },
+      {
+        "id": "faqs",
+        "name": "Static FAQ text",
+        "selector": [
+          ".grey-bg.cmp-container_contentwrapper.aem-GridColumn:has(> .aem-container > .grey-bg.col-ml-mr)",
+          ".grey-bg.cmp-container_contentwrapper.aem-GridColumn:has(> .aem-container > .col-ml-mr)"
+        ],
+        "style": "grey",
+        "blocks": [],
+        "defaultContent": [
+          ".col-ml-mr h2",
+          ".col-ml-mr p"
+        ]
+      },
+      {
+        "id": "contact-cta",
+        "name": "Closing CTA strip",
+        "selector": [
+          ".cmp-parker-gold-theme.cmp-parker-secondary-img-box-theme.aem-GridColumn"
+        ],
+        "style": "gold",
+        "blocks": [
+          "banner-cta"
+        ],
+        "defaultContent": []
       }
     ]
   };
@@ -554,7 +780,7 @@ var CustomImportScript = (() => {
     console.log(`Found ${pageBlocks.length} block instances on page`);
     return pageBlocks;
   }
-  var import_home_default = {
+  var import_markets_default = {
     transform: (payload) => {
       const {
         document: document2,
@@ -597,5 +823,5 @@ var CustomImportScript = (() => {
       }];
     }
   };
-  return __toCommonJS(import_home_exports);
+  return __toCommonJS(import_markets_exports);
 })();

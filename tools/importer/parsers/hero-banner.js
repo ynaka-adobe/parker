@@ -4,6 +4,11 @@
  * Parser for hero-banner. Base: hero.
  * Source: https://www.parker.com/us/en/home.html
  * Structure (library): 1 column, 3 rows -> [name], [background image], [title + subheading + CTA]
+ *
+ * Also used by the markets template (e.g. /us/en/markets/aerospace-and-defense.html):
+ * same .cq-dd-image teaser markup (h2.cmp-teaser__title-link inside an href-less <a>,
+ * multi-paragraph .cmp-teaser__description) but usually NO CTA. The CTA list is
+ * optional, so the content cell is then just [title, description].
  */
 export default function parse(element, { document }) {
   // Background image (row 2)

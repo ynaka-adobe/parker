@@ -1,0 +1,99 @@
+/* hero-card — full-bleed background photo with a white boxed content card on the left */
+main > .section:has(> .hero-card-wrapper) {
+  margin: 0;
+}
+
+main > .section > .hero-card-wrapper {
+  max-width: none;
+  padding: 0;
+}
+
+.hero-card {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+}
+
+.hero-card .hero-card-media {
+  line-height: 0;
+}
+
+.hero-card .hero-card-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.hero-card .hero-card-card {
+  position: relative;
+  box-sizing: border-box;
+  margin: -48px var(--gutter) 40px;
+  padding: 32px 24px;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+.hero-card .hero-card-card > * {
+  margin: 0 0 16px;
+}
+
+.hero-card .hero-card-card > :last-child {
+  margin-bottom: 0;
+}
+
+.hero-card .hero-card-card .hero-card-eyebrow {
+  margin-bottom: 8px;
+  color: var(--text-muted-color);
+  font-size: var(--body-font-size-s);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.hero-card .hero-card-card :is(h1, h2, h3) {
+  color: var(--text-color);
+  font-size: var(--heading-font-size-xl);
+  font-weight: var(--font-weight-regular);
+  line-height: 1.2;
+}
+
+.hero-card .hero-card-card p {
+  color: var(--text-color);
+}
+
+.hero-card .hero-card-card p.button-container {
+  margin-top: 24px;
+}
+
+.hero-card a.button:any-link {
+  margin: 0;
+}
+
+@media (width >= 900px) {
+  .hero-card {
+    justify-content: center;
+    min-height: 600px;
+    padding: 64px var(--gutter);
+    box-sizing: border-box;
+  }
+
+  .hero-card .hero-card-media {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+
+  .hero-card .hero-card-media img {
+    height: 100%;
+    aspect-ratio: auto;
+  }
+
+  .hero-card .hero-card-card {
+    width: 100%;
+    max-width: 600px;
+    margin: 0;
+    padding: 48px;
+  }
+}

@@ -6,20 +6,37 @@
     "layout": "two-column",
     "density": "spacious",
     "tone": "on-color-background",
-    "imageTreatment": "large photographic, one column"
+    "imageTreatment": "large photographic, one column",
+    "purpose": "image + text feature band"
   },
-  "contentPattern": "One media column (single image) paired with one text column (eyebrow, heading, paragraph, CTA). Supports image on either side.",
+  "contentPattern": {
+    "structure": "one row, two cells: [text: optional eyebrow paragraph, H2, paragraph, CTA link] | [picture] (either order)",
+    "summary": "One media column (single image) paired with one text column (eyebrow, heading, paragraph, CTA). Supports image on either side."
+  },
   "usage": {
-    "pagesFound": ["/us/en/home"],
-    "reuseCount": 1,
-    "reuseGuidance": "Use for image + text feature bands on a colored/grey section background. Add the 'reverse' option to place the image on the right and text on the left."
+    "pagesFound": [
+      "/us/en/home"
+    ],
+    "reuseCount": 2,
+    "reuseGuidance": "Use for image + text feature bands on a colored/grey section background. Add the 'reverse' option to place the image on the right and text on the left.",
+    "pagesUsing": [
+      "/us/en/markets/aerospace-and-defense"
+    ],
+    "lastUsed": "2026-10-07T02:16:45.174Z"
   },
   "options": [
     {
-      "name": "reverse",
       "class": "reverse",
+      "label": "Reverse",
       "description": "Places the media column on the right and the text column on the left (desktop)."
+    },
+    {
+      "class": "full-bleed",
+      "label": "Full-bleed image",
+      "description": "50/50 split: the image fills its half edge to edge (object-fit: cover, no padding) and the text half is padded with the gutter. Works on sky-blue, grey, charcoal and white bands and overrides the sky-blue inset-image look. Cell order decides which side the image is on."
     }
   ],
-  "memberVariantIds": ["columns-media"]
+  "memberVariantIds": [
+    "columns-media"
+  ]
 }

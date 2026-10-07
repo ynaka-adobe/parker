@@ -1,0 +1,30 @@
+{
+  "variantName": "cards-teaser",
+  "baseBlock": "cards",
+  "canonicalModel": "collection",
+  "visualCharacteristics": {
+    "layout": "5-up row of light image-led tiles on desktop; horizontal scroll-snap slider on small screens",
+    "imageTreatment": "16:9 photo on top of each tile",
+    "density": "medium",
+    "colorScheme": "white background, dark text, blue text link",
+    "purpose": "teaser tiles linking to sub-pages (e.g. Aerospace Submarkets)"
+  },
+  "contentPattern": {
+    "structure": "[picture] | [H3 title, short description paragraph, 'Learn More' link]",
+    "summary": "repeating teaser cards: image, H3, description, Learn More link",
+    "imageCount": 1,
+    "buttonCount": 0,
+    "hasDescription": true
+  },
+  "usage": {
+    "pagesUsing": [
+      "/us/en/markets/aerospace-and-defense"
+    ],
+    "reuseCount": 1,
+    "lastUsed": "2026-10-07T00:00:00.000Z"
+  },
+  "options": [],
+  "memberVariantIds": [
+    "cards-teaser"
+  ]
+}

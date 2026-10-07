@@ -1,0 +1,29 @@
+{
+  "variantName": "hero-card",
+  "baseBlock": "hero",
+  "canonicalModel": "standalone",
+  "visualCharacteristics": {
+    "layout": "full-bleed background photo with a white boxed content card overlaid on the left",
+    "imageTreatment": "background cover image",
+    "density": "medium",
+    "colorScheme": "white card, dark text, gold pill CTA",
+    "purpose": "featured content promo (e.g. white paper) over a photo"
+  },
+  "contentPattern": {
+    "structure": "row 1: background picture; row 2: eyebrow paragraph, H2 heading, paragraph, CTA link",
+    "summary": "hero with boxed light content card instead of dark scrim",
+    "imageCount": 1,
+    "buttonCount": 1
+  },
+  "usage": {
+    "pagesUsing": [
+      "/us/en/markets/aerospace-and-defense"
+    ],
+    "reuseCount": 1,
+    "lastUsed": "2026-10-07T00:00:00.000Z"
+  },
+  "options": [],
+  "memberVariantIds": [
+    "hero-card"
+  ]
+}

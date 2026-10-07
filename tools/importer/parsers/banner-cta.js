@@ -5,6 +5,12 @@
  * Source: https://www.parker.com/us/en/home.html
  * Local model (blocks/banner-cta/README.md): standalone block, single block table,
  * one row / one cell of content. Source content: eyebrow, title, description, CTA.
+ *
+ * Also used by the markets template: the gold closing strip
+ * (.cmp-parker-gold-theme.cmp-parker-secondary-img-box-theme) has no eyebrow, an
+ * h2 title, a description paragraph with an inline "find a local distributor"
+ * link (kept inside the description, not treated as a CTA) and a single
+ * "Contact an Expert" .btn-align CTA. Same selectors handle both pages.
  */
 export default function parse(element, { document }) {
   const scope = element.querySelector('.image-box-container__opacity-overlay, .left-box') || element;

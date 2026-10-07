@@ -116,3 +116,41 @@ main > .section > .columns-media-wrapper {
     aspect-ratio: 16 / 9;
   }
 }
+
+/* full-bleed option: 50/50 split, image fills its half edge to edge, text half padded.
+   Works on any band (sky-blue, grey, charcoal, white) and overrides the sky-blue inset look.
+   Image cell order in content decides left/right. */
+.section .columns-media.full-bleed > div {
+  gap: 0;
+  padding: 0;
+}
+
+.section .columns-media.full-bleed .columns-media-text-col {
+  padding: 32px var(--gutter);
+}
+
+@media (width >= 900px) {
+  .section .columns-media.full-bleed > div {
+    flex-direction: row;
+    align-items: stretch;
+    gap: 0;
+    padding: 0;
+  }
+
+  .section .columns-media.full-bleed > div > .columns-media-img-col {
+    flex: 1 1 50%;
+  }
+
+  .section .columns-media.full-bleed .columns-media-text-col {
+    flex: 1 1 50%;
+    justify-content: center;
+    padding: 64px var(--gutter);
+  }
+
+  .section .columns-media.full-bleed .columns-media-img-col img {
+    height: 100%;
+    min-height: 432px;
+    aspect-ratio: auto;
+    object-fit: cover;
+  }
+}

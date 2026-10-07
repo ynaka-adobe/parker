@@ -1,0 +1,62 @@
+/* banner-inline: one-line promo strip (heading left, CTA right) on a colour band, e.g. sky-blue */
+.banner-inline .banner-inline-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+  padding: 40px 0;
+}
+
+.banner-inline .banner-inline-text > * {
+  margin: 0 0 8px;
+}
+
+.banner-inline .banner-inline-text > :last-child {
+  margin-bottom: 0;
+}
+
+.banner-inline .banner-inline-text :is(h2, h3) {
+  font-size: var(--heading-font-size-xl);
+  font-weight: var(--font-weight-regular);
+  line-height: 1.2;
+}
+
+.banner-inline .banner-inline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.banner-inline .banner-inline-actions p.button-container {
+  margin: 0;
+}
+
+.banner-inline a.button:any-link {
+  margin: 0;
+}
+
+/* on the blue band the CTA is a white pill */
+.section.sky-blue .banner-inline a.button:any-link {
+  background-color: var(--background-color);
+  color: var(--parker-black);
+}
+
+.section.sky-blue .banner-inline a.button:hover,
+.section.sky-blue .banner-inline a.button:focus {
+  background-color: var(--parker-grey);
+  color: var(--parker-black);
+}
+
+@media (width >= 900px) {
+  .banner-inline .banner-inline-body {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 48px;
+    padding: 48px 0;
+  }
+
+  .banner-inline .banner-inline-actions {
+    flex: 0 0 auto;
+  }
+}

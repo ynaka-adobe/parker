@@ -17,6 +17,7 @@
   --parker-blue: #0076ce;
   --parker-black: #101820;
   --parker-grey: #f2f2f2;
+  --parker-charcoal: #1c2b39;
   --parker-rule-color: #d9d9d9;
 
   /* colors */
@@ -282,6 +283,12 @@ main > .section:first-of-type {
   margin-top: 0;
 }
 
+/* charcoal band buttons: white pill (band colours are defined below) */
+main .section.charcoal a.button:any-link {
+  background-color: var(--background-color);
+  color: var(--parker-black);
+}
+
 /* section title with an inline "View all" link (source: cmp-titlelink) */
 main .default-content-wrapper:has(> h2:first-child + p.button-container:last-child) {
   display: flex;
@@ -366,4 +373,14 @@ main .section.gold :is(h1, h2, h3, h4, h5, h6) {
 
 main .section.grey {
   background-color: var(--parker-grey);
+}
+
+main .section.charcoal {
+  margin: 0;
+  background-color: var(--parker-charcoal);
+  color: var(--background-color);
+}
+
+main .section.charcoal :is(h1, h2, h3, h4, h5, h6, p) {
+  color: var(--background-color);
 }

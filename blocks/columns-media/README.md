@@ -1,18 +1,19 @@
 # columns-media
 
-Custom **columns** block. 
+Custom **columns** block. Purpose: image + text feature band.
 
 ## Authoring (Document Authoring)
 
 Model: `standalone`
 
-Single block table. Content: one row, one cell of content.
+Single block table. Content: one row, two cells: [text: optional eyebrow paragraph, H2, paragraph, CTA link] | [picture] (either order).
 
 ## Supported variations
 
 | Variation | Option class |
 | --- | --- |
-| undefined | `reverse` |
+| Reverse | `reverse` |
+| Full-bleed image | `full-bleed` |
 
 ## Universal Editor fields
 

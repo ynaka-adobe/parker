@@ -10,10 +10,18 @@
   },
   "contentPattern": "Text-only promotional CTA strip: eyebrow, heading, paragraph, and a single CTA button, left-aligned on a solid background.",
   "usage": {
-    "pagesFound": ["/us/en/home"],
-    "reuseCount": 1,
-    "reuseGuidance": "Use for a full-width promotional call-to-action band with no imagery — eyebrow label, heading, supporting text, and one button."
+    "pagesFound": [
+      "/us/en/home"
+    ],
+    "reuseCount": 2,
+    "reuseGuidance": "Use for a full-width promotional call-to-action band with no imagery — eyebrow label, heading, supporting text, and one button.",
+    "pagesUsing": [
+      "/us/en/markets/aerospace-and-defense"
+    ],
+    "lastUsed": "2026-10-07T02:16:45.174Z"
   },
   "options": [],
-  "memberVariantIds": ["banner-cta"]
+  "memberVariantIds": [
+    "banner-cta"
+  ]
 }

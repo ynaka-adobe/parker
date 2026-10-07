@@ -10,10 +10,18 @@
   },
   "contentPattern": "Text-only news list; each item is a linked article title with a source/date meta line, items separated by horizontal rules. No images.",
   "usage": {
-    "pagesFound": ["/us/en/home"],
-    "reuseCount": 1,
-    "reuseGuidance": "Use for a stacked list of news/article links with a title and a source/date meta line, no thumbnails. One row per news item."
+    "pagesFound": [
+      "/us/en/home"
+    ],
+    "reuseCount": 2,
+    "reuseGuidance": "Use for a stacked list of news/article links with a title and a source/date meta line, no thumbnails. One row per news item.",
+    "pagesUsing": [
+      "/us/en/markets/aerospace-and-defense"
+    ],
+    "lastUsed": "2026-10-07T02:16:45.174Z"
   },
   "options": [],
-  "memberVariantIds": ["cards-news"]
+  "memberVariantIds": [
+    "cards-news"
+  ]
 }

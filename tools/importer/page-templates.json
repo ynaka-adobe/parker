@@ -9,8 +9,7 @@
         "https://www.parker.com/us/en/home.html"
       ],
       "representativeUrl": "https://www.parker.com/us/en/home.html",
-      "description": "Parker home page",
-      "urlPattern": "/us/en/*",
+      "description": "To be named in naming step",
       "blocks": [
         {
           "name": "hero-banner",
@@ -150,7 +149,312 @@
             "h2"
           ]
         }
+      ],
+      "urlPattern": "/us/en/*"
+    },
+    {
+      "name": "markets",
+      "urls": [
+        "https://www.parker.com/us/en/markets/aerospace-and-defense.html",
+        "https://www.parker.com/us/en/markets/aerospace-industry-trends.html",
+        "https://www.parker.com/us/en/markets/clean-tech-trends.html",
+        "https://www.parker.com/us/en/markets/digitalization-trends.html",
+        "https://www.parker.com/us/en/markets/electrification-trends.html",
+        "https://www.parker.com/us/en/markets/electronics-and-semiconductors.html",
+        "https://www.parker.com/us/en/markets/energy.html",
+        "https://www.parker.com/us/en/markets/hvac-and-refrigeration.html",
+        "https://www.parker.com/us/en/markets/in-plant-and-industrial-equipment.html",
+        "https://www.parker.com/us/en/markets/interactive-library.html",
+        "https://www.parker.com/us/en/markets/life-sciences.html",
+        "https://www.parker.com/us/en/markets/off-highway.html",
+        "https://www.parker.com/us/en/markets/transportation.html"
+      ],
+      "representativeUrl": "https://www.parker.com/us/en/markets/aerospace-and-defense.html",
+      "description": "Market and trend pages (/us/en/markets/*): grey title band (H1), full-bleed hero, image+text bands (columns-media), submarket cards (cards-teaser), blue inline CTA strip (banner-inline), featured white-paper card over photo (hero-card), blog link list (cards-news), grey rich-text/FAQ default content, gold closing CTA (banner-cta). columns-media OPTION \"full-bleed\": add it when the matched source grid column has class cmp-parker-secondary-img-box-theme (matched by the first columns-media instance selector) - on the representative page that is the sky-blue Ebrake section (ebrake-video) and the charcoal Next-Generation Technologies section (next-gen-tech); all other columns-media instances (white browse-products, grey bands) use the default/inset look. Skipped sections (breadcrumb, empty-4-4-4, empty-container) carry no content: remove the breadcrumb in cleanup and do not emit a section break for them.",
+      "blocks": [
+        {
+          "name": "hero-banner",
+          "instances": [
+            ".left-to-right-gradient.aem-GridColumn",
+            ".cmp-parker-dark-opacity-50.aem-GridColumn",
+            ".right-to-left-gradient.aem-GridColumn",
+            ".aem-GridColumn:not(.cmp-parker-white-background):has(> .cq-dd-image)"
+          ]
+        },
+        {
+          "name": "columns-media",
+          "instances": [
+            ".cmp-parker-secondary-img-box-theme.aem-GridColumn:has(> .image-box-container .image-wrapper)",
+            ".aem-GridColumn:has(> .image-box-container .image-wrapper)"
+          ]
+        },
+        {
+          "name": "cards-teaser",
+          "instances": [
+            ".parker-carousel",
+            ".layout-col-4:has(.cmp-parker-card-container .card)"
+          ]
+        },
+        {
+          "name": "banner-inline",
+          "instances": [
+            ".layout-col-8-4.aem-GridColumn:has(.image-box-container):not(:has(.image-wrapper))"
+          ]
+        },
+        {
+          "name": "hero-card",
+          "instances": [
+            ".cmp-parker-white-background.aem-GridColumn:has(> .cq-dd-image)"
+          ]
+        },
+        {
+          "name": "cards-news",
+          "instances": [
+            ".layout-col-6-6.cmp-container_contentwrapper.aem-GridColumn:has(a[href*=\"blog.parker.com\"])"
+          ]
+        },
+        {
+          "name": "banner-cta",
+          "instances": [
+            ".cmp-parker-gold-theme.cmp-parker-secondary-img-box-theme.aem-GridColumn"
+          ]
+        }
+      ],
+      "urlPattern": "/us/en/markets/*",
+      "sections": [
+        {
+          "id": "title-bar",
+          "name": "Page title band",
+          "selector": [
+            ".aem-GridColumn:has(> .cmp-title)"
+          ],
+          "style": "grey",
+          "blocks": [],
+          "defaultContent": [
+            ".cmp-title h1"
+          ]
+        },
+        {
+          "id": "breadcrumb",
+          "name": "Breadcrumb (skipped - generated from page path, not authored)",
+          "selector": [
+            ".aem-GridColumn:has(> nav.cmp-breadcrumb)"
+          ],
+          "style": null,
+          "blocks": [],
+          "defaultContent": []
+        },
+        {
+          "id": "hero",
+          "name": "Market hero",
+          "selector": [
+            ".left-to-right-gradient.aem-GridColumn",
+            ".cmp-parker-dark-opacity-50.aem-GridColumn",
+            ".right-to-left-gradient.aem-GridColumn",
+            ".aem-GridColumn:not(.cmp-parker-white-background):has(> .cq-dd-image)"
+          ],
+          "style": null,
+          "blocks": [
+            "hero-banner"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "browse-products",
+          "name": "Interactive product browser promo",
+          "selector": [
+            ".aem-GridColumn--offset--default--0.aem-GridColumn--default--none:not(.cmp-parker-secondary-img-box-theme):has(> .image-box-container)"
+          ],
+          "style": null,
+          "blocks": [
+            "columns-media"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "innovations",
+          "name": "Rich-text intro",
+          "selector": [
+            ".grey-bg.aem-GridColumn:has(> .aem-container > div > .title-description-container)",
+            ".grey-bg.aem-GridColumn:not(.cmp-container_contentwrapper):has(> .aem-container)"
+          ],
+          "style": "grey",
+          "blocks": [],
+          "defaultContent": [
+            ".title-description-container h2",
+            ".title-description-container p",
+            ".title-description-container ul"
+          ]
+        },
+        {
+          "id": "submarkets",
+          "name": "Submarket tiles slider",
+          "selector": [
+            ".aem-GridColumn:has(> .aem-container > div > .parker-carousel)",
+            ".aem-GridColumn:has(> .parker-carousel)"
+          ],
+          "style": null,
+          "blocks": [
+            "cards-teaser"
+          ],
+          "defaultContent": [
+            ".slider-carousel-container > h2"
+          ]
+        },
+        {
+          "id": "empty-4-4-4",
+          "name": "Empty 4-4-4 layout container (skipped)",
+          "selector": [
+            ".layout-col-4-4-4.cmp-container_contentwrapper.aem-GridColumn"
+          ],
+          "style": null,
+          "blocks": [],
+          "defaultContent": []
+        },
+        {
+          "id": "ebrake-video",
+          "name": "Image + text band, blue (columns-media full-bleed)",
+          "selector": [
+            ".cmp-parker-purpose-blue-theme.cmp-parker-secondary-img-box-theme.aem-GridColumn",
+            ".cmp-parker-blue-theme.aem-GridColumn:has(> .image-box-container)"
+          ],
+          "style": "sky-blue",
+          "blocks": [
+            "columns-media"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "next-gen-video",
+          "name": "Image + text band, grey (image left)",
+          "selector": [
+            ".grey-bg.aem-GridColumn:not(.cmp-parker-secondary-img-box-theme):has(> .image-box-container)"
+          ],
+          "style": "grey",
+          "blocks": [
+            "columns-media"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "next-gen-tech",
+          "name": "Image + text band, charcoal (columns-media full-bleed)",
+          "selector": [
+            ".cmp-parker-charcoal-theme.cmp-parker-secondary-img-box-theme.aem-GridColumn"
+          ],
+          "style": "charcoal",
+          "blocks": [
+            "columns-media"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "electroflight",
+          "name": "Image + text band, grey (second grey band)",
+          "selector": [
+            ".grey-bg.aem-GridColumn:not(.cmp-parker-secondary-img-box-theme):has(> .image-box-container) ~ .grey-bg.aem-GridColumn:not(.cmp-parker-secondary-img-box-theme):has(> .image-box-container)"
+          ],
+          "style": "grey",
+          "blocks": [
+            "columns-media"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "webinars",
+          "name": "Inline CTA strip",
+          "selector": [
+            ".layout-col-8-4.aem-GridColumn"
+          ],
+          "style": "sky-blue",
+          "blocks": [
+            "banner-inline"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "featured-white-paper",
+          "name": "Featured resource teaser",
+          "selector": [
+            ".cmp-parker-white-background.aem-GridColumn"
+          ],
+          "style": null,
+          "blocks": [
+            "hero-card"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "education",
+          "name": "Blog link list",
+          "selector": [
+            ".layout-col-6-6.cmp-container_contentwrapper.aem-GridColumn:has(a[href*=\"blog.parker.com\"])"
+          ],
+          "style": null,
+          "blocks": [
+            "cards-news"
+          ],
+          "defaultContent": [
+            ".col-ml-mr:first-child h2"
+          ]
+        },
+        {
+          "id": "empty-container",
+          "name": "Empty container (skipped)",
+          "selector": [
+            ".layout-col-6-6.cmp-container_contentwrapper.aem-GridColumn:has(a[href*=\"blog.parker.com\"]) + .aem-GridColumn:not(.grey-bg):not(.cmp-parker-gold-theme)"
+          ],
+          "style": null,
+          "blocks": [],
+          "defaultContent": []
+        },
+        {
+          "id": "faqs",
+          "name": "Static FAQ text",
+          "selector": [
+            ".grey-bg.cmp-container_contentwrapper.aem-GridColumn:has(> .aem-container > .grey-bg.col-ml-mr)",
+            ".grey-bg.cmp-container_contentwrapper.aem-GridColumn:has(> .aem-container > .col-ml-mr)"
+          ],
+          "style": "grey",
+          "blocks": [],
+          "defaultContent": [
+            ".col-ml-mr h2",
+            ".col-ml-mr p"
+          ]
+        },
+        {
+          "id": "contact-cta",
+          "name": "Closing CTA strip",
+          "selector": [
+            ".cmp-parker-gold-theme.cmp-parker-secondary-img-box-theme.aem-GridColumn"
+          ],
+          "style": "gold",
+          "blocks": [
+            "banner-cta"
+          ],
+          "defaultContent": []
+        }
       ]
+    },
+    {
+      "name": "markets-2",
+      "urls": [
+        "https://www.parker.com/us/en/markets.html"
+      ],
+      "representativeUrl": "https://www.parker.com/us/en/markets.html",
+      "description": "To be named in naming step",
+      "blocks": [],
+      "urlPattern": "/us/en/*"
+    },
+    {
+      "name": "interactive-library",
+      "urls": [
+        "https://www.parker.com/us/en/markets/interactive-library/parker-world.html"
+      ],
+      "representativeUrl": "https://www.parker.com/us/en/markets/interactive-library/parker-world.html",
+      "description": "To be named in naming step",
+      "blocks": [],
+      "urlPattern": "/us/en/markets/interactive-library/*"
     }
   ]
 }

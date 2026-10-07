@@ -1,0 +1,29 @@
+{
+  "variantName": "banner-inline",
+  "baseBlock": "banner",
+  "canonicalModel": "standalone",
+  "visualCharacteristics": {
+    "layout": "single horizontal row: heading left, CTA button right; stacks on mobile",
+    "imageTreatment": "none",
+    "density": "low",
+    "colorScheme": "sits in the blue (sky-blue) section band, white heading, white pill button",
+    "purpose": "inline promo strip with a single call to action"
+  },
+  "contentPattern": {
+    "structure": "one row, one cell: H2 heading (optional paragraph) and one CTA link",
+    "summary": "text-only inline promo strip: heading + one CTA",
+    "imageCount": 0,
+    "buttonCount": 1
+  },
+  "usage": {
+    "pagesUsing": [
+      "/us/en/markets/aerospace-and-defense"
+    ],
+    "reuseCount": 1,
+    "lastUsed": "2026-10-07T00:00:00.000Z"
+  },
+  "options": [],
+  "memberVariantIds": [
+    "banner-inline"
+  ]
+}
