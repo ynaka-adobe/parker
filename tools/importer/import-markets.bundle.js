@@ -343,7 +343,7 @@ var CustomImportScript = (() => {
         "iframe",
         "script"
       ]);
-      element.querySelectorAll('h1.cmp-title__text > a.cmp-title__link[href="#"]').forEach((a) => {
+      element.querySelectorAll('.cmp-title__text > a.cmp-title__link[href="#"]').forEach((a) => {
         a.replaceWith(...a.childNodes);
       });
       const columns = [...element.querySelectorAll(".aem-Grid > .aem-GridColumn")].reverse();

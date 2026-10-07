@@ -78,9 +78,10 @@ export default function transform(hookName, element, payload) {
       'script',
     ]);
 
-    // Page-title H1 band: keep the H1, unwrap its dead self-link
-    // (<h1 class="cmp-title__text"><a href="#" class="cmp-title__link">).
-    element.querySelectorAll('h1.cmp-title__text > a.cmp-title__link[href="#"]').forEach((a) => {
+    // Title components (page-title H1 band, "Key Trends"-style H2 bands): keep the
+    // heading, unwrap its dead self-link
+    // (<hN class="cmp-title__text"><a href="#" class="cmp-title__link">).
+    element.querySelectorAll('.cmp-title__text > a.cmp-title__link[href="#"]').forEach((a) => {
       a.replaceWith(...a.childNodes);
     });
 

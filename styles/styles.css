@@ -283,10 +283,15 @@ main > .section:first-of-type {
   margin-top: 0;
 }
 
-/* charcoal band buttons: white pill (band colours are defined below) */
+/* band buttons (band colours are defined below): white pill on charcoal, dark pill on gold */
 main .section.charcoal a.button:any-link {
   background-color: var(--background-color);
   color: var(--parker-black);
+}
+
+main .section.gold a.button:any-link {
+  background-color: var(--parker-black);
+  color: var(--background-color);
 }
 
 /* section title with an inline "View all" link (source: cmp-titlelink) */

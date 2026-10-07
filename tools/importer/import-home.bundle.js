@@ -174,7 +174,16 @@ var CustomImportScript = (() => {
     if (el.classList.contains("order-right")) return "right";
     return null;
   }
-  function parse5(element, { document: document2 }) {
+  var FULL_BLEED_YELLOW_PAGES = ["/us/en/markets.html"];
+  function pagePath(url, params) {
+    const raw = params && params.originalURL || url || "";
+    try {
+      return new URL(raw).pathname;
+    } catch (e) {
+      return "";
+    }
+  }
+  function parse5(element, { document: document2, url, params }) {
     const textBox = element.querySelector('.left-box, .image-box-container__opacity-overlay, [class*="left-box"]');
     const mediaBox = element.querySelector('.image-wrapper, .image-container, [class*="image-wrapper"]');
     const image = element.querySelector(".image-wrapper img, .image-container img, picture img, img");
@@ -213,7 +222,7 @@ var CustomImportScript = (() => {
     }
     const cells = [];
     cells.push(imageFirst ? [mediaCell, textCell] : [textCell, mediaCell]);
-    const fullBleed = element.classList.contains("cmp-parker-secondary-img-box-theme");
+    const fullBleed = element.classList.contains("cmp-parker-secondary-img-box-theme") || element.classList.contains("cmp-parker-yellow-theme") && FULL_BLEED_YELLOW_PAGES.includes(pagePath(url, params));
     const block = fullBleed ? WebImporter.Blocks.createBlock(document2, { name: "columns-media (full-bleed)", cells }) : WebImporter.Blocks.createBlock(document2, { name: "columns-media", cells });
     element.replaceWith(block);
   }
@@ -254,12 +263,15 @@ var CustomImportScript = (() => {
       ]);
       WebImporter.DOMUtils.remove(element, [
         "#embedded-messaging",
-        'div[id^="ZN_"]'
+        'div[id^="ZN_"]',
+        // live-rendered pages keep the SPA's <noscript>"You need to enable JavaScript…"
+        "noscript"
       ]);
       WebImporter.DOMUtils.remove(element, [
         ".aem-GridColumn--default--hide",
         "#db_lr_pixel_ad",
         'img[src*="rlcdn.com"]',
+        'img[src*="/akam/"]',
         'img[src^="blob:"]',
         'img[width="0"][height="0"]'
       ]);
@@ -275,7 +287,7 @@ var CustomImportScript = (() => {
         "iframe",
         "script"
       ]);
-      element.querySelectorAll('h1.cmp-title__text > a.cmp-title__link[href="#"]').forEach((a) => {
+      element.querySelectorAll('.cmp-title__text > a.cmp-title__link[href="#"]').forEach((a) => {
         a.replaceWith(...a.childNodes);
       });
       const columns = [...element.querySelectorAll(".aem-Grid > .aem-GridColumn")].reverse();
