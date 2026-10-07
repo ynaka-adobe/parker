@@ -103,5 +103,47 @@ export default function transform(hookName, element, payload) {
     columns.forEach((col) => {
       if (isEmptyColumn(col)) col.remove();
     });
+
+    rewriteLinks(element);
   }
+}
+
+// Pages migrated to EDS (served extensionless). Links to these become site-relative
+// extensionless paths; every other parker.com page link points back to parker.com,
+// because EDS 404s on ".html" paths and those pages don't exist here yet.
+// Extend this list as more pages are migrated.
+const MIGRATED_PATHS = new Set([
+  '/us/en/home',
+  '/us/en/markets',
+  '/us/en/markets/aerospace-and-defense',
+  '/us/en/markets/aerospace-industry-trends',
+  '/us/en/markets/clean-tech-trends',
+  '/us/en/markets/digitalization-trends',
+  '/us/en/markets/electrification-trends',
+  '/us/en/markets/electronics-and-semiconductors',
+  '/us/en/markets/energy',
+  '/us/en/markets/hvac-and-refrigeration',
+  '/us/en/markets/in-plant-and-industrial-equipment',
+  '/us/en/markets/interactive-library',
+  '/us/en/markets/interactive-library/parker-world',
+  '/us/en/markets/life-sciences',
+  '/us/en/markets/off-highway',
+  '/us/en/markets/transportation',
+]);
+const SOURCE_ORIGIN = 'https://www.parker.com';
+
+function rewriteLinks(element) {
+  element.querySelectorAll('a[href]').forEach((a) => {
+    const href = a.getAttribute('href');
+    let url;
+    if (href.startsWith('/') && !href.startsWith('//')) url = new URL(href, SOURCE_ORIGIN);
+    else if (href.startsWith(`${SOURCE_ORIGIN}/`)) url = new URL(href);
+    else return; // mailto:, other hosts, anchors
+    const path = url.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/';
+    if (MIGRATED_PATHS.has(path)) {
+      a.setAttribute('href', `${path}${url.search}${url.hash}`);
+    } else if (href.startsWith('/') && path !== '/') {
+      a.setAttribute('href', `${SOURCE_ORIGIN}${href}`);
+    }
+  });
 }

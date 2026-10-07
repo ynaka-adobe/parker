@@ -294,6 +294,15 @@ main .section.gold a.button:any-link {
   color: var(--background-color);
 }
 
+/* text-only content in a coloured band needs breathing room (blocks pad themselves) */
+main .section:is(.charcoal, .sky-blue, .gold) > .default-content-wrapper {
+  padding-block: 40px;
+}
+
+main .section:is(.charcoal, .sky-blue, .gold) > .default-content-wrapper > :first-child {
+  margin-top: 0;
+}
+
 /* section title with an inline "View all" link (source: cmp-titlelink) */
 main .default-content-wrapper:has(> h2:first-child + p.button-container:last-child) {
   display: flex;
