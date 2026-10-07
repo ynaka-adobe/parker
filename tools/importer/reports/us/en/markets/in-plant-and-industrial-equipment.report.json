@@ -1,0 +1,16 @@
+{
+  "status": "success",
+  "url": "https://www.parker.com/us/en/markets/in-plant-and-industrial-equipment.html",
+  "path": "us/en/markets/in-plant-and-industrial-equipment",
+  "timestamp": "2026-10-07T06:02:13.064Z",
+  "title": "In-Plant & Industrial Equipment | Parker US",
+  "template": "markets",
+  "blocks": [
+    "hero-banner",
+    "columns-media",
+    "columns-media",
+    "cards-teaser",
+    "banner-inline",
+    "banner-cta"
+  ]
+}

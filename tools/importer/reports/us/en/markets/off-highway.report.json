@@ -1,0 +1,20 @@
+{
+  "status": "success",
+  "url": "https://www.parker.com/us/en/markets/off-highway.html",
+  "path": "us/en/markets/off-highway",
+  "timestamp": "2026-10-07T06:04:51.007Z",
+  "title": "Off-Highway | Parker US",
+  "template": "markets",
+  "blocks": [
+    "hero-banner",
+    "columns-media",
+    "columns-media",
+    "columns-media",
+    "columns-media",
+    "columns-media",
+    "cards-teaser",
+    "banner-inline",
+    "hero-card",
+    "banner-cta"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "status": "success",
+  "url": "https://www.parker.com/us/en/markets.html",
+  "path": "us/en/markets",
+  "timestamp": "2026-10-07T05:56:56.851Z",
+  "title": "Trends & Markets | Parker US",
+  "template": "markets-2",
+  "blocks": [
+    "carousel-hero",
+    "columns-media",
+    "columns-media",
+    "cards-teaser",
+    "cards-teaser",
+    "cards-teaser"
+  ]
+}

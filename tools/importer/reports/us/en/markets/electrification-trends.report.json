@@ -1,0 +1,18 @@
+{
+  "status": "success",
+  "url": "https://www.parker.com/us/en/markets/electrification-trends.html",
+  "path": "us/en/markets/electrification-trends",
+  "timestamp": "2026-10-07T06:00:23.635Z",
+  "title": "Electrification Trends | Parker Insights on Technology, Markets & Sustainability | Parker US",
+  "template": "markets",
+  "blocks": [
+    "hero-banner",
+    "columns-media",
+    "columns-media",
+    "columns-media",
+    "columns-media",
+    "cards-teaser",
+    "cards-teaser",
+    "banner-cta"
+  ]
+}

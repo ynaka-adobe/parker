@@ -1,0 +1,17 @@
+{
+  "status": "success",
+  "url": "https://www.parker.com/us/en/markets/hvac-and-refrigeration.html",
+  "path": "us/en/markets/hvac-and-refrigeration",
+  "timestamp": "2026-10-07T06:01:21.241Z",
+  "title": "HVAC & Refrigeration | Parker US",
+  "template": "markets",
+  "blocks": [
+    "hero-banner",
+    "columns-media",
+    "columns-media",
+    "cards-teaser",
+    "banner-inline",
+    "cards-news",
+    "banner-cta"
+  ]
+}

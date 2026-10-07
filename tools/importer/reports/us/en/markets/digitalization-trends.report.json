@@ -1,0 +1,16 @@
+{
+  "status": "success",
+  "url": "https://www.parker.com/us/en/markets/digitalization-trends.html",
+  "path": "us/en/markets/digitalization-trends",
+  "timestamp": "2026-10-07T05:59:29.809Z",
+  "title": "Digitalization Trends in Manufacturing | IoT, Innovation & Industry Insights | Parker US",
+  "template": "markets",
+  "blocks": [
+    "hero-banner",
+    "columns-media",
+    "columns-media",
+    "columns-media",
+    "cards-teaser",
+    "banner-cta"
+  ]
+}

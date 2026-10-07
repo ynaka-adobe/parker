@@ -1,0 +1,17 @@
+{
+  "status": "success",
+  "url": "https://www.parker.com/us/en/markets/clean-tech-trends.html",
+  "path": "us/en/markets/clean-tech-trends",
+  "timestamp": "2026-10-07T05:58:36.318Z",
+  "title": "Clean Tech Trends in Manufacturing | Energy, AI & Sustainability Insights | Parker US",
+  "template": "markets",
+  "blocks": [
+    "hero-banner",
+    "columns-media",
+    "columns-media",
+    "columns-media",
+    "cards-teaser",
+    "cards-teaser",
+    "banner-cta"
+  ]
+}

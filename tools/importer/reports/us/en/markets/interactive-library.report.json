@@ -1,0 +1,18 @@
+{
+  "status": "success",
+  "url": "https://www.parker.com/us/en/markets/interactive-library.html",
+  "path": "us/en/markets/interactive-library",
+  "timestamp": "2026-10-07T06:03:06.144Z",
+  "title": "Interactive Library | Parker US",
+  "template": "markets",
+  "blocks": [
+    "hero-banner",
+    "columns-media",
+    "cards-teaser",
+    "cards-teaser",
+    "cards-teaser",
+    "cards-teaser",
+    "cards-teaser",
+    "cards-teaser"
+  ]
+}

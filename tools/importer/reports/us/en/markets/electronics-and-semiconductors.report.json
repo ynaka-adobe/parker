@@ -1,0 +1,15 @@
+{
+  "status": "success",
+  "url": "https://www.parker.com/us/en/markets/electronics-and-semiconductors.html",
+  "path": "us/en/markets/electronics-and-semiconductors",
+  "timestamp": "2026-10-07T06:01:15.626Z",
+  "title": "Electronics & Semiconductors | Parker US",
+  "template": "markets",
+  "blocks": [
+    "hero-banner",
+    "columns-media",
+    "cards-teaser",
+    "hero-card",
+    "banner-cta"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "status": "success",
+  "url": "https://www.parker.com/us/en/markets/interactive-library/parker-world.html",
+  "path": "us/en/markets/interactive-library/parker-world",
+  "timestamp": "2026-10-07T05:57:01.467Z",
+  "title": "Parker World | Parker US",
+  "template": "interactive-library",
+  "blocks": [
+    "embed-app",
+    "banner-cta",
+    "cards-teaser"
+  ]
+}

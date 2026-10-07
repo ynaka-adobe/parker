@@ -1,0 +1,16 @@
+{
+  "status": "success",
+  "url": "https://www.parker.com/us/en/markets/aerospace-industry-trends.html",
+  "path": "us/en/markets/aerospace-industry-trends",
+  "timestamp": "2026-10-07T05:57:44.211Z",
+  "title": "Aerospace and Defense Trends | Parker Innovation in AI, Green Aviation & Manufacturing | Parker US",
+  "template": "markets",
+  "blocks": [
+    "hero-banner",
+    "columns-media",
+    "columns-media",
+    "cards-teaser",
+    "cards-teaser",
+    "banner-cta"
+  ]
+}

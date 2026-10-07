@@ -1,0 +1,18 @@
+{
+  "status": "success",
+  "url": "https://www.parker.com/us/en/markets/life-sciences.html",
+  "path": "us/en/markets/life-sciences",
+  "timestamp": "2026-10-07T06:03:58.874Z",
+  "title": "Life Sciences | Parker US",
+  "template": "markets",
+  "blocks": [
+    "hero-banner",
+    "columns-media",
+    "columns-media",
+    "columns-media",
+    "columns-media",
+    "cards-teaser",
+    "hero-card",
+    "banner-cta"
+  ]
+}

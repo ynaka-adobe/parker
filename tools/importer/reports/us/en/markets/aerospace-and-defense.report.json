@@ -1,0 +1,21 @@
+{
+  "status": "success",
+  "url": "https://www.parker.com/us/en/markets/aerospace-and-defense.html",
+  "path": "us/en/markets/aerospace-and-defense",
+  "timestamp": "2026-10-07T05:56:49.969Z",
+  "title": "Aerospace & Defense | Parker US",
+  "template": "markets",
+  "blocks": [
+    "hero-banner",
+    "columns-media",
+    "columns-media",
+    "columns-media",
+    "columns-media",
+    "columns-media",
+    "cards-teaser",
+    "banner-inline",
+    "hero-card",
+    "cards-news",
+    "banner-cta"
+  ]
+}

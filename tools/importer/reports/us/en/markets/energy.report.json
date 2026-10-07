@@ -1,0 +1,16 @@
+{
+  "status": "success",
+  "url": "https://www.parker.com/us/en/markets/energy.html",
+  "path": "us/en/markets/energy",
+  "timestamp": "2026-10-07T06:01:18.858Z",
+  "title": "Energy | Parker US",
+  "template": "markets",
+  "blocks": [
+    "hero-banner",
+    "columns-media",
+    "columns-media",
+    "columns-media",
+    "cards-teaser",
+    "banner-cta"
+  ]
+}
