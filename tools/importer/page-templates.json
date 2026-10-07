@@ -600,9 +600,93 @@
         "https://www.parker.com/us/en/markets/interactive-library/parker-world.html"
       ],
       "representativeUrl": "https://www.parker.com/us/en/markets/interactive-library/parker-world.html",
-      "description": "To be named in naming step",
-      "blocks": [],
-      "urlPattern": "/us/en/markets/interactive-library/*"
+      "description": "Interactive Library pages (/us/en/markets/interactive-library/*): grey title band (H1), charcoal text-only intro band (H2 + 3 paragraphs, default content), grey band holding the full-width embedded external app (embed-app: one cell with the iframe src link https://parkerworld.parker.com/; the expand button, inline <style> and &nbsp; spacer text components in the same grid column are dropped), gold \"Why Parker\" CTA band (banner-cta; source class cmp-parker-yellow-theme, not cmp-parker-gold-theme), and an unstyled \"Learn More about our Markets\" H2 + 7-tile slider (plain cards-teaser, NOT the grid option; skip .slick-cloned slides). Breadcrumb and the empty grid column after the embed are removed by cleanup and get no section. Sections use the positional strategy (template not in THEME_SECTION_TEMPLATES).",
+      "blocks": [
+        {
+          "name": "embed-app",
+          "instances": [
+            ".aem-GridColumn:has(> .aem-container > div > .parker-embed-wrapper)"
+          ]
+        },
+        {
+          "name": "banner-cta",
+          "instances": [
+            ".cmp-parker-yellow-theme.aem-GridColumn:has(> .image-box-container)"
+          ]
+        },
+        {
+          "name": "cards-teaser",
+          "instances": [
+            ".parker-carousel"
+          ]
+        }
+      ],
+      "urlPattern": "/us/en/markets/interactive-library/*",
+      "sections": [
+        {
+          "id": "title-bar",
+          "name": "Page title band",
+          "selector": [
+            ".aem-GridColumn:has(> .cmp-title h1)"
+          ],
+          "style": "grey",
+          "blocks": [],
+          "defaultContent": [
+            ".cmp-title h1"
+          ]
+        },
+        {
+          "id": "intro",
+          "name": "Real Solutions Across Real Markets intro band, charcoal (text only)",
+          "selector": [
+            ".cmp-parker-charcoal-theme.aem-GridColumn:has(> .image-box-container)"
+          ],
+          "style": "charcoal",
+          "blocks": [],
+          "defaultContent": [
+            ".cmp-parker-charcoal-theme .image-box-container__title",
+            ".cmp-parker-charcoal-theme .image-box-container__description p"
+          ]
+        },
+        {
+          "id": "parker-world-app",
+          "name": "Parker World interactive app embed, grey",
+          "selector": [
+            ".aem-GridColumn:has(> .aem-container > div > .parker-embed-wrapper)"
+          ],
+          "style": "grey",
+          "blocks": [
+            "embed-app"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "why-parker",
+          "name": "Why Parker CTA band, gold",
+          "selector": [
+            ".cmp-parker-yellow-theme.aem-GridColumn:has(> .image-box-container)"
+          ],
+          "style": "gold",
+          "blocks": [
+            "banner-cta"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "markets-tiles",
+          "name": "Learn More about our Markets heading + 7-tile slider",
+          "selector": [
+            ".aem-GridColumn:has(> .aem-container > div > .parker-carousel)"
+          ],
+          "style": null,
+          "blocks": [
+            "cards-teaser"
+          ],
+          "defaultContent": [
+            ".slider-carousel-container > h2"
+          ]
+        }
+      ]
     }
   ]
 }

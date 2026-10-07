@@ -85,6 +85,17 @@ export default function transform(hookName, element, payload) {
       a.replaceWith(...a.childNodes);
     });
 
+    // Image-box description paragraphs (e.g. Parker World charcoal intro) end with
+    // "<br>&nbsp;" spacers: strip trailing <br>s and whitespace/nbsp-only text nodes.
+    element.querySelectorAll('.image-box-container__description p').forEach((p) => {
+      let last = p.lastChild;
+      while (last && ((last.nodeType === 3 && !last.textContent.replace(/ /g, ' ').trim())
+        || (last.nodeType === 1 && last.tagName === 'BR'))) {
+        last.remove();
+        last = p.lastChild;
+      }
+    });
+
     // Empty AEM grid columns (e.g. markets: empty .layout-col-4-4-4 container,
     // empty plain .aem-GridColumn after the blog link list; home: empty column
     // after the hero). Deepest first so emptied parents are caught too.

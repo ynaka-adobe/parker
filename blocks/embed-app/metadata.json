@@ -1,0 +1,24 @@
+{
+  "variantName": "embed-app",
+  "baseBlock": "embed",
+  "canonicalModel": "standalone",
+  "visualCharacteristics": {
+    "purpose": "full-width interactive app iframe",
+    "layout": "full content width, fixed ~1050px tall on desktop (min(1050px, 85vh) on small screens), black background placeholder",
+    "controls": "'Expand' fullscreen toggle button top-right",
+    "density": "spacious",
+    "colorScheme": "black frame inside a grey section"
+  },
+  "contentPattern": "External interactive app embed: a single cell with a link to the app URL. Renders an iframe on allow-listed hosts (www.parker.com) and a dark launch panel with a 'Launch Parker World' button elsewhere.",
+  "usage": {
+    "pagesUsing": [
+      "/us/en/markets/interactive-library/parker-world"
+    ],
+    "reuseCount": 1,
+    "lastUsed": "2026-10-07T00:00:00.000Z"
+  },
+  "options": [],
+  "memberVariantIds": [
+    "embed-app"
+  ]
+}

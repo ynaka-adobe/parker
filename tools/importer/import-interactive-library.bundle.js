@@ -35,10 +35,10 @@ var CustomImportScript = (() => {
   };
   var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-  // tools/importer/import-home.js
-  var import_home_exports = {};
-  __export(import_home_exports, {
-    default: () => import_home_default
+  // tools/importer/import-interactive-library.js
+  var import_interactive_library_exports = {};
+  __export(import_interactive_library_exports, {
+    default: () => import_interactive_library_default
   });
 
   // tools/importer/parsers/banner-cta.js
@@ -63,20 +63,47 @@ var CustomImportScript = (() => {
     element.replaceWith(block);
   }
 
-  // tools/importer/parsers/cards-category.js
+  // tools/importer/parsers/cards-teaser.js
+  function isCardGrid(element) {
+    if (element.matches(".parker-carousel") || element.closest(".parker-carousel") || element.querySelector(".parker-carousel")) return false;
+    const isLayoutCol = Array.from(element.classList).some((c) => c.startsWith("layout-col-"));
+    return isLayoutCol && !!element.querySelector(".cmp-parker-card-container .card");
+  }
+  function retag(document2, el, tagName) {
+    if (!el || el.tagName.toLowerCase() === tagName) return el;
+    const h = document2.createElement(tagName);
+    Array.from(el.attributes).forEach((a) => h.setAttribute(a.name, a.value));
+    h.append(...el.childNodes);
+    el.replaceWith(h);
+    return h;
+  }
   function parse2(element, { document: document2 }) {
-    const cards = Array.from(element.querySelectorAll(".card"));
+    const grid = isCardGrid(element);
+    const sectionHeading = element.querySelector(".slider-carousel-container > h2, :scope > h2") || Array.from(element.querySelectorAll("h2")).find((h) => !h.closest(".card"));
+    const cards = Array.from(element.querySelectorAll(".card")).filter((card) => !card.closest(".slick-cloned"));
     const cells = [];
+    const seen = /* @__PURE__ */ new Set();
     cards.forEach((card) => {
       const image = card.querySelector(".card-img-top, picture img, img");
       const body = card.querySelector(".card-body") || card;
-      const title = body.querySelector(".card-title, h1, h2, h3, h4, h5, h6");
-      const description = body.querySelector(".card-description");
-      const ctaLinks = Array.from(card.querySelectorAll("a[href]"));
+      let title = body.querySelector(".card-title, h3, h2, h4");
+      if (grid && title && /^H[1-6]$/.test(title.tagName)) title = retag(document2, title, "h3");
+      const descRoot = body.querySelector(".card-description") || body;
+      const descParas = Array.from(descRoot.querySelectorAll("p")).filter((p) => !p.closest(".card-details") && !p.closest(".btn-align")).filter((p) => p.textContent.replace(/\u00a0/g, " ").trim());
+      const ctaLinks = Array.from(body.querySelectorAll(".btn-align a[href], a.btn[href]"));
+      if (!grid) {
+        const key = `${title ? title.textContent.trim() : ""}|${ctaLinks[0] ? ctaLinks[0].getAttribute("href") : ""}`;
+        if (seen.has(key)) return;
+        seen.add(key);
+      }
       const textCell = [];
       if (title) textCell.push(title);
-      if (description && description.textContent.trim()) textCell.push(description);
-      textCell.push(...ctaLinks);
+      textCell.push(...descParas);
+      ctaLinks.forEach((a) => {
+        const p = document2.createElement("p");
+        p.append(a);
+        textCell.push(p);
+      });
       if (image || textCell.length > 0) {
         cells.push([image || "", textCell]);
       }
@@ -85,166 +112,24 @@ var CustomImportScript = (() => {
       element.replaceWith(...element.childNodes);
       return;
     }
-    const block = WebImporter.Blocks.createBlock(document2, { name: "cards-category", cells });
-    element.replaceWith(block);
-  }
-
-  // tools/importer/parsers/cards-news.js
-  var isBlank = (el) => !el || !el.textContent.replace(/\u00a0/g, " ").trim();
-  function parseLinkList(element, document2) {
-    const sectionHeading = Array.from(element.querySelectorAll("h2, h3")).find((h) => !isBlank(h));
-    const itemParas = Array.from(element.querySelectorAll("p")).filter((p) => p.querySelector(":scope > a[href]"));
-    const cells = [];
-    itemParas.forEach((para) => {
-      const link = para.querySelector(":scope > a[href]");
-      if (!link || isBlank(link)) return;
-      const label = Array.from(para.childNodes).filter((n) => n !== link && n.nodeName !== "BR").map((n) => n.textContent).join(" ").replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
-      const titleP = document2.createElement("p");
-      titleP.append(link);
-      const contentCell = [titleP];
-      if (label) {
-        const labelP = document2.createElement("p");
-        labelP.textContent = label;
-        contentCell.push(labelP);
-      }
-      cells.push([contentCell]);
-    });
-    return { sectionHeading, cells };
-  }
-  function parse3(element, { document: document2 }) {
-    const items = Array.from(element.querySelectorAll(".cmp-news-v2-component__list"));
-    let cells = [];
-    let sectionHeading = null;
-    items.forEach((item) => {
-      const titleLink = item.querySelector(".cmp-news-v2-component__list-title-link, .cmp-news-v2-component__list-title a, a[href]");
-      const meta = item.querySelector(".cmp-news-v2-component__author");
-      const contentCell = [];
-      if (titleLink) contentCell.push(titleLink);
-      if (meta) contentCell.push(meta);
-      if (contentCell.length > 0) {
-        cells.push([contentCell]);
-      }
-    });
-    if (items.length === 0) {
-      ({ sectionHeading, cells } = parseLinkList(element, document2));
-    }
-    if (cells.length === 0) {
-      element.replaceWith(...element.childNodes);
-      return;
-    }
-    const block = WebImporter.Blocks.createBlock(document2, { name: "cards-news", cells });
+    const block = grid ? WebImporter.Blocks.createBlock(document2, { name: "cards-teaser (grid)", cells }) : WebImporter.Blocks.createBlock(document2, { name: "cards-teaser", cells });
     if (sectionHeading) element.before(sectionHeading);
     element.replaceWith(block);
   }
 
-  // tools/importer/parsers/carousel-hero.js
-  function parse4(element, { document: document2 }) {
-    const items = Array.from(element.querySelectorAll(".cmp-carousel__item"));
-    const cells = [];
-    items.forEach((item) => {
-      const image = item.querySelector(".cmp-teaser__image img, .cmp-image__image, picture img, img");
-      const content = item.querySelector(".cmp-teaser__content");
-      const contentCell = [];
-      if (content) {
-        const eyebrow = content.querySelector(".cmp-teaser__header-text");
-        const heading = content.querySelector(".cmp-teaser__title h1, .cmp-teaser__title h2, .cmp-teaser__title-link, h1, h2, h3");
-        const description = content.querySelector(".cmp-teaser__description");
-        const ctaLinks = Array.from(content.querySelectorAll(".btn-align a, a.btn"));
-        if (eyebrow) contentCell.push(eyebrow);
-        if (heading) contentCell.push(heading);
-        if (description) contentCell.push(description);
-        contentCell.push(...ctaLinks);
-      }
-      if (image || contentCell.length > 0) {
-        cells.push([image || "", contentCell]);
-      }
-    });
-    if (cells.length === 0) {
+  // tools/importer/parsers/embed-app.js
+  function parse3(element, { document: document2 }) {
+    const iframe = element.querySelector(".parker-embed-wrapper iframe[src], iframe[src]");
+    const src = iframe ? iframe.getAttribute("src") : "";
+    if (!src) {
       element.replaceWith(...element.childNodes);
       return;
     }
-    const block = WebImporter.Blocks.createBlock(document2, { name: "carousel-hero", cells });
-    element.replaceWith(block);
-  }
-
-  // tools/importer/parsers/columns-media.js
-  function visualSide(el) {
-    if (!el || !el.classList) return null;
-    if (el.classList.contains("order-left")) return "left";
-    if (el.classList.contains("order-right")) return "right";
-    return null;
-  }
-  var FULL_BLEED_YELLOW_PAGES = ["/us/en/markets.html"];
-  function pagePath(url, params) {
-    const raw = params && params.originalURL || url || "";
-    try {
-      return new URL(raw).pathname;
-    } catch (e) {
-      return "";
-    }
-  }
-  function parse5(element, { document: document2, url, params }) {
-    const textBox = element.querySelector('.left-box, .image-box-container__opacity-overlay, [class*="left-box"]');
-    const mediaBox = element.querySelector('.image-wrapper, .image-container, [class*="image-wrapper"]');
-    const image = element.querySelector(".image-wrapper img, .image-container img, picture img, img");
-    const textCell = [];
-    if (textBox) {
-      const eyebrow = textBox.querySelector(".cmp-parker-image-box-container__header-text");
-      const heading = textBox.querySelector(".image-box-container__title, h1, h2, h3");
-      const subtitle = textBox.querySelector(".image-box-container__subtitle");
-      const description = textBox.querySelector(".image-box-container__description");
-      const ctaLinks = Array.from(textBox.querySelectorAll(".btn-align a, a.btn"));
-      if (eyebrow) textCell.push(eyebrow);
-      if (heading) textCell.push(heading);
-      if (subtitle) textCell.push(subtitle);
-      if (description) textCell.push(description);
-      textCell.push(...ctaLinks);
-    }
-    const mediaCell = [];
-    if (image) {
-      mediaCell.push(image);
-    } else if (mediaBox) {
-      mediaCell.push(mediaBox);
-    }
-    if (textCell.length === 0 && mediaCell.length === 0) {
-      element.replaceWith(...element.childNodes);
-      return;
-    }
-    let imageFirst = false;
-    if (!element.classList.contains("cmp-parker-ibd-align-center")) {
-      const textCol = textBox && textBox.closest(".left-box") || textBox;
-      const mediaCol = element.querySelector(".image-wrapper") || mediaBox;
-      const mediaSide = visualSide(mediaCol);
-      const textSide = visualSide(textCol);
-      if (mediaSide === "left" || mediaSide === null && textSide === "right") {
-        imageFirst = true;
-      }
-    }
-    const cells = [];
-    cells.push(imageFirst ? [mediaCell, textCell] : [textCell, mediaCell]);
-    const fullBleed = element.classList.contains("cmp-parker-secondary-img-box-theme") || element.classList.contains("cmp-parker-yellow-theme") && FULL_BLEED_YELLOW_PAGES.includes(pagePath(url, params));
-    const block = fullBleed ? WebImporter.Blocks.createBlock(document2, { name: "columns-media (full-bleed)", cells }) : WebImporter.Blocks.createBlock(document2, { name: "columns-media", cells });
-    element.replaceWith(block);
-  }
-
-  // tools/importer/parsers/hero-banner.js
-  function parse6(element, { document: document2 }) {
-    const bgImage = element.querySelector(".cmp-teaser__image img, .cmp-image__image, picture img, img");
-    const heading = element.querySelector('.cmp-teaser__title h1, .cmp-teaser__title h2, .cmp-teaser__title-link, [class*="hero-text"], h1, h2');
-    const description = element.querySelector(".cmp-teaser__description, .cmp-teaser__header p");
-    const ctaLinks = Array.from(element.querySelectorAll(".btn-align a, a.btn, .cmp-teaser__action-link"));
-    if (!heading && !description && !bgImage) {
-      element.replaceWith(...element.childNodes);
-      return;
-    }
-    const cells = [];
-    if (bgImage) cells.push([bgImage]);
-    const contentCell = [];
-    if (heading) contentCell.push(heading);
-    if (description) contentCell.push(description);
-    contentCell.push(...ctaLinks);
-    cells.push([contentCell]);
-    const block = WebImporter.Blocks.createBlock(document2, { name: "hero-banner", cells });
+    const link = document2.createElement("a");
+    link.href = src;
+    link.textContent = src;
+    const cells = [[link]];
+    const block = WebImporter.Blocks.createBlock(document2, { name: "embed-app", cells });
     element.replaceWith(block);
   }
 
@@ -419,111 +304,101 @@ var CustomImportScript = (() => {
     }
   }
 
-  // tools/importer/import-home.js
+  // tools/importer/import-interactive-library.js
   var parsers = {
     "banner-cta": parse,
-    "cards-category": parse2,
-    "cards-news": parse3,
-    "carousel-hero": parse4,
-    "columns-media": parse5,
-    "hero-banner": parse6
+    "cards-teaser": parse2,
+    "embed-app": parse3
   };
   var PAGE_TEMPLATE = {
-    name: "home",
-    description: "Parker home page",
-    urls: [
-      "https://www.parker.com/us/en/home.html"
+    "name": "interactive-library",
+    "description": 'Interactive Library pages (/us/en/markets/interactive-library/*): grey title band (H1), charcoal text-only intro band (H2 + 3 paragraphs, default content), grey band holding the full-width embedded external app (embed-app: one cell with the iframe src link https://parkerworld.parker.com/; the expand button, inline <style> and &nbsp; spacer text components in the same grid column are dropped), gold "Why Parker" CTA band (banner-cta; source class cmp-parker-yellow-theme, not cmp-parker-gold-theme), and an unstyled "Learn More about our Markets" H2 + 7-tile slider (plain cards-teaser, NOT the grid option; skip .slick-cloned slides). Breadcrumb and the empty grid column after the embed are removed by cleanup and get no section. Sections use the positional strategy (template not in THEME_SECTION_TEMPLATES).',
+    "urls": [
+      "https://www.parker.com/us/en/markets/interactive-library/parker-world.html"
     ],
-    blocks: [
+    "blocks": [
       {
-        name: "hero-banner",
-        instances: [".left-to-right-gradient.aem-GridColumn"]
+        "name": "embed-app",
+        "instances": [
+          ".aem-GridColumn:has(> .aem-container > div > .parker-embed-wrapper)"
+        ]
       },
       {
-        name: "columns-media",
-        instances: [".cmp-parker-blue-theme.cmp-parker-ibd-align-center", ".grey-bg.aem-GridColumn"]
+        "name": "banner-cta",
+        "instances": [
+          ".cmp-parker-yellow-theme.aem-GridColumn:has(> .image-box-container)"
+        ]
       },
       {
-        name: "carousel-hero",
-        instances: [".cmp-carousel"]
-      },
-      {
-        name: "banner-cta",
-        instances: [".cmp-parker-gold-theme.cmp-parker-secondary-img-box-theme"]
-      },
-      {
-        name: "cards-category",
-        instances: [".parker-carousel"]
-      },
-      {
-        name: "cards-news",
-        instances: [".cmp-news-v2-component__container"]
+        "name": "cards-teaser",
+        "instances": [
+          ".parker-carousel"
+        ]
       }
     ],
-    sections: [
+    "sections": [
       {
-        id: "section-1",
-        name: "hero",
-        selector: [".left-to-right-gradient.aem-GridColumn"],
-        style: null,
-        blocks: ["hero-banner"],
-        defaultContent: []
+        "id": "title-bar",
+        "name": "Page title band",
+        "selector": [
+          ".aem-GridColumn:has(> .cmp-title h1)"
+        ],
+        "style": "grey",
+        "blocks": [],
+        "defaultContent": [
+          ".cmp-title h1"
+        ]
       },
       {
-        id: "section-2",
-        name: "our-purpose",
-        selector: [".cmp-parker-blue-theme.cmp-parker-ibd-align-center"],
-        style: "sky-blue",
-        blocks: ["columns-media"],
-        defaultContent: []
+        "id": "intro",
+        "name": "Real Solutions Across Real Markets intro band, charcoal (text only)",
+        "selector": [
+          ".cmp-parker-charcoal-theme.aem-GridColumn:has(> .image-box-container)"
+        ],
+        "style": "charcoal",
+        "blocks": [],
+        "defaultContent": [
+          ".cmp-parker-charcoal-theme .image-box-container__title",
+          ".cmp-parker-charcoal-theme .image-box-container__description p"
+        ]
       },
       {
-        id: "section-3",
-        name: "trends-carousel",
-        selector: [".cmp-carousel"],
-        style: null,
-        blocks: ["carousel-hero"],
-        defaultContent: []
+        "id": "parker-world-app",
+        "name": "Parker World interactive app embed, grey",
+        "selector": [
+          ".aem-GridColumn:has(> .aem-container > div > .parker-embed-wrapper)"
+        ],
+        "style": "grey",
+        "blocks": [
+          "embed-app"
+        ],
+        "defaultContent": []
       },
       {
-        id: "section-4",
-        name: "products-cta",
-        selector: [".cmp-parker-gold-theme.cmp-parker-secondary-img-box-theme"],
-        style: "gold",
-        blocks: ["banner-cta"],
-        defaultContent: []
+        "id": "why-parker",
+        "name": "Why Parker CTA band, gold",
+        "selector": [
+          ".cmp-parker-yellow-theme.aem-GridColumn:has(> .image-box-container)"
+        ],
+        "style": "gold",
+        "blocks": [
+          "banner-cta"
+        ],
+        "defaultContent": []
       },
       {
-        id: "section-5",
-        name: "featured-categories-heading",
-        selector: ["#spa-root > div > div > div.aem-container.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(1) > div.aem-container.aem-Grid.aem-Grid--12.aem-Grid--default--12 > div.aem-GridColumn.aem-GridColumn--default--12:nth-of-type(7)", "div.aem-GridColumn:has(> .cmp-titlelink_container)"],
-        style: null,
-        blocks: [],
-        defaultContent: ["h2"]
-      },
-      {
-        id: "section-6",
-        name: "featured-categories",
-        selector: [".parker-carousel"],
-        style: null,
-        blocks: ["cards-category"],
-        defaultContent: []
-      },
-      {
-        id: "section-7",
-        name: "about-parker",
-        selector: [".grey-bg.aem-GridColumn"],
-        style: "grey",
-        blocks: ["columns-media"],
-        defaultContent: []
-      },
-      {
-        id: "section-8",
-        name: "featured-news",
-        selector: [".cmp-container_contentwrapper"],
-        style: null,
-        blocks: ["cards-news"],
-        defaultContent: ["h2"]
+        "id": "markets-tiles",
+        "name": "Learn More about our Markets heading + 7-tile slider",
+        "selector": [
+          ".aem-GridColumn:has(> .aem-container > div > .parker-carousel)"
+        ],
+        "style": null,
+        "blocks": [
+          "cards-teaser"
+        ],
+        "defaultContent": [
+          ".slider-carousel-container > h2"
+        ]
       }
     ]
   };
@@ -573,7 +448,7 @@ var CustomImportScript = (() => {
     console.log(`Found ${pageBlocks.length} block instances on page`);
     return pageBlocks;
   }
-  var import_home_default = {
+  var import_interactive_library_default = {
     transform: (payload) => {
       const {
         document: document2,
@@ -616,5 +491,5 @@ var CustomImportScript = (() => {
       }];
     }
   };
-  return __toCommonJS(import_home_exports);
+  return __toCommonJS(import_interactive_library_exports);
 })();

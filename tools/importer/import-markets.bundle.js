@@ -346,6 +346,13 @@ var CustomImportScript = (() => {
       element.querySelectorAll('.cmp-title__text > a.cmp-title__link[href="#"]').forEach((a) => {
         a.replaceWith(...a.childNodes);
       });
+      element.querySelectorAll(".image-box-container__description p").forEach((p) => {
+        let last = p.lastChild;
+        while (last && (last.nodeType === 3 && !last.textContent.replace(/ /g, " ").trim() || last.nodeType === 1 && last.tagName === "BR")) {
+          last.remove();
+          last = p.lastChild;
+        }
+      });
       const columns = [...element.querySelectorAll(".aem-Grid > .aem-GridColumn")].reverse();
       columns.forEach((col) => {
         if (isEmptyColumn(col)) col.remove();

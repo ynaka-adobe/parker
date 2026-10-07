@@ -1,0 +1,132 @@
+/* embed-app: full-width interactive app iframe (or launch panel off allow-listed hosts) */
+main > .section > .embed-app-wrapper {
+  max-width: none;
+  padding: 0 16px;
+}
+
+main > .section.grey:has(> .embed-app-wrapper) {
+  padding: 48px 0;
+}
+
+.embed-app {
+  position: relative;
+  width: 100%;
+  background-color: var(--parker-black);
+  color: var(--background-color);
+}
+
+/* iframe mode */
+.embed-app .embed-app-frame {
+  position: relative;
+  width: 100%;
+  height: min(1050px, 85vh);
+}
+
+.embed-app .embed-app-frame iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background-color: var(--parker-black);
+}
+
+.embed-app .embed-app-toggle {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin: 0;
+  padding: 4px;
+  border: 0;
+  border-radius: 0;
+  background-color: rgb(0 0 0 / 60%);
+  color: var(--background-color);
+}
+
+.embed-app .embed-app-toggle:hover,
+.embed-app .embed-app-toggle:focus {
+  background-color: rgb(0 0 0 / 85%);
+  color: var(--background-color);
+}
+
+.embed-app .embed-app-toggle:focus-visible {
+  outline: 2px solid var(--parker-gold);
+  outline-offset: 2px;
+}
+
+.embed-app .embed-app-toggle svg {
+  width: 24px;
+  height: 24px;
+  fill: currentcolor;
+}
+
+/* expanded: native fullscreen or CSS fixed-overlay fallback */
+.embed-app:fullscreen .embed-app-frame,
+.embed-app.embed-app-expanded .embed-app-frame {
+  height: 100%;
+}
+
+.embed-app.embed-app-expanded:not(:fullscreen) {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+}
+
+body.embed-app-no-scroll {
+  overflow: hidden;
+}
+
+/* launch-panel mode */
+.embed-app .embed-app-launch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 480px;
+  padding: 48px var(--gutter);
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.embed-app .embed-app-launch > * {
+  margin: 0 0 16px;
+}
+
+.embed-app .embed-app-launch > :last-child {
+  margin-bottom: 0;
+}
+
+.embed-app .embed-app-launch-title {
+  color: var(--background-color);
+  font-size: var(--heading-font-size-xxl);
+  font-weight: var(--font-weight-regular);
+  line-height: 1.2;
+}
+
+.embed-app .embed-app-launch p {
+  color: var(--background-color);
+  font-size: var(--body-font-size-l);
+}
+
+.embed-app .embed-app-launch p.button-container {
+  margin-top: 8px;
+}
+
+.embed-app .embed-app-launch a.button:any-link {
+  margin: 0;
+}
+
+@media (width >= 900px) {
+  main > .section.grey:has(> .embed-app-wrapper) {
+    padding: 64px 0;
+  }
+
+  .embed-app .embed-app-frame {
+    height: 1050px;
+  }
+}
