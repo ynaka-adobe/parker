@@ -65,7 +65,9 @@ const PAGE_TEMPLATE = {
       "name": "cards-teaser",
       "instances": [
         ".parker-carousel",
-        ".layout-col-4:has(.cmp-parker-card-container .card)"
+        ".layout-col-4:has(.cmp-parker-card-container .card)",
+        ".layout-col-4-4-4:has(.cmp-parker-card-container .card)",
+        "[class*=\"layout-col-\"]:has(> .aem-container > .cmp-parker-border > .cmp-parker-card-container .card)"
       ]
     },
     {
@@ -309,8 +311,7 @@ const PAGE_TEMPLATE = {
   ]
 };
 
-// TRANSFORMER REGISTRY - cleanup runs first, section transformer after.
-// parker-sections uses its theme-class strategy for template name 'markets'.
+// TRANSFORMER REGISTRY - cleanup runs first, section transformer after
 const transformers = [
   cleanupTransformer,
   ...(PAGE_TEMPLATE.sections && PAGE_TEMPLATE.sections.length > 1 ? [sectionsTransformer] : []),

@@ -10,10 +10,18 @@
   },
   "contentPattern": "Rotating full-bleed hero slides; each slide has a background image and a content block (eyebrow, heading, paragraph, CTA). Slide-position dot indicators and prev/next controls.",
   "usage": {
-    "pagesFound": ["/us/en/home"],
-    "reuseCount": 1,
-    "reuseGuidance": "Use for a rotating hero banner of full-bleed image slides with overlaid text and a CTA. First cell per row is the background image; second cell is the slide content."
+    "pagesFound": [
+      "/us/en/home"
+    ],
+    "reuseCount": 2,
+    "reuseGuidance": "Use for a rotating hero banner of full-bleed image slides with overlaid text and a CTA. First cell per row is the background image; second cell is the slide content.",
+    "pagesUsing": [
+      "/us/en/markets"
+    ],
+    "lastUsed": "2026-10-07T04:06:09.000Z"
   },
   "options": [],
-  "memberVariantIds": ["carousel-hero"]
+  "memberVariantIds": [
+    "carousel-hero"
+  ]
 }

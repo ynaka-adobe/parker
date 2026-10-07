@@ -35,107 +35,11 @@ var CustomImportScript = (() => {
   };
   var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-  // tools/importer/import-markets.js
-  var import_markets_exports = {};
-  __export(import_markets_exports, {
-    default: () => import_markets_default
+  // tools/importer/import-markets-2.js
+  var import_markets_2_exports = {};
+  __export(import_markets_2_exports, {
+    default: () => import_markets_2_default
   });
-
-  // tools/importer/parsers/banner-cta.js
-  function parse(element, { document: document2 }) {
-    const scope = element.querySelector(".image-box-container__opacity-overlay, .left-box") || element;
-    const eyebrow = scope.querySelector(".cmp-parker-image-box-container__header-text, .image-box-container__header p");
-    const heading = scope.querySelector(".image-box-container__title, h1, h2, h3");
-    const description = scope.querySelector(".image-box-container__description");
-    const ctaLinks = Array.from(scope.querySelectorAll(".btn-align a, a.btn"));
-    if (!eyebrow && !heading && !description && ctaLinks.length === 0) {
-      element.replaceWith(...element.childNodes);
-      return;
-    }
-    const contentCell = [];
-    if (eyebrow) contentCell.push(eyebrow);
-    if (heading) contentCell.push(heading);
-    if (description) contentCell.push(description);
-    contentCell.push(...ctaLinks);
-    const cells = [];
-    cells.push([contentCell]);
-    const block = WebImporter.Blocks.createBlock(document2, { name: "banner-cta", cells });
-    element.replaceWith(block);
-  }
-
-  // tools/importer/parsers/banner-inline.js
-  function parse2(element, { document: document2 }) {
-    const heading = element.querySelector(".image-box-container__title, h2, h3");
-    const descParas = Array.from(element.querySelectorAll(".image-box-container__description")).flatMap((d) => {
-      const ps = Array.from(d.querySelectorAll("p"));
-      if (ps.length) return ps;
-      return d.textContent.trim() ? [d] : [];
-    }).filter((p) => p.textContent.replace(/\u00a0/g, " ").trim());
-    const ctaLinks = Array.from(element.querySelectorAll(".btn-align a[href], a.btn[href]"));
-    if (!heading && descParas.length === 0 && ctaLinks.length === 0) {
-      element.replaceWith(...element.childNodes);
-      return;
-    }
-    const contentCell = [];
-    if (heading) contentCell.push(heading);
-    contentCell.push(...descParas);
-    ctaLinks.forEach((a) => {
-      const p = document2.createElement("p");
-      p.append(a);
-      contentCell.push(p);
-    });
-    const cells = [[contentCell]];
-    const block = WebImporter.Blocks.createBlock(document2, { name: "banner-inline", cells });
-    element.replaceWith(block);
-  }
-
-  // tools/importer/parsers/cards-news.js
-  var isBlank = (el) => !el || !el.textContent.replace(/\u00a0/g, " ").trim();
-  function parseLinkList(element, document2) {
-    const sectionHeading = Array.from(element.querySelectorAll("h2, h3")).find((h) => !isBlank(h));
-    const itemParas = Array.from(element.querySelectorAll("p")).filter((p) => p.querySelector(":scope > a[href]"));
-    const cells = [];
-    itemParas.forEach((para) => {
-      const link = para.querySelector(":scope > a[href]");
-      if (!link || isBlank(link)) return;
-      const label = Array.from(para.childNodes).filter((n) => n !== link && n.nodeName !== "BR").map((n) => n.textContent).join(" ").replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
-      const titleP = document2.createElement("p");
-      titleP.append(link);
-      const contentCell = [titleP];
-      if (label) {
-        const labelP = document2.createElement("p");
-        labelP.textContent = label;
-        contentCell.push(labelP);
-      }
-      cells.push([contentCell]);
-    });
-    return { sectionHeading, cells };
-  }
-  function parse3(element, { document: document2 }) {
-    const items = Array.from(element.querySelectorAll(".cmp-news-v2-component__list"));
-    let cells = [];
-    let sectionHeading = null;
-    items.forEach((item) => {
-      const titleLink = item.querySelector(".cmp-news-v2-component__list-title-link, .cmp-news-v2-component__list-title a, a[href]");
-      const meta = item.querySelector(".cmp-news-v2-component__author");
-      const contentCell = [];
-      if (titleLink) contentCell.push(titleLink);
-      if (meta) contentCell.push(meta);
-      if (contentCell.length > 0) {
-        cells.push([contentCell]);
-      }
-    });
-    if (items.length === 0) {
-      ({ sectionHeading, cells } = parseLinkList(element, document2));
-    }
-    if (cells.length === 0) {
-      element.replaceWith(...element.childNodes);
-      return;
-    }
-    const block = WebImporter.Blocks.createBlock(document2, { name: "cards-news", cells });
-    if (sectionHeading) element.before(sectionHeading);
-    element.replaceWith(block);
-  }
 
   // tools/importer/parsers/cards-teaser.js
   function isCardGrid(element) {
@@ -151,7 +55,7 @@ var CustomImportScript = (() => {
     el.replaceWith(h);
     return h;
   }
-  function parse4(element, { document: document2 }) {
+  function parse(element, { document: document2 }) {
     const grid = isCardGrid(element);
     const sectionHeading = element.querySelector(".slider-carousel-container > h2, :scope > h2") || Array.from(element.querySelectorAll("h2")).find((h) => !h.closest(".card"));
     const cards = Array.from(element.querySelectorAll(".card")).filter((card) => !card.closest(".slick-cloned"));
@@ -191,6 +95,36 @@ var CustomImportScript = (() => {
     element.replaceWith(block);
   }
 
+  // tools/importer/parsers/carousel-hero.js
+  function parse2(element, { document: document2 }) {
+    const items = Array.from(element.querySelectorAll(".cmp-carousel__item"));
+    const cells = [];
+    items.forEach((item) => {
+      const image = item.querySelector(".cmp-teaser__image img, .cmp-image__image, picture img, img");
+      const content = item.querySelector(".cmp-teaser__content");
+      const contentCell = [];
+      if (content) {
+        const eyebrow = content.querySelector(".cmp-teaser__header-text");
+        const heading = content.querySelector(".cmp-teaser__title h1, .cmp-teaser__title h2, .cmp-teaser__title-link, h1, h2, h3");
+        const description = content.querySelector(".cmp-teaser__description");
+        const ctaLinks = Array.from(content.querySelectorAll(".btn-align a, a.btn"));
+        if (eyebrow) contentCell.push(eyebrow);
+        if (heading) contentCell.push(heading);
+        if (description) contentCell.push(description);
+        contentCell.push(...ctaLinks);
+      }
+      if (image || contentCell.length > 0) {
+        cells.push([image || "", contentCell]);
+      }
+    });
+    if (cells.length === 0) {
+      element.replaceWith(...element.childNodes);
+      return;
+    }
+    const block = WebImporter.Blocks.createBlock(document2, { name: "carousel-hero", cells });
+    element.replaceWith(block);
+  }
+
   // tools/importer/parsers/columns-media.js
   function visualSide(el) {
     if (!el || !el.classList) return null;
@@ -207,7 +141,7 @@ var CustomImportScript = (() => {
       return "";
     }
   }
-  function parse5(element, { document: document2, url, params }) {
+  function parse3(element, { document: document2, url, params }) {
     const textBox = element.querySelector('.left-box, .image-box-container__opacity-overlay, [class*="left-box"]');
     const mediaBox = element.querySelector('.image-wrapper, .image-container, [class*="image-wrapper"]');
     const image = element.querySelector(".image-wrapper img, .image-container img, picture img, img");
@@ -248,59 +182,6 @@ var CustomImportScript = (() => {
     cells.push(imageFirst ? [mediaCell, textCell] : [textCell, mediaCell]);
     const fullBleed = element.classList.contains("cmp-parker-secondary-img-box-theme") || element.classList.contains("cmp-parker-yellow-theme") && FULL_BLEED_YELLOW_PAGES.includes(pagePath(url, params));
     const block = fullBleed ? WebImporter.Blocks.createBlock(document2, { name: "columns-media (full-bleed)", cells }) : WebImporter.Blocks.createBlock(document2, { name: "columns-media", cells });
-    element.replaceWith(block);
-  }
-
-  // tools/importer/parsers/hero-banner.js
-  function parse6(element, { document: document2 }) {
-    const bgImage = element.querySelector(".cmp-teaser__image img, .cmp-image__image, picture img, img");
-    const heading = element.querySelector('.cmp-teaser__title h1, .cmp-teaser__title h2, .cmp-teaser__title-link, [class*="hero-text"], h1, h2');
-    const description = element.querySelector(".cmp-teaser__description, .cmp-teaser__header p");
-    const ctaLinks = Array.from(element.querySelectorAll(".btn-align a, a.btn, .cmp-teaser__action-link"));
-    if (!heading && !description && !bgImage) {
-      element.replaceWith(...element.childNodes);
-      return;
-    }
-    const cells = [];
-    if (bgImage) cells.push([bgImage]);
-    const contentCell = [];
-    if (heading) contentCell.push(heading);
-    if (description) contentCell.push(description);
-    contentCell.push(...ctaLinks);
-    cells.push([contentCell]);
-    const block = WebImporter.Blocks.createBlock(document2, { name: "hero-banner", cells });
-    element.replaceWith(block);
-  }
-
-  // tools/importer/parsers/hero-card.js
-  function parse7(element, { document: document2 }) {
-    const image = element.querySelector(".cmp-teaser__image img, .cmp-image__image, picture img, img");
-    const eyebrow = element.querySelector(".cmp-teaser__header-text, .cmp-teaser__header p");
-    const heading = element.querySelector(".cmp-teaser__title h2, .cmp-teaser__title h1, .cmp-teaser__title h3, .cmp-teaser__title-link, h2");
-    const descRoot = element.querySelector(".cmp-teaser__description");
-    const descParas = descRoot ? (descRoot.querySelectorAll("p").length ? Array.from(descRoot.querySelectorAll("p")) : [descRoot]).filter((p) => p.textContent.replace(/\u00a0/g, " ").trim()) : [];
-    const ctaLinks = Array.from(element.querySelectorAll(".btn-align a[href], a.btn[href], .cmp-teaser__action-link[href]"));
-    if (!image && !heading && descParas.length === 0) {
-      element.replaceWith(...element.childNodes);
-      return;
-    }
-    const cells = [];
-    if (image) cells.push([image]);
-    const contentCell = [];
-    if (eyebrow && eyebrow.textContent.trim()) {
-      const p = document2.createElement("p");
-      p.textContent = eyebrow.textContent.trim();
-      contentCell.push(p);
-    }
-    if (heading) contentCell.push(heading);
-    contentCell.push(...descParas);
-    ctaLinks.forEach((a) => {
-      const p = document2.createElement("p");
-      p.append(a);
-      contentCell.push(p);
-    });
-    cells.push([contentCell]);
-    const block = WebImporter.Blocks.createBlock(document2, { name: "hero-card", cells });
     element.replaceWith(block);
   }
 
@@ -468,82 +349,36 @@ var CustomImportScript = (() => {
     }
   }
 
-  // tools/importer/import-markets.js
+  // tools/importer/import-markets-2.js
   var parsers = {
-    "banner-cta": parse,
-    "banner-inline": parse2,
-    "cards-news": parse3,
-    "cards-teaser": parse4,
-    "columns-media": parse5,
-    "hero-banner": parse6,
-    "hero-card": parse7
+    "cards-teaser": parse,
+    "carousel-hero": parse2,
+    "columns-media": parse3
   };
   var PAGE_TEMPLATE = {
-    "name": "markets",
-    "description": 'Market and trend pages (/us/en/markets/*): grey title band (H1), full-bleed hero, image+text bands (columns-media), submarket cards (cards-teaser), blue inline CTA strip (banner-inline), featured white-paper card over photo (hero-card), blog link list (cards-news), grey rich-text/FAQ default content, gold closing CTA (banner-cta). columns-media OPTION "full-bleed": add it when the matched source grid column has class cmp-parker-secondary-img-box-theme (matched by the first columns-media instance selector) - on the representative page that is the sky-blue Ebrake section (ebrake-video) and the charcoal Next-Generation Technologies section (next-gen-tech); all other columns-media instances (white browse-products, grey bands) use the default/inset look. Skipped sections (breadcrumb, empty-4-4-4, empty-container) carry no content: remove the breadcrumb in cleanup and do not emit a section break for them.',
+    "name": "markets-2",
+    "description": 'Markets landing page (/us/en/markets.html): grey title band (H1), 8-slide full-bleed hero carousel (carousel-hero, one row per .cmp-carousel__item), gold Parker World text+photo band (columns-media full-bleed), grey "Key Trends" heading band + intro paragraph + 4 trend tiles, grey "Key Markets" heading band + intro paragraph + 6 market tiles, grey "Additional Markets" heading band + 2 market tiles (all tile groups = cards-teaser with OPTION "grid": emit "cards-teaser (grid)" for every cards-teaser instance on this template), charcoal "Browse Parker Products Through Our Interactives" band (columns-media, default/inset look). columns-media OPTION "full-bleed": add it ONLY for the gold Parker World band (grid column .cmp-parker-yellow-theme, matched by the first columns-media instance selector); the charcoal interactives band (.cmp-parker-charcoal-theme.cmp-parker-secondary-img-box-theme) has an inset tablet image and must stay plain "columns-media" here, unlike the markets template where cmp-parker-secondary-img-box-theme implies full-bleed. The Additional Markets heading and its tiles share one grid column: the heading is the grey section, the inner .layout-col-4 tile row starts a new unstyled section. Dropped by cleanup: hidden mobile-only teaser (.aem-GridColumn--default--hide) and the empty spacer text column; neither gets a section. Card headings are h4 in source (author as h3); hidden .card-details published dates are not authored.',
     "urls": [
-      "https://www.parker.com/us/en/markets/aerospace-and-defense.html",
-      "https://www.parker.com/us/en/markets/aerospace-industry-trends.html",
-      "https://www.parker.com/us/en/markets/clean-tech-trends.html",
-      "https://www.parker.com/us/en/markets/digitalization-trends.html",
-      "https://www.parker.com/us/en/markets/electrification-trends.html",
-      "https://www.parker.com/us/en/markets/electronics-and-semiconductors.html",
-      "https://www.parker.com/us/en/markets/energy.html",
-      "https://www.parker.com/us/en/markets/hvac-and-refrigeration.html",
-      "https://www.parker.com/us/en/markets/in-plant-and-industrial-equipment.html",
-      "https://www.parker.com/us/en/markets/interactive-library.html",
-      "https://www.parker.com/us/en/markets/life-sciences.html",
-      "https://www.parker.com/us/en/markets/off-highway.html",
-      "https://www.parker.com/us/en/markets/transportation.html"
+      "https://www.parker.com/us/en/markets.html"
     ],
     "blocks": [
       {
-        "name": "hero-banner",
+        "name": "carousel-hero",
         "instances": [
-          ".left-to-right-gradient.aem-GridColumn",
-          ".cmp-parker-dark-opacity-50.aem-GridColumn",
-          ".right-to-left-gradient.aem-GridColumn",
-          ".aem-GridColumn:not(.cmp-parker-white-background):has(> .cq-dd-image)"
+          ".cmp-carousel"
         ]
       },
       {
         "name": "columns-media",
         "instances": [
-          ".cmp-parker-secondary-img-box-theme.aem-GridColumn:has(> .image-box-container .image-wrapper)",
-          ".aem-GridColumn:has(> .image-box-container .image-wrapper)"
+          ".cmp-parker-yellow-theme.aem-GridColumn:has(> .image-box-container .image-wrapper)",
+          ".cmp-parker-charcoal-theme.aem-GridColumn:has(> .image-box-container .image-wrapper)"
         ]
       },
       {
         "name": "cards-teaser",
         "instances": [
-          ".parker-carousel",
-          ".layout-col-4:has(.cmp-parker-card-container .card)",
-          ".layout-col-4-4-4:has(.cmp-parker-card-container .card)",
-          '[class*="layout-col-"]:has(> .aem-container > .cmp-parker-border > .cmp-parker-card-container .card)'
-        ]
-      },
-      {
-        "name": "banner-inline",
-        "instances": [
-          ".layout-col-8-4.aem-GridColumn:has(.image-box-container):not(:has(.image-wrapper))"
-        ]
-      },
-      {
-        "name": "hero-card",
-        "instances": [
-          ".cmp-parker-white-background.aem-GridColumn:has(> .cq-dd-image)"
-        ]
-      },
-      {
-        "name": "cards-news",
-        "instances": [
-          '.layout-col-6-6.cmp-container_contentwrapper.aem-GridColumn:has(a[href*="blog.parker.com"])'
-        ]
-      },
-      {
-        "name": "banner-cta",
-        "instances": [
-          ".cmp-parker-gold-theme.cmp-parker-secondary-img-box-theme.aem-GridColumn"
+          ".layout-col-4:has(.cmp-parker-card-container .card)"
         ]
       }
     ],
@@ -552,7 +387,7 @@ var CustomImportScript = (() => {
         "id": "title-bar",
         "name": "Page title band",
         "selector": [
-          ".aem-GridColumn:has(> .cmp-title)"
+          ".aem-GridColumn:has(> .cmp-title h1)"
         ],
         "style": "grey",
         "blocks": [],
@@ -561,202 +396,114 @@ var CustomImportScript = (() => {
         ]
       },
       {
-        "id": "breadcrumb",
-        "name": "Breadcrumb (skipped - generated from page path, not authored)",
+        "id": "hero-carousel",
+        "name": "Hero carousel (8 slides)",
         "selector": [
-          ".aem-GridColumn:has(> nav.cmp-breadcrumb)"
-        ],
-        "style": null,
-        "blocks": [],
-        "defaultContent": []
-      },
-      {
-        "id": "hero",
-        "name": "Market hero",
-        "selector": [
-          ".left-to-right-gradient.aem-GridColumn",
-          ".cmp-parker-dark-opacity-50.aem-GridColumn",
-          ".right-to-left-gradient.aem-GridColumn",
-          ".aem-GridColumn:not(.cmp-parker-white-background):has(> .cq-dd-image)"
+          ".aem-GridColumn:has(> .cmp-carousel)"
         ],
         "style": null,
         "blocks": [
-          "hero-banner"
+          "carousel-hero"
         ],
         "defaultContent": []
       },
       {
-        "id": "browse-products",
-        "name": "Interactive product browser promo",
+        "id": "parker-world",
+        "name": "Parker World band, gold (columns-media full-bleed)",
         "selector": [
-          ".aem-GridColumn--offset--default--0.aem-GridColumn--default--none:not(.cmp-parker-secondary-img-box-theme):has(> .image-box-container)"
+          ".cmp-parker-yellow-theme.aem-GridColumn"
         ],
-        "style": null,
+        "style": "gold",
         "blocks": [
           "columns-media"
         ],
         "defaultContent": []
       },
       {
-        "id": "innovations",
-        "name": "Rich-text intro",
+        "id": "key-trends-title",
+        "name": "Key Trends heading band",
         "selector": [
-          ".grey-bg.aem-GridColumn:has(> .aem-container > div > .title-description-container)",
-          ".grey-bg.aem-GridColumn:not(.cmp-container_contentwrapper):has(> .aem-container)"
+          ".aem-GridColumn:has(> .cmp-title h2)"
         ],
         "style": "grey",
         "blocks": [],
         "defaultContent": [
-          ".title-description-container h2",
-          ".title-description-container p",
-          ".title-description-container ul"
+          ".cmp-title h2"
         ]
       },
       {
-        "id": "submarkets",
-        "name": "Submarket tiles slider",
+        "id": "key-trends",
+        "name": "Key Trends intro + 4 trend tiles (cards-teaser grid)",
         "selector": [
-          ".aem-GridColumn:has(> .aem-container > div > .parker-carousel)",
-          ".aem-GridColumn:has(> .parker-carousel)"
+          ".aem-GridColumn:has(> .title-description-container)"
         ],
         "style": null,
         "blocks": [
           "cards-teaser"
         ],
         "defaultContent": [
-          ".slider-carousel-container > h2"
+          ".title-description-container p"
         ]
       },
       {
-        "id": "empty-4-4-4",
-        "name": "Empty 4-4-4 layout container (skipped)",
+        "id": "key-markets-title",
+        "name": "Key Markets heading band",
         "selector": [
-          ".layout-col-4-4-4.cmp-container_contentwrapper.aem-GridColumn"
-        ],
-        "style": null,
-        "blocks": [],
-        "defaultContent": []
-      },
-      {
-        "id": "ebrake-video",
-        "name": "Image + text band, blue (columns-media full-bleed)",
-        "selector": [
-          ".cmp-parker-purpose-blue-theme.cmp-parker-secondary-img-box-theme.aem-GridColumn",
-          ".cmp-parker-blue-theme.aem-GridColumn:has(> .image-box-container)"
-        ],
-        "style": "sky-blue",
-        "blocks": [
-          "columns-media"
-        ],
-        "defaultContent": []
-      },
-      {
-        "id": "next-gen-video",
-        "name": "Image + text band, grey (image left)",
-        "selector": [
-          ".grey-bg.aem-GridColumn:not(.cmp-parker-secondary-img-box-theme):has(> .image-box-container)"
+          ".layout-col-4.aem-GridColumn ~ .aem-GridColumn:has(> .cmp-title h2)"
         ],
         "style": "grey",
+        "blocks": [],
+        "defaultContent": [
+          ".cmp-title h2"
+        ]
+      },
+      {
+        "id": "key-markets",
+        "name": "Key Markets intro + 6 market tiles (cards-teaser grid)",
+        "selector": [
+          ".layout-col-4.aem-GridColumn ~ .aem-GridColumn:has(> .title-description-container)"
+        ],
+        "style": null,
         "blocks": [
-          "columns-media"
+          "cards-teaser"
+        ],
+        "defaultContent": [
+          ".title-description-container p"
+        ]
+      },
+      {
+        "id": "additional-markets-title",
+        "name": "Additional Markets heading band",
+        "selector": [
+          ".aem-GridColumn:has(> .aem-container:not(.aem-Grid) > div > .cmp-title)"
+        ],
+        "style": "grey",
+        "blocks": [],
+        "defaultContent": [
+          ".cmp-title h2"
+        ]
+      },
+      {
+        "id": "additional-markets",
+        "name": "Additional Markets 2 tiles (cards-teaser grid)",
+        "selector": [
+          ".aem-container:not(.aem-Grid) > .layout-col-4:has(.cmp-parker-card-container .card)"
+        ],
+        "style": null,
+        "blocks": [
+          "cards-teaser"
         ],
         "defaultContent": []
       },
       {
-        "id": "next-gen-tech",
-        "name": "Image + text band, charcoal (columns-media full-bleed)",
+        "id": "browse-interactives",
+        "name": "Browse interactives band, charcoal (columns-media)",
         "selector": [
-          ".cmp-parker-charcoal-theme.cmp-parker-secondary-img-box-theme.aem-GridColumn"
+          ".cmp-parker-charcoal-theme.aem-GridColumn"
         ],
         "style": "charcoal",
         "blocks": [
           "columns-media"
-        ],
-        "defaultContent": []
-      },
-      {
-        "id": "electroflight",
-        "name": "Image + text band, grey (second grey band)",
-        "selector": [
-          ".grey-bg.aem-GridColumn:not(.cmp-parker-secondary-img-box-theme):has(> .image-box-container) ~ .grey-bg.aem-GridColumn:not(.cmp-parker-secondary-img-box-theme):has(> .image-box-container)"
-        ],
-        "style": "grey",
-        "blocks": [
-          "columns-media"
-        ],
-        "defaultContent": []
-      },
-      {
-        "id": "webinars",
-        "name": "Inline CTA strip",
-        "selector": [
-          ".layout-col-8-4.aem-GridColumn"
-        ],
-        "style": "sky-blue",
-        "blocks": [
-          "banner-inline"
-        ],
-        "defaultContent": []
-      },
-      {
-        "id": "featured-white-paper",
-        "name": "Featured resource teaser",
-        "selector": [
-          ".cmp-parker-white-background.aem-GridColumn"
-        ],
-        "style": null,
-        "blocks": [
-          "hero-card"
-        ],
-        "defaultContent": []
-      },
-      {
-        "id": "education",
-        "name": "Blog link list",
-        "selector": [
-          '.layout-col-6-6.cmp-container_contentwrapper.aem-GridColumn:has(a[href*="blog.parker.com"])'
-        ],
-        "style": null,
-        "blocks": [
-          "cards-news"
-        ],
-        "defaultContent": [
-          ".col-ml-mr:first-child h2"
-        ]
-      },
-      {
-        "id": "empty-container",
-        "name": "Empty container (skipped)",
-        "selector": [
-          '.layout-col-6-6.cmp-container_contentwrapper.aem-GridColumn:has(a[href*="blog.parker.com"]) + .aem-GridColumn:not(.grey-bg):not(.cmp-parker-gold-theme)'
-        ],
-        "style": null,
-        "blocks": [],
-        "defaultContent": []
-      },
-      {
-        "id": "faqs",
-        "name": "Static FAQ text",
-        "selector": [
-          ".grey-bg.cmp-container_contentwrapper.aem-GridColumn:has(> .aem-container > .grey-bg.col-ml-mr)",
-          ".grey-bg.cmp-container_contentwrapper.aem-GridColumn:has(> .aem-container > .col-ml-mr)"
-        ],
-        "style": "grey",
-        "blocks": [],
-        "defaultContent": [
-          ".col-ml-mr h2",
-          ".col-ml-mr p"
-        ]
-      },
-      {
-        "id": "contact-cta",
-        "name": "Closing CTA strip",
-        "selector": [
-          ".cmp-parker-gold-theme.cmp-parker-secondary-img-box-theme.aem-GridColumn"
-        ],
-        "style": "gold",
-        "blocks": [
-          "banner-cta"
         ],
         "defaultContent": []
       }
@@ -808,7 +555,7 @@ var CustomImportScript = (() => {
     console.log(`Found ${pageBlocks.length} block instances on page`);
     return pageBlocks;
   }
-  var import_markets_default = {
+  var import_markets_2_default = {
     transform: (payload) => {
       const {
         document: document2,
@@ -851,5 +598,5 @@ var CustomImportScript = (() => {
       }];
     }
   };
-  return __toCommonJS(import_markets_exports);
+  return __toCommonJS(import_markets_2_exports);
 })();

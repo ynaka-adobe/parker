@@ -7,7 +7,10 @@
     "imageTreatment": "16:9 photo on top of each tile",
     "density": "medium",
     "colorScheme": "white background, dark text, blue text link",
-    "purpose": "teaser tiles linking to sub-pages (e.g. Aerospace Submarkets)"
+    "purpose": "teaser tiles linking to sub-pages (e.g. Aerospace Submarkets)",
+    "optionLayouts": {
+      "grid": "wrapping grid, 4 per row from 900px, 2 from 600px, 1 below; bordered tiles with padded text; 16:9 image on top"
+    }
   },
   "contentPattern": {
     "structure": "[picture] | [H3 title, short description paragraph, 'Learn More' link]",
@@ -18,12 +21,18 @@
   },
   "usage": {
     "pagesUsing": [
-      "/us/en/markets/aerospace-and-defense"
+      "/us/en/markets/aerospace-and-defense",
+      "/us/en/markets"
     ],
-    "reuseCount": 1,
-    "lastUsed": "2026-10-07T00:00:00.000Z"
+    "reuseCount": 2,
+    "lastUsed": "2026-10-07T04:06:09.000Z"
   },
-  "options": [],
+  "options": [
+    {
+      "class": "grid",
+      "label": "Grid"
+    }
+  ],
   "memberVariantIds": [
     "cards-teaser"
   ]

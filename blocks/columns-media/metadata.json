@@ -17,12 +17,13 @@
     "pagesFound": [
       "/us/en/home"
     ],
-    "reuseCount": 2,
+    "reuseCount": 3,
     "reuseGuidance": "Use for image + text feature bands on a colored/grey section background. Add the 'reverse' option to place the image on the right and text on the left.",
     "pagesUsing": [
-      "/us/en/markets/aerospace-and-defense"
+      "/us/en/markets/aerospace-and-defense",
+      "/us/en/markets"
     ],
-    "lastUsed": "2026-10-07T02:16:45.174Z"
+    "lastUsed": "2026-10-07T04:06:09.000Z"
   },
   "options": [
     {

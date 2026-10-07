@@ -192,7 +192,9 @@
           "name": "cards-teaser",
           "instances": [
             ".parker-carousel",
-            ".layout-col-4:has(.cmp-parker-card-container .card)"
+            ".layout-col-4:has(.cmp-parker-card-container .card)",
+            ".layout-col-4-4-4:has(.cmp-parker-card-container .card)",
+            "[class*=\"layout-col-\"]:has(> .aem-container > .cmp-parker-border > .cmp-parker-card-container .card)"
           ]
         },
         {
@@ -442,9 +444,155 @@
         "https://www.parker.com/us/en/markets.html"
       ],
       "representativeUrl": "https://www.parker.com/us/en/markets.html",
-      "description": "To be named in naming step",
-      "blocks": [],
-      "urlPattern": "/us/en/*"
+      "description": "Markets landing page (/us/en/markets.html): grey title band (H1), 8-slide full-bleed hero carousel (carousel-hero, one row per .cmp-carousel__item), gold Parker World text+photo band (columns-media full-bleed), grey \"Key Trends\" heading band + intro paragraph + 4 trend tiles, grey \"Key Markets\" heading band + intro paragraph + 6 market tiles, grey \"Additional Markets\" heading band + 2 market tiles (all tile groups = cards-teaser with OPTION \"grid\": emit \"cards-teaser (grid)\" for every cards-teaser instance on this template), charcoal \"Browse Parker Products Through Our Interactives\" band (columns-media, default/inset look). columns-media OPTION \"full-bleed\": add it ONLY for the gold Parker World band (grid column .cmp-parker-yellow-theme, matched by the first columns-media instance selector); the charcoal interactives band (.cmp-parker-charcoal-theme.cmp-parker-secondary-img-box-theme) has an inset tablet image and must stay plain \"columns-media\" here, unlike the markets template where cmp-parker-secondary-img-box-theme implies full-bleed. The Additional Markets heading and its tiles share one grid column: the heading is the grey section, the inner .layout-col-4 tile row starts a new unstyled section. Dropped by cleanup: hidden mobile-only teaser (.aem-GridColumn--default--hide) and the empty spacer text column; neither gets a section. Card headings are h4 in source (author as h3); hidden .card-details published dates are not authored.",
+      "blocks": [
+        {
+          "name": "carousel-hero",
+          "instances": [
+            ".cmp-carousel"
+          ]
+        },
+        {
+          "name": "columns-media",
+          "instances": [
+            ".cmp-parker-yellow-theme.aem-GridColumn:has(> .image-box-container .image-wrapper)",
+            ".cmp-parker-charcoal-theme.aem-GridColumn:has(> .image-box-container .image-wrapper)"
+          ]
+        },
+        {
+          "name": "cards-teaser",
+          "instances": [
+            ".layout-col-4:has(.cmp-parker-card-container .card)"
+          ]
+        }
+      ],
+      "urlPattern": "/us/en/*",
+      "sections": [
+        {
+          "id": "title-bar",
+          "name": "Page title band",
+          "selector": [
+            ".aem-GridColumn:has(> .cmp-title h1)"
+          ],
+          "style": "grey",
+          "blocks": [],
+          "defaultContent": [
+            ".cmp-title h1"
+          ]
+        },
+        {
+          "id": "hero-carousel",
+          "name": "Hero carousel (8 slides)",
+          "selector": [
+            ".aem-GridColumn:has(> .cmp-carousel)"
+          ],
+          "style": null,
+          "blocks": [
+            "carousel-hero"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "parker-world",
+          "name": "Parker World band, gold (columns-media full-bleed)",
+          "selector": [
+            ".cmp-parker-yellow-theme.aem-GridColumn"
+          ],
+          "style": "gold",
+          "blocks": [
+            "columns-media"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "key-trends-title",
+          "name": "Key Trends heading band",
+          "selector": [
+            ".aem-GridColumn:has(> .cmp-title h2)"
+          ],
+          "style": "grey",
+          "blocks": [],
+          "defaultContent": [
+            ".cmp-title h2"
+          ]
+        },
+        {
+          "id": "key-trends",
+          "name": "Key Trends intro + 4 trend tiles (cards-teaser grid)",
+          "selector": [
+            ".aem-GridColumn:has(> .title-description-container)"
+          ],
+          "style": null,
+          "blocks": [
+            "cards-teaser"
+          ],
+          "defaultContent": [
+            ".title-description-container p"
+          ]
+        },
+        {
+          "id": "key-markets-title",
+          "name": "Key Markets heading band",
+          "selector": [
+            ".layout-col-4.aem-GridColumn ~ .aem-GridColumn:has(> .cmp-title h2)"
+          ],
+          "style": "grey",
+          "blocks": [],
+          "defaultContent": [
+            ".cmp-title h2"
+          ]
+        },
+        {
+          "id": "key-markets",
+          "name": "Key Markets intro + 6 market tiles (cards-teaser grid)",
+          "selector": [
+            ".layout-col-4.aem-GridColumn ~ .aem-GridColumn:has(> .title-description-container)"
+          ],
+          "style": null,
+          "blocks": [
+            "cards-teaser"
+          ],
+          "defaultContent": [
+            ".title-description-container p"
+          ]
+        },
+        {
+          "id": "additional-markets-title",
+          "name": "Additional Markets heading band",
+          "selector": [
+            ".aem-GridColumn:has(> .aem-container:not(.aem-Grid) > div > .cmp-title)"
+          ],
+          "style": "grey",
+          "blocks": [],
+          "defaultContent": [
+            ".cmp-title h2"
+          ]
+        },
+        {
+          "id": "additional-markets",
+          "name": "Additional Markets 2 tiles (cards-teaser grid)",
+          "selector": [
+            ".aem-container:not(.aem-Grid) > .layout-col-4:has(.cmp-parker-card-container .card)"
+          ],
+          "style": null,
+          "blocks": [
+            "cards-teaser"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "browse-interactives",
+          "name": "Browse interactives band, charcoal (columns-media)",
+          "selector": [
+            ".cmp-parker-charcoal-theme.aem-GridColumn"
+          ],
+          "style": "charcoal",
+          "blocks": [
+            "columns-media"
+          ],
+          "defaultContent": []
+        }
+      ]
     },
     {
       "name": "interactive-library",

@@ -5,6 +5,13 @@
  * Source: https://www.parker.com/us/en/home.html
  * Structure (library): 2 columns. Row 1 = block name. Each subsequent row = one slide:
  *   cell 1 = image (mandatory), cell 2 = text content (title, description, CTA).
+ *
+ * Markets landing page (/us/en/markets.html, template markets-2): 8 slides that
+ * all share the same H2 ("Trends & Markets") and paragraph and differ only by
+ * image; they have no CTA. Every .cmp-carousel__item becomes its own row - there
+ * is deliberately NO de-duplication by text, so identical-text slides are kept.
+ * Only items with neither an image nor content are skipped (the home snapshot
+ * has 7 such unpopulated items and 1 populated slide).
  */
 export default function parse(element, { document }) {
   const items = Array.from(element.querySelectorAll('.cmp-carousel__item'));

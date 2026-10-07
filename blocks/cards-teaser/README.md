@@ -10,7 +10,9 @@ Repeating rows — one row per item. Each item: [picture] | [H3 title, short des
 
 ## Supported variations
 
-No variations.
+| Variation | Option class |
+| --- | --- |
+| Grid | `grid` |
 
 ## Universal Editor fields
 

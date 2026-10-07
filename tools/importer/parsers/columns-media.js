@@ -11,9 +11,11 @@
  * .image-box-container markup, plus:
  *  - Variant: when the matched grid column carries
  *    .cmp-parker-secondary-img-box-theme (sky-blue Ebrake band, charcoal
- *    Next-Gen band) the block is emitted as "columns-media (full-bleed)";
- *    otherwise plain "columns-media". No home columns-media instance has that
- *    class, so the home output is unaffected.
+ *    Next-Gen band) or .cmp-parker-yellow-theme on the markets landing page
+ *    (markets-2: gold Parker World band; page-gated, see FULL_BLEED_YELLOW_PAGES)
+ *    the block is emitted as "columns-media (full-bleed)"; otherwise
+ *    plain "columns-media". No home columns-media instance has either class,
+ *    so the home output is unaffected.
  *  - Cell order follows the source's VISUAL order: the columns carry
  *    order-left / order-right classes (.left-box.order-right +
  *    .image-wrapper.order-left = image on the left). The home layout
@@ -31,7 +33,22 @@ function visualSide(el) {
   return null;
 }
 
-export default function parse(element, { document }) {
+// Pages whose gold .cmp-parker-yellow-theme band is authored full-bleed (template
+// markets-2). The class alone is not enough: /us/en/markets/off-highway.html (template
+// markets) has a structurally identical yellow band ("Diesel Engine Sealing Solution")
+// that must stay plain "columns-media" so the markets output does not change.
+const FULL_BLEED_YELLOW_PAGES = ['/us/en/markets.html'];
+
+function pagePath(url, params) {
+  const raw = (params && params.originalURL) || url || '';
+  try {
+    return new URL(raw).pathname;
+  } catch (e) {
+    return '';
+  }
+}
+
+export default function parse(element, { document, url, params }) {
   // Text column: heading, subtitle, description, CTA
   const textBox = element.querySelector('.left-box, .image-box-container__opacity-overlay, [class*="left-box"]');
 
@@ -84,7 +101,12 @@ export default function parse(element, { document }) {
   cells.push(imageFirst ? [mediaCell, textCell] : [textCell, mediaCell]);
 
   // Full-bleed option when the matched grid column is a "secondary image box" band
-  const fullBleed = element.classList.contains('cmp-parker-secondary-img-box-theme');
+  // (markets template) or the gold "yellow theme" band on the markets landing page
+  // (markets-2 Parker World band, .cmp-parker-yellow-theme, no secondary class; see
+  // FULL_BLEED_YELLOW_PAGES). No home columns-media instance carries either class.
+  const fullBleed = element.classList.contains('cmp-parker-secondary-img-box-theme')
+    || (element.classList.contains('cmp-parker-yellow-theme')
+      && FULL_BLEED_YELLOW_PAGES.includes(pagePath(url, params)));
   const block = fullBleed
     ? WebImporter.Blocks.createBlock(document, { name: 'columns-media (full-bleed)', cells })
     : WebImporter.Blocks.createBlock(document, { name: 'columns-media', cells });
