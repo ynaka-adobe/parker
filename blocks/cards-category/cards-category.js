@@ -23,6 +23,12 @@ export default function decorate(block) {
 
   // grid option: plain wrapping grid, no slider arrows
   if (block.classList.contains('grid')) {
+    // tile labels are text links, not CTAs: undo the default button decoration
+    // (a lone link in a cell gets a.button / .button-container)
+    ul.querySelectorAll('a.button').forEach((a) => {
+      a.classList.remove('button');
+      a.parentElement.classList.remove('button-container');
+    });
     ul.querySelectorAll('li').forEach((li) => {
       if (li.querySelector('.cards-category-card-body a[href]')) li.classList.add('cards-category-linked');
     });
