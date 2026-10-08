@@ -283,3 +283,78 @@
     max-width: none;
   }
 }
+
+/* grid + buttons without text — image cards with a centred title and a gold pill CTA centred at
+   the bottom of each card (auto width, not full width). Scoped to .grid.buttons:not(.text) so
+   'text, buttons' and every other rendering is untouched. */
+.cards-teaser.grid.buttons:not(.text) .cards-teaser-card-body {
+  text-align: center;
+}
+
+.cards-teaser.grid.buttons:not(.text) .cards-teaser-card-body a.button:any-link {
+  display: inline-block;
+  width: auto;
+  padding: 10px 24px;
+  font-size: var(--body-font-size-m);
+}
+
+/* icons option — feature list: small contained icon inline before a title, description below
+   the title, no border/box; 4 per row from 900px, 2 from 600px, 1 below (combines with grid).
+   Scoped to .cards-teaser.icons and overrides the 16:9 image rule only for this option. */
+.cards-teaser.icons > ul {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 32px var(--cards-teaser-gap);
+  overflow-x: visible;
+  scroll-snap-type: none;
+}
+
+/* stylelint-disable-next-line no-descending-specificity */
+.cards-teaser.icons > ul > li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  column-gap: 12px;
+  border: 0;
+}
+
+.cards-teaser.icons .cards-teaser-card-image {
+  padding-top: 2px;
+}
+
+.cards-teaser.icons .cards-teaser-card-image img {
+  width: 44px;
+  height: 44px;
+  aspect-ratio: auto;
+  object-fit: contain;
+}
+
+/* stylelint-disable no-descending-specificity */
+.cards-teaser.icons .cards-teaser-card-body,
+.cards-teaser.icons.grid .cards-teaser-card-body {
+  grid-column: 2;
+  padding: 0;
+}
+/* stylelint-enable no-descending-specificity */
+
+.cards-teaser.icons .cards-teaser-card-body :is(h2, h3, h4, h5, h6) {
+  margin: 0 0 8px;
+  font-size: var(--heading-font-size-l);
+}
+
+.cards-teaser.icons .cards-teaser-card-body p {
+  color: var(--text-color);
+}
+
+@media (width >= 600px) {
+  .cards-teaser.icons > ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (width >= 900px) {
+  .cards-teaser.icons > ul {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    row-gap: 64px;
+  }
+}

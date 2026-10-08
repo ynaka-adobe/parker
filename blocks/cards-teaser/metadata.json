@@ -11,7 +11,9 @@
     "optionLayouts": {
       "grid": "wrapping grid, 4 per row from 900px, 2 from 600px, 1 below; bordered tiles with padded text; 16:9 image on top",
       "text": "text-only bordered white cards: centred title + short description, whole card clickable; up to 4 per row (2 from 600px, 1 below), short rows centred; a lone card is wider/taller; external links show a small external-link icon top right. Combines with grid.",
-      "buttons": "used with text ('text, buttons'): white cards with a soft box-shadow instead of a border, centred title and description, CTA rendered as a full-width gold pill button aligned at the bottom of each card; the card is NOT one big link; 3 per row from 900px (2 from 600px, 1 below)"
+      "buttons": "used with text ('text, buttons'): white cards with a soft box-shadow instead of a border, centred title and description, CTA rendered as a full-width gold pill button aligned at the bottom of each card; the card is NOT one big link; 3 per row from 900px (2 from 600px, 1 below)",
+      "icons": "feature list (used as 'grid, icons'): small contained icon (~44px) inline before a large title, one/two-line description below the title, no border/box, no 16:9 crop; 4 per row from 900px, 2 from 600px, 1 below",
+      "grid+buttons": "'grid, buttons' (no text): bordered image cards, 16:9 image on top, centred title, auto-width gold pill CTA centred at the bottom of each card"
     }
   },
   "contentPattern": {
@@ -22,7 +24,8 @@
     "hasDescription": true,
     "optionStructures": {
       "text": "one cell per row: [H3 > link title, short description paragraph] (no picture cell)",
-      "buttons": "one cell per row: [H3 title (unlinked), short description paragraph, paragraph containing only the CTA link]"
+      "buttons": "one cell per row: [H3 title (unlinked), short description paragraph, paragraph containing only the CTA link]",
+      "icons": "one row per item: [icon picture] | [H3 title, short description paragraph]"
     }
   },
   "usage": {
@@ -35,10 +38,11 @@
       "/us/en/support/ethics-integrity",
       "/us/en/support/place-an-order",
       "/us/en/support/investors",
-      "/us/en/support"
+      "/us/en/support",
+      "/us/en/industries/digital/pts"
     ],
-    "reuseCount": 5,
-    "lastUsed": "2026-10-07T16:24:25.848422Z"
+    "reuseCount": 6,
+    "lastUsed": "2026-10-08T03:32:09.395683Z"
   },
   "options": [
     {
@@ -52,6 +56,10 @@
     {
       "class": "buttons",
       "label": "Buttons"
+    },
+    {
+      "class": "icons",
+      "label": "Icons"
     }
   ],
   "memberVariantIds": [

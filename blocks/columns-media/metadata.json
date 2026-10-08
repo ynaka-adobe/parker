@@ -17,14 +17,17 @@
     "pagesFound": [
       "/us/en/home"
     ],
-    "reuseCount": 4,
+    "reuseCount": 7,
     "reuseGuidance": "Use for image + text feature bands on a colored/grey section background. Add the 'reverse' option to place the image on the right and text on the left.",
     "pagesUsing": [
       "/us/en/markets/aerospace-and-defense",
       "/us/en/markets",
-      "/us/en/support/order-status"
+      "/us/en/support/order-status",
+      "/us/en/category/hose-piping-and-tubing",
+      "/us/en/category",
+      "/us/en/industries/digital/pts"
     ],
-    "lastUsed": "2026-10-07T14:48:50.581979Z"
+    "lastUsed": "2026-10-08T03:32:09.395683Z"
   },
   "options": [
     {
@@ -36,6 +39,11 @@
       "class": "full-bleed",
       "label": "Full-bleed image",
       "description": "50/50 split: the image fills its half edge to edge (object-fit: cover, no padding) and the text half is padded with the gutter. Works on sky-blue, grey, charcoal and white bands and overrides the sky-blue inset-image look. Cell order decides which side the image is on."
+    },
+    {
+      "class": "compact",
+      "label": "Compact",
+      "description": "Small contained thumbnail (~140px, no crop) beside an intro paragraph, vertically centred; normal section gutter, no band padding or min-height, hairline rules top and bottom. Stacks on mobile with the image above."
     }
   ],
   "memberVariantIds": [

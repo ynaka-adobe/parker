@@ -15,7 +15,7 @@
     "imagePattern": "icon"
   },
   "contentPattern": {
-    "structure": "per card: thumbnail image + linked label",
+    "structure": "per card: thumbnail image + label (h5 unlinked, or p > a linked)",
     "buttonCount": 0,
     "imageCount": 1,
     "hasDescription": false
@@ -35,9 +35,22 @@
   "usage": {
     "pagesUsing": [
       "/en/catcorp",
-      "/us/en/home"
+      "/us/en/home",
+      "/us/en/category/hose-piping-and-tubing",
+      "/us/en/category"
     ],
-    "reuseCount": 2,
-    "lastUsed": "2026-09-22T13:05:16.031Z"
-  }
+    "reuseCount": 4,
+    "lastUsed": "2026-10-08T03:07:38.393075Z"
+  },
+  "canonicalModel": "collection",
+  "options": [
+    {
+      "class": "grid",
+      "label": "Grid",
+      "description": "Wrapping grid instead of the slider: no arrows or horizontal scroll; 2 tiles per row on mobile, 4 on tablet, 6 at 1200px, 7 on wide desktop; square contained image, centred label; whole tile clickable when the label is a link."
+    }
+  ],
+  "memberVariantIds": [
+    "cards-category"
+  ]
 }

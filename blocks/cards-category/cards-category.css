@@ -121,3 +121,77 @@
     margin-inline: calc(-1 * (var(--gutter) - 24px));
   }
 }
+
+/* linked labels (p > a) — both modes */
+.cards-category .cards-category-card-body p {
+  margin: 12px 0 0;
+  font-size: var(--body-font-size-s);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.4;
+}
+
+.cards-category .cards-category-card-body a:any-link {
+  color: var(--text-color);
+  text-decoration: none;
+}
+
+.cards-category .cards-category-card-body a:any-link:hover {
+  color: var(--link-hover-color);
+  text-decoration: underline;
+}
+
+/* grid option: wrapping grid of tiles, no slider/arrows; 2 / 4 / 6 / 7 per row */
+.cards-category.grid {
+  display: block;
+  margin-inline: 0;
+}
+
+.cards-category.grid > ul {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px var(--cards-category-gap);
+  overflow: visible;
+  scroll-snap-type: none;
+}
+
+.cards-category.grid > ul > li {
+  position: relative;
+  min-width: 0;
+}
+
+.cards-category.grid .cards-category-card-image {
+  max-width: 120px;
+}
+
+.cards-category.grid .cards-category-card-image img {
+  aspect-ratio: 1 / 1;
+}
+
+/* whole tile clickable when the label is a link */
+.cards-category.grid > ul > li.cards-category-linked .cards-category-card-body a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+@media (width >= 600px) {
+  .cards-category.grid > ul {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (width >= 1200px) {
+  .cards-category.grid {
+    margin-inline: 0;
+  }
+
+  .cards-category.grid > ul {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+@media (width >= 1600px) {
+  .cards-category.grid > ul {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+  }
+}

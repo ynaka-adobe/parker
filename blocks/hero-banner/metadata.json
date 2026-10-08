@@ -34,9 +34,10 @@
     "pagesUsing": [
       "/en/catcorp",
       "/us/en/home",
-      "/us/en/markets/aerospace-and-defense"
+      "/us/en/markets/aerospace-and-defense",
+      "/us/en/industries/digital/pts"
     ],
-    "reuseCount": 3,
-    "lastUsed": "2026-10-07T02:16:45.174Z"
+    "reuseCount": 4,
+    "lastUsed": "2026-10-08T03:32:09.395683Z"
   }
 }

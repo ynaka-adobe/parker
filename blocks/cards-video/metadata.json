@@ -1,0 +1,31 @@
+{
+  "variantName": "cards-video",
+  "baseBlock": "cards",
+  "canonicalModel": "collection",
+  "visualCharacteristics": {
+    "layout": "3 tiles per row from 900px (2 from 600px, 1 below); 16:9 thumbnail with a centred play icon overlay; caption below",
+    "imageTreatment": "16:9 video thumbnail, cover",
+    "density": "medium",
+    "colorScheme": "white tiles, dark caption, dark translucent play icon",
+    "purpose": "video tiles (success-story videos)",
+    "interaction": "clicking the thumbnail or caption opens the video in a modal <dialog> with a native <video controls> (autoplay) for .mp4 links; non-mp4 links open in a new tab; Escape / close button / backdrop click closes and pauses, focus returns to the tile"
+  },
+  "contentPattern": {
+    "structure": "one row per video: [thumbnail picture] | [H3 caption, paragraph containing a link to the MP4 (or video page)]",
+    "summary": "video tiles: thumbnail, caption, video link",
+    "imageCount": 1,
+    "buttonCount": 0,
+    "hasDescription": false
+  },
+  "usage": {
+    "pagesUsing": [
+      "/us/en/industries/digital/pts"
+    ],
+    "reuseCount": 1,
+    "lastUsed": "2026-10-08T00:00:00.000Z"
+  },
+  "options": [],
+  "memberVariantIds": [
+    "cards-video"
+  ]
+}

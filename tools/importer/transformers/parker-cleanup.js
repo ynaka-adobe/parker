@@ -35,6 +35,14 @@ export default function transform(hookName, element, payload) {
   if (support && hookName === H.before && isMasterDirectoryPage(payload)) masterDirectoryBefore(element, payload);
   if (support && hookName === H.before) supportBefore(element, payload);
   if (support && hookName === H.after) supportAfter(element);
+  const product = isProductPage(payload);
+  if (product && hookName === H.before) productBefore(element, payload);
+  if (product && hookName === H.before && isProductLandingPage(payload)) productLandingBefore(element);
+  if (product && hookName === H.after && isProductLandingPage(payload)) productLandingAfter(element);
+  if (product && hookName === H.after) productAfter(element);
+  const pts = isPtsPage(payload);
+  if (pts && hookName === H.before) ptsBefore(element);
+  if (pts && hookName === H.after) ptsAfter(element);
 
   if (hookName === H.before) {
     // Chat/messaging widgets and tracking iframes can wrap or block block-matching.
@@ -378,6 +386,252 @@ function supportAfter(element) {
   element.querySelectorAll('h1, h2, h3, h4, h5, h6, .jumbotron > a').forEach(trimText);
 }
 
+// ---------------------------------------------------------------------------
+// Product pages (ph.parker.com, e.g. /us/en/category/*). Everything below runs
+// ONLY when isProductPage() is true (ph.parker.com host, or a template whose name
+// starts with 'product'), so www.parker.com / help.parker.com pages are unaffected.
+// Selectors verified in the rendered snapshot
+// tools/importer/bd-snapshots/ph.parker.com/us/en/category/hose-piping-and-tubing.html.
+// Site header/footer (#parker_h_f_header_root, #parker_h_f_footer_wrapper) are
+// removed by the shared afterTransform list - no bare header/footer selectors.
+// ---------------------------------------------------------------------------
+
+const PH_ORIGIN = 'https://ph.parker.com';
+
+function isProductPage(payload) {
+  const url = pageUrl(payload);
+  if (url && url.hostname === 'ph.parker.com') return true;
+  const name = payload && payload.template && payload.template.name;
+  return typeof name === 'string' && name.startsWith('product');
+}
+
+// Description metas carry literal markup ("<p>Parker hoses ...</p>") and og:url is
+// broken ("https://ph.parker.comundefined"). createMetadata reads these from <head>.
+function productMetadata(doc, payload) {
+  doc.querySelectorAll([
+    'meta[name="description"]',
+    'meta[property="og:description"]',
+    'meta[name="og:description"]',
+    'meta[name="twitter:description"]',
+    'meta[property="twitter:description"]',
+    'meta[itemprop="description"]',
+  ].join(', ')).forEach((m) => {
+    const content = m.getAttribute('content');
+    if (content == null) return;
+    const clean = content.replace(/<\/?p\b[^>]*>/gi, ' ').replace(/\s+/g, ' ').trim();
+    if (clean !== content) m.setAttribute('content', clean);
+  });
+  // The head repeats og:description (once with <p>, once without); createMetadata
+  // joins repeated metas ("text, text"), so drop exact duplicates after cleaning.
+  const seen = new Set();
+  doc.querySelectorAll('meta[name], meta[property], meta[itemprop]').forEach((m) => {
+    const key = ['name', 'property', 'itemprop'].map((a) => m.getAttribute(a) || '').join('|');
+    const id = `${key}=${m.getAttribute('content')}`;
+    if (seen.has(id)) m.remove();
+    else seen.add(id);
+  });
+  const page = pageUrl(payload);
+  doc.querySelectorAll('meta[property="og:url"], meta[name="og:url"]').forEach((m) => {
+    const content = m.getAttribute('content') || '';
+    let ok = false;
+    try {
+      const u = new URL(content);
+      ok = /^https?:$/.test(u.protocol) && !/undefined|null/i.test(content)
+        && (!page || u.hostname === page.hostname);
+    } catch (e) {
+      ok = false;
+    }
+    if (!ok) m.remove();
+  });
+}
+
+function productBefore(element, payload) {
+  productMetadata(element.ownerDocument, payload);
+  WebImporter.DOMUtils.remove(element, [
+    // Breadcrumb ("Home / Products / ...") + "Provide Feedback" row
+    '[class*="__marginProductListPrint"]',
+    // Left column: category nav, faceted filters, "Help us improve our filters",
+    // "Get your Parker account Today!" register box
+    '.MuiGrid-item:has(#category-left-block)',
+    '#category-left-block',
+    // SPA shells / loaders / hidden debug payloads
+    '#modal-root',
+    '#globalLoader',
+    // hidden (visibility:hidden; height:0) div holding ~270KB of raw API JSON
+    '.phCommerceContent > div[style*="visibility: hidden"]',
+    'pre.custom-headers',
+    'next-route-announcer',
+    '#transcend-consent-manager',
+    'div[hidden]',
+    'style',
+    // zero-size / hidden iframes and tracking pixels
+    'iframe[width="0"]',
+    'iframe[height="0"]',
+    'iframe[style*="display: none"]',
+    'img[width="1"][height="1"]',
+    'img[src*="eloqua.com"]',
+    'img[src*="en25.com"]',
+    'img[src*="clarity.ms"]',
+    'img[src*="googleadservices.com"]',
+    'img[src*="doubleclick.net"]',
+    'img[src*="google.com/pagead"]',
+    'img[src*="googleads.g.doubleclick"]',
+    'img[src*="qualtrics.com"]',
+    'iframe[src*="eloqua.com"]',
+    'iframe[src*="doubleclick.net"]',
+    'iframe[src*="googletagmanager.com"]',
+    'iframe[src*="qualtrics.com"]',
+    // emptied Qualtrics wrapper (its div#ZN_ child is removed above)
+    'body > div[style*="display: none"]',
+  ]);
+}
+
+function productAfter(element) {
+  // Tile-list title "Hose, Piping and Tubing Categories" is an h5 -> h2.
+  element.querySelectorAll('h5#category-list-category-title, h5[data-testid="category-list-category-title"]')
+    .forEach((h5) => retag(h5, 'h2'));
+  // Leading/trailing spaces in headings (e.g. "<h1> Hose, ...").
+  element.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(trimText);
+}
+
+// ---------------------------------------------------------------------------
+// Products LANDING page only (https://ph.parker.com/us/en/category, template
+// product-landing). Gated by isProductLandingPage(), so the 19 category pages
+// (/us/en/category/*) and every other template are unaffected.
+// Selectors verified in tools/importer/bd-snapshots/ph.parker.com/us/en/category.html.
+// ---------------------------------------------------------------------------
+
+const PRODUCT_LANDING_PATH = '/us/en/category';
+
+function isProductLandingPage(payload) {
+  const url = pageUrl(payload);
+  if (url) return url.hostname === 'ph.parker.com' && url.pathname.replace(/\/+$/, '') === PRODUCT_LANDING_PATH;
+  return !!(payload && payload.template && payload.template.name === 'product-landing');
+}
+
+function productLandingBefore(element) {
+  // Belt-and-braces with productBefore(): left column (Products Categories list,
+  // Filter by facets, "Help us improve our filters", register card) and the
+  // breadcrumb + "Provide Feedback" row, by their stable ids.
+  WebImporter.DOMUtils.remove(element, [
+    '#non-mobile-category-left-column',
+    '#non-mobile-category-breadcrumb',
+  ]);
+}
+
+function productLandingAfter(element) {
+  const doc = element.ownerDocument;
+  // Second H1 "All Product Categories" (h1#category-products-title) -> h2.
+  element.querySelectorAll('h1#category-products-title, h1[data-testid="category-products-title"]')
+    .forEach((h1) => retag(h1, 'h2'));
+  // Category headers: div#category-products-category-{n}-header > a#...-link (a plain
+  // link, not a heading) -> <h3><a href>Name</a></h3>, so the outline is
+  // H1 Products > H2 All Product Categories > H3 category. The href is kept as-is
+  // (rewriteLinks maps it to the migrated /us/en/category/<slug> path); the text is
+  // never slugified (e.g. "Regulators, Monitoring, ..." -> regulators-monitors-...).
+  element.querySelectorAll('[id^="category-products-category-"][id$="-header"]').forEach((header) => {
+    const link = header.querySelector('a[href]');
+    const text = (link || header).textContent.replace(/\s+/g, ' ').trim();
+    if (!text) {
+      header.remove();
+      return;
+    }
+    const h3 = doc.createElement('h3');
+    if (link) {
+      const a = doc.createElement('a');
+      a.setAttribute('href', link.getAttribute('href'));
+      a.textContent = text;
+      h3.append(a);
+    } else {
+      h3.textContent = text;
+    }
+    header.replaceWith(h3);
+  });
+}
+
+// ---------------------------------------------------------------------------
+// PTS page only (https://www.parker.com/us/en/industries/digital/pts.html,
+// template pts; an alias of /us/en/additional-information/asset-intelligence/
+// asset-management.html). Gated by isPtsPage(), so every other page is unaffected.
+// Selectors verified in
+// tools/importer/bd-snapshots/www.parker.com/us/en/industries/digital/pts.html.html.
+// ---------------------------------------------------------------------------
+
+const PTS_PATHS = new Set([
+  '/us/en/industries/digital/pts.html',
+  '/us/en/additional-information/asset-intelligence/asset-management.html',
+]);
+
+function isPtsPage(payload) {
+  const url = pageUrl(payload);
+  if (url) return url.hostname === 'www.parker.com' && PTS_PATHS.has(url.pathname);
+  return !!(payload && payload.template && payload.template.name === 'pts');
+}
+
+function ptsBefore(element) {
+  // The page model has 3 dam/components/scene7/interactivemedia + 2 dynamicmedia
+  // components at the top of the content grid with no asset: they render nothing
+  // (absent from the BD snapshot) or an empty viewer shell on a live render.
+  // Drop the viewer shells, then any content-grid column left without authorable
+  // content. Safe here: every pts section selector is class/:has() based (no
+  // positional selector that removal could shift).
+  WebImporter.DOMUtils.remove(element, [
+    '.s7dm-dynamic-media',
+    '.s7dm-interactive-media',
+    '.interactivemedia',
+    '.dynamicmedia',
+    '[data-asset-type="interactivemedia"]',
+    // Slider/video chrome: play-button overlays (data: SVG <img>), slick arrows and dots
+    '.play-arrow-icon-container',
+    '.parker-carousel .slick-arrow',
+    '.parker-carousel .slick-dots',
+  ]);
+
+  // Image-box pictures (sliders, gold/tagging bands) carry a bare <img src> plus
+  // ?im=Resize=(w,h) <source> variants. The Bright Data snapshot stored the widest
+  // variant (last <source>, "min-width: 1400px"); when it also stored a second
+  // variant the offline image map cannot resolve the bare src by file name
+  // (ambiguous) and the image would stay on the bot-protected origin. Point the
+  // <img> at that last <source> URL, which the map resolves exactly.
+  const fileOf = (u) => {
+    const path = u.split('?')[0];
+    return path.substring(path.lastIndexOf('/') + 1);
+  };
+  element.querySelectorAll('.image-box-container picture > img[src]').forEach((img) => {
+    const src = img.getAttribute('src');
+    if (src.includes('?')) return;
+    const sources = img.parentElement.querySelectorAll(':scope > source[srcset]');
+    const last = sources[sources.length - 1];
+    const candidate = last ? last.getAttribute('srcset').trim() : '';
+    // single-URL srcset only (no width/density descriptors); the URL itself may
+    // contain a comma, e.g. ?im=Resize=(960,540)
+    if (!candidate || /\s/.test(candidate)) return;
+    if (fileOf(candidate) !== fileOf(src)) return; // same asset only
+    img.setAttribute('src', candidate.startsWith('/') ? `${SOURCE_ORIGIN}${candidate}` : candidate);
+  });
+
+  const title = element.querySelector('.cmp-title');
+  const grid = title && title.closest('.aem-Grid');
+  if (grid) {
+    [...grid.children].forEach((col) => {
+      if (col.classList.contains('aem-GridColumn') && isEmptyColumn(col)) col.remove();
+    });
+  }
+}
+
+function ptsAfter(element) {
+  // Image-box paragraphs that start with a "<br>" spacer
+  // (Tagging band: "<p><br>\nPTS employs proven hardware ...").
+  element.querySelectorAll('.image-box-container__description p').forEach((p) => {
+    let first = p.firstChild;
+    while (first && ((first.nodeType === 3 && !first.textContent.replace(/\u00a0/g, ' ').trim())
+      || (first.nodeType === 1 && first.tagName === 'BR'))) {
+      first.remove();
+      first = p.firstChild;
+    }
+  });
+}
+
 // Pages migrated to EDS (served extensionless). Links to these become site-relative
 // extensionless paths; every other parker.com page link points back to parker.com,
 // because EDS 404s on ".html" paths and those pages don't exist here yet.
@@ -426,10 +680,35 @@ const MIGRATED_PATHS = new Set([
   '/us/en/support/software',
   '/us/en/support/training-tutorials',
   '/us/en/support/master-directory/global-offices',
+  // Products (ph.parker.com): category landing (template product-landing), the 19
+  // category pages (template product-category) and the PTS page (template pts).
+  // Matching is exact-path (Set lookup), so L3 /us/en/category/<cat>/<sub> pages
+  // and /us/en/series/* tile targets stay absolute ph.parker.com URLs.
+  '/us/en/category',
+  '/us/en/category/adhesives-coatings-and-encapsulants',
+  '/us/en/category/aerospace-systems-and-technologies',
+  '/us/en/category/air-preparation-frl-and-dryers',
+  '/us/en/category/bioprocessing-and-medical-technologies',
+  '/us/en/category/cylinders-and-actuators',
+  '/us/en/category/emi-shielding',
+  '/us/en/category/filters-collectors-separators-purifiers',
+  '/us/en/category/fittings-and-quick-couplings',
+  '/us/en/category/gas-generators',
+  '/us/en/category/hose-piping-and-tubing',
+  '/us/en/category/motors-drives-and-controllers',
+  '/us/en/category/mounting-and-vibration-control',
+  '/us/en/category/power-take-offs-and-drive-systems',
+  '/us/en/category/pumps',
+  '/us/en/category/refrigeration-and-air-conditioning',
+  '/us/en/category/regulators-monitors-sensors-and-flow-control',
+  '/us/en/category/seals-and-o-rings',
+  '/us/en/category/thermal-and-power-management',
+  '/us/en/category/valves',
+  '/us/en/industries/digital/pts',
 ]);
 const SOURCE_ORIGIN = 'https://www.parker.com';
 // Hosts whose pages are being migrated into this site.
-const SOURCE_ORIGINS = new Set([SOURCE_ORIGIN, HELP_ORIGIN]);
+const SOURCE_ORIGINS = new Set([SOURCE_ORIGIN, HELP_ORIGIN, PH_ORIGIN]);
 // Tracking query params dropped from links to migrated pages
 // (help pages append ?brd=<topic>&app=hs|undefined to every internal link).
 const TRACKING_PARAM = /^(brd|app|utm_.*)$/i;

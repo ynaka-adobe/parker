@@ -1,0 +1,38 @@
+{
+  "variantName": "carousel-media",
+  "baseBlock": "carousel",
+  "canonicalModel": "collection",
+  "visualCharacteristics": {
+    "layout": "one slide visible at a time; image on the left (~50%), text on the right; chevron prev/next arrows at the sides (900px+) and dot indicators centred below; swipe/scroll-snap on mobile with the image stacked above the text",
+    "imageTreatment": "default: contained image (e.g. phone screenshot) on white; panel: photo fills its half",
+    "density": "medium",
+    "colorScheme": "white / light-grey panel, dark text, gold CTA",
+    "purpose": "image + text feature slides (product updates, app FAQ)",
+    "optionLayouts": {
+      "panel": "the text side sits in a light-grey panel (var(--light-color)) with generous padding; image covers its half at full slide height"
+    }
+  },
+  "contentPattern": {
+    "structure": "one row per slide, 2 cells: [picture] | [eyebrow p, H2, paragraph(s) or ul, optional CTA link]",
+    "summary": "image + text slides",
+    "imageCount": 1,
+    "buttonCount": 1,
+    "hasDescription": true
+  },
+  "usage": {
+    "pagesUsing": [
+      "/us/en/industries/digital/pts"
+    ],
+    "reuseCount": 1,
+    "lastUsed": "2026-10-08T00:00:00.000Z"
+  },
+  "options": [
+    {
+      "class": "panel",
+      "label": "Panel"
+    }
+  ],
+  "memberVariantIds": [
+    "carousel-media"
+  ]
+}

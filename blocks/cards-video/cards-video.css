@@ -1,0 +1,184 @@
+/* cards-video — video tiles: 16:9 thumbnail with a centred play icon, caption below;
+   1 per row on mobile, 2 from 600px, 3 from 900px. Clicking plays the video in a modal dialog. */
+.cards-video {
+  --cards-video-gap: 16px;
+}
+
+.cards-video > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px var(--cards-video-gap);
+}
+
+.cards-video > ul > li {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.cards-video .cards-video-card-image {
+  position: relative;
+  line-height: 0;
+}
+
+.cards-video .cards-video-card-image img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.cards-video .cards-video-card-body {
+  padding-top: 12px;
+}
+
+.cards-video .cards-video-card-playable .cards-video-card-body {
+  cursor: pointer;
+}
+
+.cards-video .cards-video-card-body :is(h2, h3, h4, h5, h6) {
+  margin: 0;
+  color: var(--text-color);
+  font-size: var(--heading-font-size-xs);
+  font-weight: var(--font-weight-regular);
+  line-height: 1.4;
+}
+
+.cards-video .cards-video-card-body p {
+  margin: 8px 0 0;
+  color: var(--text-muted-color);
+  font-size: var(--body-font-size-s);
+}
+
+/* play trigger over the thumbnail — not a pill CTA: opt out of the global button styles */
+.cards-video .cards-video-trigger,
+.cards-video .cards-video-trigger:hover,
+.cards-video .cards-video-trigger:focus {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.cards-video .cards-video-trigger:focus-visible {
+  outline: 3px solid var(--link-color);
+  outline-offset: -3px;
+}
+
+.cards-video .cards-video-trigger::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: rgb(16 24 32 / 80%);
+  transform: translate(-50%, -50%);
+  transition: background-color 0.2s;
+}
+
+.cards-video .cards-video-trigger::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: calc(50% + 2px);
+  border-style: solid;
+  border-width: 9px 0 9px 15px;
+  border-color: transparent transparent transparent var(--background-color);
+  transform: translate(-50%, -50%);
+}
+
+.cards-video .cards-video-trigger:hover::before,
+.cards-video .cards-video-trigger:focus-visible::before {
+  background-color: var(--parker-black);
+}
+
+/* modal player */
+.cards-video .cards-video-dialog {
+  box-sizing: border-box;
+  width: min(100vw - 32px, 1200px);
+  max-width: none;
+  max-height: none;
+  border: 0;
+  padding: 0;
+  overflow: visible;
+  background: var(--parker-black);
+}
+
+.cards-video .cards-video-dialog::backdrop {
+  background-color: rgb(0 0 0 / 80%);
+}
+
+.cards-video .cards-video-dialog video {
+  display: block;
+  width: 100%;
+  max-height: calc(100dvh - 120px);
+  aspect-ratio: 16 / 9;
+  background: var(--parker-black);
+}
+
+/* stylelint-disable-next-line no-descending-specificity */
+.cards-video .cards-video-close,
+.cards-video .cards-video-close:hover,
+.cards-video .cards-video-close:focus {
+  position: absolute;
+  top: -44px;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--background-color);
+  cursor: pointer;
+}
+
+.cards-video .cards-video-close:focus-visible {
+  outline: 2px solid var(--parker-gold);
+  outline-offset: 2px;
+}
+
+.cards-video .cards-video-close::before,
+.cards-video .cards-video-close::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 24px;
+  height: 2px;
+  background-color: currentcolor;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.cards-video .cards-video-close::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+@media (width >= 600px) {
+  .cards-video > ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (width >= 900px) {
+  .cards-video {
+    --cards-video-gap: 0;
+  }
+
+  .cards-video > ul {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

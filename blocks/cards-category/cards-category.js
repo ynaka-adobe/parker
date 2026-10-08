@@ -21,6 +21,15 @@ export default function decorate(block) {
   });
   block.textContent = '';
 
+  // grid option: plain wrapping grid, no slider arrows
+  if (block.classList.contains('grid')) {
+    ul.querySelectorAll('li').forEach((li) => {
+      if (li.querySelector('.cards-category-card-body a[href]')) li.classList.add('cards-category-linked');
+    });
+    block.append(ul);
+    return;
+  }
+
   // horizontal slider: scroll the track one page at a time with prev/next arrows
   const navButton = (dir, label) => {
     const button = document.createElement('button');

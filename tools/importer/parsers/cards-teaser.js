@@ -36,6 +36,21 @@
  * support-landing): MUI tile grid and "More Contact Information" card grid -
  * see the LANDING section above parse(); taken only for .MuiGrid-container
  * elements without a.ph-card-basic__link.
+ *
+ * PTS page (www.parker.com/us/en/industries/digital/pts.html, template pts):
+ *  - Feature icons: a .layout-col-4 grid column of 8 title-link items
+ *    (.aem-container > .cmp-titlelink_container [img.cmp-titlelink_icons,
+ *    h2.cmp-titlelink_title] + a sibling text component <p>) and no .card.
+ *    Emitted as "cards-teaser (grid, icons)", one row per item
+ *    [icon picture | h3 title (source h2), description paragraph(s)].
+ *    Iterates the block-level .cmp-titlelink_container wrappers. Taken only when
+ *    the element has .cmp-titlelink_container and no .card, which no other
+ *    template's cards-teaser instance has.
+ *  - Success Stories: plain .parker-carousel card slider -> existing slider path
+ *    (plain "cards-teaser", .slick-cloned skipped), unchanged.
+ *  - Resources: .layout-col-4 grid of bordered cards with a pill CTA -> existing
+ *    grid path, emitted as "cards-teaser (grid, buttons)" on PTS_PAGES only
+ *    (page-gated so markets / markets-2 grids stay "cards-teaser (grid)").
  */
 
 const HELP_CARD = 'a.ph-card-basic__link';
@@ -201,7 +216,73 @@ function parseLandingButtonCards(element, document) {
   return cells;
 }
 
-export default function parse(element, { document }) {
+// ---------------------------------------------------------------------------
+// PTS page (template pts) - see header.
+// ---------------------------------------------------------------------------
+
+const PTS_PAGES = [
+  '/us/en/industries/digital/pts.html',
+  '/us/en/additional-information/asset-intelligence/asset-management.html',
+];
+
+function pagePath(url, params) {
+  const raw = (params && params.originalURL) || url || '';
+  try {
+    return new URL(raw).pathname;
+  } catch (e) {
+    return '';
+  }
+}
+
+const TITLELINK = '.cmp-titlelink_container';
+
+function isIconFeatures(element) {
+  return !!element.querySelector(TITLELINK) && !element.querySelector('.card')
+    && !element.matches('.parker-carousel') && !element.querySelector('.parker-carousel');
+}
+
+// One row per feature: [icon | h3 title, description p(s)]
+function parseIconFeatures(element, document) {
+  const cells = [];
+  Array.from(element.querySelectorAll(TITLELINK)).forEach((item) => {
+    const icon = item.querySelector('img.cmp-titlelink_icons, img');
+    const titleEl = item.querySelector('.cmp-titlelink_title, h1, h2, h3, h4, h5, h6');
+    const title = titleEl ? cleanText(titleEl.textContent) : '';
+    // The description is the sibling text component inside the item's own container.
+    const scope = (item.parentElement && item.parentElement.closest('.aem-container')) || item.parentElement;
+    const descs = scope
+      ? Array.from(scope.querySelectorAll('p'))
+        .filter((p) => !item.contains(p) && cleanText(p.textContent))
+      : [];
+    if (!icon && !title && descs.length === 0) return;
+    const textCell = [];
+    if (title) {
+      const h3 = document.createElement('h3');
+      h3.textContent = title;
+      textCell.push(h3);
+    }
+    descs.forEach((p) => {
+      p.removeAttribute('style');
+      textCell.push(p);
+    });
+    cells.push([icon || '', textCell.length ? textCell : '']);
+  });
+  return cells;
+}
+
+export default function parse(element, { document, url, params }) {
+  // PTS feature icons (.cmp-titlelink_container grid) - separate branch
+  if (isIconFeatures(element)) {
+    const iconCells = parseIconFeatures(element, document);
+    if (iconCells.length === 0) {
+      element.replaceWith(...element.childNodes);
+      return;
+    }
+    const block = WebImporter.Blocks.createBlock(document, { name: 'cards-teaser (grid, icons)', cells: iconCells });
+    element.replaceWith(block);
+    return;
+  }
+
   // Help & Support landing page grids (help.parker.com/us/en/support) - separate branches
   if (!isHelpCards(element) && (isLandingTileGrid(element) || isLandingButtonCards(element))) {
     const tiles = isLandingTileGrid(element);
@@ -284,8 +365,10 @@ export default function parse(element, { document }) {
     return;
   }
 
+  // PTS Resources: bordered grid cards with pill CTAs -> (grid, buttons)
+  const gridName = PTS_PAGES.includes(pagePath(url, params)) ? 'cards-teaser (grid, buttons)' : 'cards-teaser (grid)';
   const block = grid
-    ? WebImporter.Blocks.createBlock(document, { name: 'cards-teaser (grid)', cells })
+    ? WebImporter.Blocks.createBlock(document, { name: gridName, cells })
     : WebImporter.Blocks.createBlock(document, { name: 'cards-teaser', cells });
   if (sectionHeading) element.before(sectionHeading);
   element.replaceWith(block);

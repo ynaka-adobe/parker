@@ -35,13 +35,13 @@ var CustomImportScript = (() => {
   };
   var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-  // tools/importer/import-support-landing.js
+  // import-support-landing.js
   var import_support_landing_exports = {};
   __export(import_support_landing_exports, {
     default: () => import_support_landing_default
   });
 
-  // tools/importer/parsers/cards-contact.js
+  // parsers/cards-contact.js
   var NBSP = /\u00a0/g;
   var clean = (s) => s.replace(NBSP, " ").replace(/\s+/g, " ").trim();
   var PHONE_RE = /^\+?[\d][\d\s().-]{6,}$/;
@@ -191,7 +191,7 @@ var CustomImportScript = (() => {
     element.replaceWith(block);
   }
 
-  // tools/importer/parsers/cards-news.js
+  // parsers/cards-news.js
   var CATEGORY_BASE = "https://ph.parker.com/us/en/category";
   var CATEGORY_FALLBACK = CATEGORY_BASE;
   var PRODUCT_CATEGORIES = {
@@ -328,7 +328,7 @@ var CustomImportScript = (() => {
     element.replaceWith(block);
   }
 
-  // tools/importer/parsers/cards-teaser.js
+  // parsers/cards-teaser.js
   var HELP_CARD = "a.ph-card-basic__link";
   var HELP_DESC_CLASS = "ph-card-basic__desc";
   try {
@@ -440,7 +440,56 @@ var CustomImportScript = (() => {
     });
     return cells;
   }
-  function parse3(element, { document: document2 }) {
+  var PTS_PAGES = [
+    "/us/en/industries/digital/pts.html",
+    "/us/en/additional-information/asset-intelligence/asset-management.html"
+  ];
+  function pagePath(url, params) {
+    const raw = params && params.originalURL || url || "";
+    try {
+      return new URL(raw).pathname;
+    } catch (e) {
+      return "";
+    }
+  }
+  var TITLELINK = ".cmp-titlelink_container";
+  function isIconFeatures(element) {
+    return !!element.querySelector(TITLELINK) && !element.querySelector(".card") && !element.matches(".parker-carousel") && !element.querySelector(".parker-carousel");
+  }
+  function parseIconFeatures(element, document2) {
+    const cells = [];
+    Array.from(element.querySelectorAll(TITLELINK)).forEach((item) => {
+      const icon = item.querySelector("img.cmp-titlelink_icons, img");
+      const titleEl = item.querySelector(".cmp-titlelink_title, h1, h2, h3, h4, h5, h6");
+      const title = titleEl ? cleanText(titleEl.textContent) : "";
+      const scope = item.parentElement && item.parentElement.closest(".aem-container") || item.parentElement;
+      const descs = scope ? Array.from(scope.querySelectorAll("p")).filter((p) => !item.contains(p) && cleanText(p.textContent)) : [];
+      if (!icon && !title && descs.length === 0) return;
+      const textCell = [];
+      if (title) {
+        const h3 = document2.createElement("h3");
+        h3.textContent = title;
+        textCell.push(h3);
+      }
+      descs.forEach((p) => {
+        p.removeAttribute("style");
+        textCell.push(p);
+      });
+      cells.push([icon || "", textCell.length ? textCell : ""]);
+    });
+    return cells;
+  }
+  function parse3(element, { document: document2, url, params }) {
+    if (isIconFeatures(element)) {
+      const iconCells = parseIconFeatures(element, document2);
+      if (iconCells.length === 0) {
+        element.replaceWith(...element.childNodes);
+        return;
+      }
+      const block2 = WebImporter.Blocks.createBlock(document2, { name: "cards-teaser (grid, icons)", cells: iconCells });
+      element.replaceWith(block2);
+      return;
+    }
     if (!isHelpCards(element) && (isLandingTileGrid(element) || isLandingButtonCards(element))) {
       const tiles = isLandingTileGrid(element);
       const landingCells = tiles ? parseLandingTiles(element, document2) : parseLandingButtonCards(element, document2);
@@ -496,12 +545,13 @@ var CustomImportScript = (() => {
       element.replaceWith(...element.childNodes);
       return;
     }
-    const block = grid ? WebImporter.Blocks.createBlock(document2, { name: "cards-teaser (grid)", cells }) : WebImporter.Blocks.createBlock(document2, { name: "cards-teaser", cells });
+    const gridName = PTS_PAGES.includes(pagePath(url, params)) ? "cards-teaser (grid, buttons)" : "cards-teaser (grid)";
+    const block = grid ? WebImporter.Blocks.createBlock(document2, { name: gridName, cells }) : WebImporter.Blocks.createBlock(document2, { name: "cards-teaser", cells });
     if (sectionHeading) element.before(sectionHeading);
     element.replaceWith(block);
   }
 
-  // tools/importer/transformers/parker-cleanup.js
+  // transformers/parker-cleanup.js
   var H = { before: "beforeTransform", after: "afterTransform" };
   var MEDIA_SELECTOR = "img, picture, video, iframe, svg, table";
   function isEmptyColumn(col) {
@@ -513,6 +563,14 @@ var CustomImportScript = (() => {
     if (support && hookName === H.before && isMasterDirectoryPage(payload)) masterDirectoryBefore(element, payload);
     if (support && hookName === H.before) supportBefore(element, payload);
     if (support && hookName === H.after) supportAfter(element);
+    const product = isProductPage(payload);
+    if (product && hookName === H.before) productBefore(element, payload);
+    if (product && hookName === H.before && isProductLandingPage(payload)) productLandingBefore(element);
+    if (product && hookName === H.after && isProductLandingPage(payload)) productLandingAfter(element);
+    if (product && hookName === H.after) productAfter(element);
+    const pts = isPtsPage(payload);
+    if (pts && hookName === H.before) ptsBefore(element);
+    if (pts && hookName === H.after) ptsAfter(element);
     if (hookName === H.before) {
       WebImporter.DOMUtils.remove(element, [
         ".parker-comchatskill",
@@ -731,6 +789,177 @@ var CustomImportScript = (() => {
     element.querySelectorAll("h3.ht, .jumbotron > h3").forEach((h3) => retag2(h3, "p"));
     element.querySelectorAll("h1, h2, h3, h4, h5, h6, .jumbotron > a").forEach(trimText);
   }
+  var PH_ORIGIN = "https://ph.parker.com";
+  function isProductPage(payload) {
+    const url = pageUrl(payload);
+    if (url && url.hostname === "ph.parker.com") return true;
+    const name = payload && payload.template && payload.template.name;
+    return typeof name === "string" && name.startsWith("product");
+  }
+  function productMetadata(doc, payload) {
+    doc.querySelectorAll([
+      'meta[name="description"]',
+      'meta[property="og:description"]',
+      'meta[name="og:description"]',
+      'meta[name="twitter:description"]',
+      'meta[property="twitter:description"]',
+      'meta[itemprop="description"]'
+    ].join(", ")).forEach((m) => {
+      const content = m.getAttribute("content");
+      if (content == null) return;
+      const clean2 = content.replace(/<\/?p\b[^>]*>/gi, " ").replace(/\s+/g, " ").trim();
+      if (clean2 !== content) m.setAttribute("content", clean2);
+    });
+    const seen = /* @__PURE__ */ new Set();
+    doc.querySelectorAll("meta[name], meta[property], meta[itemprop]").forEach((m) => {
+      const key = ["name", "property", "itemprop"].map((a) => m.getAttribute(a) || "").join("|");
+      const id = `${key}=${m.getAttribute("content")}`;
+      if (seen.has(id)) m.remove();
+      else seen.add(id);
+    });
+    const page = pageUrl(payload);
+    doc.querySelectorAll('meta[property="og:url"], meta[name="og:url"]').forEach((m) => {
+      const content = m.getAttribute("content") || "";
+      let ok = false;
+      try {
+        const u = new URL(content);
+        ok = /^https?:$/.test(u.protocol) && !/undefined|null/i.test(content) && (!page || u.hostname === page.hostname);
+      } catch (e) {
+        ok = false;
+      }
+      if (!ok) m.remove();
+    });
+  }
+  function productBefore(element, payload) {
+    productMetadata(element.ownerDocument, payload);
+    WebImporter.DOMUtils.remove(element, [
+      // Breadcrumb ("Home / Products / ...") + "Provide Feedback" row
+      '[class*="__marginProductListPrint"]',
+      // Left column: category nav, faceted filters, "Help us improve our filters",
+      // "Get your Parker account Today!" register box
+      ".MuiGrid-item:has(#category-left-block)",
+      "#category-left-block",
+      // SPA shells / loaders / hidden debug payloads
+      "#modal-root",
+      "#globalLoader",
+      // hidden (visibility:hidden; height:0) div holding ~270KB of raw API JSON
+      '.phCommerceContent > div[style*="visibility: hidden"]',
+      "pre.custom-headers",
+      "next-route-announcer",
+      "#transcend-consent-manager",
+      "div[hidden]",
+      "style",
+      // zero-size / hidden iframes and tracking pixels
+      'iframe[width="0"]',
+      'iframe[height="0"]',
+      'iframe[style*="display: none"]',
+      'img[width="1"][height="1"]',
+      'img[src*="eloqua.com"]',
+      'img[src*="en25.com"]',
+      'img[src*="clarity.ms"]',
+      'img[src*="googleadservices.com"]',
+      'img[src*="doubleclick.net"]',
+      'img[src*="google.com/pagead"]',
+      'img[src*="googleads.g.doubleclick"]',
+      'img[src*="qualtrics.com"]',
+      'iframe[src*="eloqua.com"]',
+      'iframe[src*="doubleclick.net"]',
+      'iframe[src*="googletagmanager.com"]',
+      'iframe[src*="qualtrics.com"]',
+      // emptied Qualtrics wrapper (its div#ZN_ child is removed above)
+      'body > div[style*="display: none"]'
+    ]);
+  }
+  function productAfter(element) {
+    element.querySelectorAll('h5#category-list-category-title, h5[data-testid="category-list-category-title"]').forEach((h5) => retag2(h5, "h2"));
+    element.querySelectorAll("h1, h2, h3, h4, h5, h6").forEach(trimText);
+  }
+  var PRODUCT_LANDING_PATH = "/us/en/category";
+  function isProductLandingPage(payload) {
+    const url = pageUrl(payload);
+    if (url) return url.hostname === "ph.parker.com" && url.pathname.replace(/\/+$/, "") === PRODUCT_LANDING_PATH;
+    return !!(payload && payload.template && payload.template.name === "product-landing");
+  }
+  function productLandingBefore(element) {
+    WebImporter.DOMUtils.remove(element, [
+      "#non-mobile-category-left-column",
+      "#non-mobile-category-breadcrumb"
+    ]);
+  }
+  function productLandingAfter(element) {
+    const doc = element.ownerDocument;
+    element.querySelectorAll('h1#category-products-title, h1[data-testid="category-products-title"]').forEach((h1) => retag2(h1, "h2"));
+    element.querySelectorAll('[id^="category-products-category-"][id$="-header"]').forEach((header) => {
+      const link = header.querySelector("a[href]");
+      const text = (link || header).textContent.replace(/\s+/g, " ").trim();
+      if (!text) {
+        header.remove();
+        return;
+      }
+      const h3 = doc.createElement("h3");
+      if (link) {
+        const a = doc.createElement("a");
+        a.setAttribute("href", link.getAttribute("href"));
+        a.textContent = text;
+        h3.append(a);
+      } else {
+        h3.textContent = text;
+      }
+      header.replaceWith(h3);
+    });
+  }
+  var PTS_PATHS = /* @__PURE__ */ new Set([
+    "/us/en/industries/digital/pts.html",
+    "/us/en/additional-information/asset-intelligence/asset-management.html"
+  ]);
+  function isPtsPage(payload) {
+    const url = pageUrl(payload);
+    if (url) return url.hostname === "www.parker.com" && PTS_PATHS.has(url.pathname);
+    return !!(payload && payload.template && payload.template.name === "pts");
+  }
+  function ptsBefore(element) {
+    WebImporter.DOMUtils.remove(element, [
+      ".s7dm-dynamic-media",
+      ".s7dm-interactive-media",
+      ".interactivemedia",
+      ".dynamicmedia",
+      '[data-asset-type="interactivemedia"]',
+      // Slider/video chrome: play-button overlays (data: SVG <img>), slick arrows and dots
+      ".play-arrow-icon-container",
+      ".parker-carousel .slick-arrow",
+      ".parker-carousel .slick-dots"
+    ]);
+    const fileOf = (u) => {
+      const path = u.split("?")[0];
+      return path.substring(path.lastIndexOf("/") + 1);
+    };
+    element.querySelectorAll(".image-box-container picture > img[src]").forEach((img) => {
+      const src = img.getAttribute("src");
+      if (src.includes("?")) return;
+      const sources = img.parentElement.querySelectorAll(":scope > source[srcset]");
+      const last = sources[sources.length - 1];
+      const candidate = last ? last.getAttribute("srcset").trim() : "";
+      if (!candidate || /\s/.test(candidate)) return;
+      if (fileOf(candidate) !== fileOf(src)) return;
+      img.setAttribute("src", candidate.startsWith("/") ? `${SOURCE_ORIGIN}${candidate}` : candidate);
+    });
+    const title = element.querySelector(".cmp-title");
+    const grid = title && title.closest(".aem-Grid");
+    if (grid) {
+      [...grid.children].forEach((col) => {
+        if (col.classList.contains("aem-GridColumn") && isEmptyColumn(col)) col.remove();
+      });
+    }
+  }
+  function ptsAfter(element) {
+    element.querySelectorAll(".image-box-container__description p").forEach((p) => {
+      let first = p.firstChild;
+      while (first && (first.nodeType === 3 && !first.textContent.replace(/\u00a0/g, " ").trim() || first.nodeType === 1 && first.tagName === "BR")) {
+        first.remove();
+        first = p.firstChild;
+      }
+    });
+  }
   var MIGRATED_PATHS = /* @__PURE__ */ new Set([
     "/us/en/home",
     "/us/en/markets",
@@ -774,10 +1003,35 @@ var CustomImportScript = (() => {
     "/us/en/support/replacement",
     "/us/en/support/software",
     "/us/en/support/training-tutorials",
-    "/us/en/support/master-directory/global-offices"
+    "/us/en/support/master-directory/global-offices",
+    // Products (ph.parker.com): category landing (template product-landing), the 19
+    // category pages (template product-category) and the PTS page (template pts).
+    // Matching is exact-path (Set lookup), so L3 /us/en/category/<cat>/<sub> pages
+    // and /us/en/series/* tile targets stay absolute ph.parker.com URLs.
+    "/us/en/category",
+    "/us/en/category/adhesives-coatings-and-encapsulants",
+    "/us/en/category/aerospace-systems-and-technologies",
+    "/us/en/category/air-preparation-frl-and-dryers",
+    "/us/en/category/bioprocessing-and-medical-technologies",
+    "/us/en/category/cylinders-and-actuators",
+    "/us/en/category/emi-shielding",
+    "/us/en/category/filters-collectors-separators-purifiers",
+    "/us/en/category/fittings-and-quick-couplings",
+    "/us/en/category/gas-generators",
+    "/us/en/category/hose-piping-and-tubing",
+    "/us/en/category/motors-drives-and-controllers",
+    "/us/en/category/mounting-and-vibration-control",
+    "/us/en/category/power-take-offs-and-drive-systems",
+    "/us/en/category/pumps",
+    "/us/en/category/refrigeration-and-air-conditioning",
+    "/us/en/category/regulators-monitors-sensors-and-flow-control",
+    "/us/en/category/seals-and-o-rings",
+    "/us/en/category/thermal-and-power-management",
+    "/us/en/category/valves",
+    "/us/en/industries/digital/pts"
   ]);
   var SOURCE_ORIGIN = "https://www.parker.com";
-  var SOURCE_ORIGINS = /* @__PURE__ */ new Set([SOURCE_ORIGIN, HELP_ORIGIN]);
+  var SOURCE_ORIGINS = /* @__PURE__ */ new Set([SOURCE_ORIGIN, HELP_ORIGIN, PH_ORIGIN]);
   var TRACKING_PARAM = /^(brd|app|utm_.*)$/i;
   function cleanSearch(url) {
     const params = new URLSearchParams(url.search);
@@ -818,7 +1072,7 @@ var CustomImportScript = (() => {
     });
   }
 
-  // tools/importer/transformers/parker-sections.js
+  // transformers/parker-sections.js
   var SECTION_MARKER_ATTR = "data-excat-section-id";
   var THEME_SECTION_TEMPLATES = /* @__PURE__ */ new Set(["markets"]);
   var THEME_STYLE_ATTR = "data-excat-theme-style";
@@ -933,7 +1187,7 @@ var CustomImportScript = (() => {
     }
   }
 
-  // tools/importer/import-support-landing.js
+  // import-support-landing.js
   var parsers = {
     "cards-contact": parse,
     "cards-news": parse2,

@@ -154,3 +154,59 @@ main > .section > .columns-media-wrapper {
     object-fit: cover;
   }
 }
+
+/* compact option: small contained thumbnail beside an intro paragraph (e.g. category intro).
+   Restores the normal section gutter, drops band padding and the min-height/cover image rules,
+   hairline rules top and bottom. Stacks on mobile with the image above. */
+main > .section > .columns-media-wrapper:has(> .columns-media.compact) {
+  max-width: var(--content-max-width);
+  padding: 0 var(--gutter);
+}
+
+.section .columns-media.compact > div {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  max-width: none;
+  margin: 0;
+  padding: 24px 0;
+  border-top: 1px solid var(--parker-rule-color);
+  border-bottom: 1px solid var(--parker-rule-color);
+}
+
+.section .columns-media.compact > div > .columns-media-img-col {
+  flex: 0 0 auto;
+  width: 140px;
+  order: 0;
+}
+
+.section .columns-media.compact .columns-media-img-col img {
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  aspect-ratio: auto;
+  object-fit: contain;
+}
+
+.section .columns-media.compact .columns-media-text-col {
+  order: 1;
+  padding: 0;
+}
+
+.section .columns-media.compact .columns-media-text-col > :last-child {
+  margin-bottom: 0;
+}
+
+@media (width >= 600px) {
+  .section .columns-media.compact > div {
+    flex-direction: row;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .section .columns-media.compact > div > .columns-media-text-col {
+    flex: 1 1 auto;
+    justify-content: center;
+    padding: 0;
+  }
+}

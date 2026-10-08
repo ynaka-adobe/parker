@@ -14,6 +14,7 @@ Single block table. Content: one row, two cells: [text: optional eyebrow paragra
 | --- | --- |
 | Reverse | `reverse` |
 | Full-bleed image | `full-bleed` |
+| Compact | `compact` |
 
 ## Universal Editor fields
 

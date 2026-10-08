@@ -31,7 +31,67 @@
  * ([picture | text] on order-status). Visual order = DOM order unless a column
  * carries a Bootstrap order-* / order-md-* class. Taken only when the element
  * contains .ph-bg__img-block, which no www.parker.com template has.
+ *
+ * Product category (ph.parker.com/us/en/category/*, template product-category):
+ * the matched element is #category-list-details-description-container
+ * ([data-testid] equivalent): category thumbnail
+ * (img#category-list-details-desktop-image, alt is a stale product name) plus
+ * the intro paragraph(s). Emitted as "columns-media (compact)", one row
+ * [picture | text]. The image alt is set to the page H1
+ * (#category-list-details-title). The server HTML nests the intro inside the
+ * (empty) short-description p - <p id="...short-description"><p>text</p></p> -
+ * which an HTML parse flattens to <p></p><p>text</p><p></p> while a live DOM
+ * keeps the nesting; both shapes are handled without duplicating text. Taken
+ * only when the element itself matches the ph.parker.com container id /
+ * data-testid, which no www.parker.com / help.parker.com markup has.
+ *
+ * PTS page (www.parker.com/us/en/industries/digital/pts.html, template pts; same
+ * .image-box-container markup, generic path below). Page-gated by PTS_PAGES, so no
+ * other template's output changes:
+ *  - Gold "THE SIMPLE ASSET MANAGEMENT TOOL" band: the media column is a video
+ *    poster (img#thumnail-image + play icon) whose MP4 exists only in the AEM page
+ *    model (migration-work/pts-model.json, image_box_descriptio.fileReference), not
+ *    in the DOM. The media cell becomes [poster picture, p > a "Watch Video" -> MP4]
+ *    using the constant PTS_VIDEO_BANDS (poster file name -> MP4 URL).
+ *  - Gold "GET STARTED WITH PTS" band: the description wraps its paragraphs in a
+ *    bordered 1-row / 1-cell <table> (WYSIWYG artefact); the table is unwrapped so
+ *    the paragraphs are authored directly (no nested table in the block).
  */
+
+const PRODUCT_CATEGORY_DESC = '#category-list-details-description-container, [data-testid="category-list-details-description-container"]';
+
+const isProductCategoryDesc = (element) => !!(element.matches && element.matches(PRODUCT_CATEGORY_DESC));
+
+// Non-empty paragraph texts of the container, in document order. A <p> that
+// (still) holds nested <p>s contributes only its own nodes outside them; the
+// nested ones are visited on their own by querySelectorAll.
+function productCategoryParagraphs(element, document) {
+  const paras = [];
+  Array.from(element.querySelectorAll('p')).forEach((p) => {
+    const nodes = Array.from(p.childNodes).filter((n) => !(n.nodeType === 1 && n.tagName === 'P'));
+    const text = nodes.map((n) => n.textContent).join('').replace(/\u00a0/g, ' ').trim();
+    if (!text) return;
+    const para = document.createElement('p');
+    para.append(...nodes);
+    paras.push(para);
+  });
+  return paras;
+}
+
+// ph.parker.com category intro -> one row [picture | paragraphs]
+function parseProductCategoryDesc(element, document) {
+  const img = element.querySelector('#category-list-details-desktop-image, [data-testid="category-list-details-desktop-image"]')
+    || element.querySelector('img');
+  if (img) {
+    const h1 = document.querySelector('#category-list-details-title, [data-testid="category-list-details-title"]')
+      || document.querySelector('h1');
+    const title = h1 ? h1.textContent.replace(/\s+/g, ' ').trim() : '';
+    if (title) img.setAttribute('alt', title);
+  }
+  const paras = productCategoryParagraphs(element, document);
+  if (!img && !paras.length) return [];
+  return [[img || '', paras.length ? paras : '']];
+}
 
 // Bootstrap order value for a column ("order-md-2", "order-first", "order-last"); 0 when unset.
 function bootstrapOrder(col) {
@@ -110,7 +170,49 @@ function pagePath(url, params) {
   }
 }
 
+// PTS page (template pts) and its canonical alias.
+const PTS_PAGES = [
+  '/us/en/industries/digital/pts.html',
+  '/us/en/additional-information/asset-intelligence/asset-management.html',
+];
+
+// Poster image file name -> MP4 (from migration-work/pts-model.json:
+// responsivegrid/image_box_descriptio: thumbnailImageURL / fileReference, isVideoUrl=true).
+const PTS_VIDEO_BANDS = {
+  'PTS-PTS-Logo.png': 'https://www.parker.com/content/dam/parker/na/united-states/industries/digital/pts/6C5BE368B115B075F4D3035A23E3940B.mp4',
+};
+
+// MP4 for a video-poster media column, or null.
+function ptsVideoUrl(mediaBox, image) {
+  if (!image || !mediaBox || !mediaBox.querySelector('.play-arrow-icon-container, #thumnail-image')) return null;
+  const src = (image.getAttribute('src') || '').split('?')[0];
+  const file = src.substring(src.lastIndexOf('/') + 1);
+  return PTS_VIDEO_BANDS[file] || null;
+}
+
+// Replace each 1-row / 1-cell table with the cell's children.
+function unwrapSingleCellTables(root) {
+  if (!root) return;
+  Array.from(root.querySelectorAll('table')).forEach((table) => {
+    const cells = table.querySelectorAll('td, th');
+    if (table.querySelectorAll('tr').length !== 1 || cells.length !== 1) return;
+    table.replaceWith(...cells[0].childNodes);
+  });
+}
+
 export default function parse(element, { document, url, params }) {
+  // Product category intro (ph.parker.com) - separate branch
+  if (isProductCategoryDesc(element)) {
+    const productCells = parseProductCategoryDesc(element, document);
+    if (productCells.length === 0) {
+      element.replaceWith(...element.childNodes);
+      return;
+    }
+    const block = WebImporter.Blocks.createBlock(document, { name: 'columns-media (compact)', cells: productCells });
+    element.replaceWith(block);
+    return;
+  }
+
   // Help & Support image + text row (help.parker.com) - separate branch
   if (isHelpMediaRow(element)) {
     const helpCells = parseHelpMediaRow(element, document);
@@ -129,6 +231,9 @@ export default function parse(element, { document, url, params }) {
   // Media column: image wrapper / picture
   const mediaBox = element.querySelector('.image-wrapper, .image-container, [class*="image-wrapper"]');
   const image = element.querySelector('.image-wrapper img, .image-container img, picture img, img');
+
+  const isPts = PTS_PAGES.includes(pagePath(url, params));
+  if (isPts && textBox) unwrapSingleCellTables(textBox.querySelector('.image-box-container__description'));
 
   const textCell = [];
   if (textBox) {
@@ -150,6 +255,17 @@ export default function parse(element, { document, url, params }) {
     mediaCell.push(image);
   } else if (mediaBox) {
     mediaCell.push(mediaBox);
+  }
+
+  // PTS video band: poster + link to the MP4 (URL from the page model)
+  const videoUrl = isPts ? ptsVideoUrl(mediaBox, image) : null;
+  if (videoUrl) {
+    const p = document.createElement('p');
+    const a = document.createElement('a');
+    a.setAttribute('href', videoUrl);
+    a.textContent = 'Watch Video';
+    p.append(a);
+    mediaCell.push(p);
   }
 
   // Empty-block guard

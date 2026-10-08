@@ -1,0 +1,274 @@
+/* carousel-media — split image + text slider: image left, copy right, one slide at a time;
+   chevron arrows at the sides (900px+), dot indicators centred below; image stacks above the
+   copy on small screens (swipe / scroll-snap). 'panel' option: copy on a light-grey panel and the
+   image fills its half. */
+.carousel-media {
+  position: relative;
+}
+
+.carousel-media .carousel-media-slides-container {
+  position: relative;
+}
+
+.carousel-media .carousel-media-slides,
+.carousel-media .carousel-media-slide-indicators {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.carousel-media .carousel-media-slides {
+  display: flex;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  overflow: scroll clip;
+  scrollbar-width: none;
+}
+
+.carousel-media .carousel-media-slides::-webkit-scrollbar {
+  display: none;
+}
+
+.carousel-media .carousel-media-slide {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+}
+
+.carousel-media .carousel-media-slide-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+.carousel-media .carousel-media-slide-image picture {
+  display: block;
+  width: 100%;
+}
+
+.carousel-media .carousel-media-slide-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 480px;
+  object-fit: contain;
+}
+
+.carousel-media .carousel-media-slide-content {
+  box-sizing: border-box;
+  padding: 24px 0;
+  color: var(--text-color);
+}
+
+.carousel-media .carousel-media-slide-content > * {
+  margin: 0 0 16px;
+}
+
+.carousel-media .carousel-media-slide-content > :last-child {
+  margin-bottom: 0;
+}
+
+.carousel-media .carousel-media-slide-content :is(h2, h3) {
+  color: var(--heading-color);
+  font-size: var(--heading-font-size-xl);
+  font-weight: var(--font-weight-regular);
+  line-height: 1.25;
+}
+
+.carousel-media .carousel-media-slide-content p,
+.carousel-media .carousel-media-slide-content li {
+  font-size: var(--body-font-size-m);
+  line-height: 1.5;
+}
+
+.carousel-media .carousel-media-slide-content ul {
+  padding-left: 24px;
+}
+
+/* eyebrow ("PTS 3.0 Update", "Service Events") */
+.carousel-media .carousel-media-slide-content > p:first-child:has(+ h2, + h3) {
+  font-size: var(--body-font-size-m);
+  text-transform: uppercase;
+}
+
+/* authored CTA keeps the site's pill button; only its spacing is reset */
+.carousel-media .carousel-media-slide-content p.button-container {
+  margin-top: 24px;
+}
+
+.carousel-media .carousel-media-slide-content a.button:any-link {
+  margin: 0;
+  white-space: normal;
+}
+
+/* panel option: copy on a light-grey panel, image fills its half */
+.carousel-media.panel .carousel-media-slide-content {
+  padding: 24px;
+  background-color: var(--light-color);
+}
+
+.carousel-media.panel .carousel-media-slide-image img {
+  max-height: none;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+/* dot indicators, centred below the slides */
+.carousel-media nav {
+  padding-top: 16px;
+}
+
+.carousel-media .carousel-media-slide-indicators {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 16px;
+  line-height: 0;
+}
+
+/* indicator dots are not pill CTAs: opt out of the global button styles */
+.carousel-media .carousel-media-slide-indicator button,
+.carousel-media .carousel-media-slide-indicator button:hover,
+.carousel-media .carousel-media-slide-indicator button:focus,
+.carousel-media .carousel-media-slide-indicator button:disabled {
+  width: 8px;
+  height: 8px;
+  margin: 0;
+  border: 0;
+  border-radius: 50%;
+  padding: 0;
+  background-color: var(--parker-rule-color);
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.carousel-media .carousel-media-slide-indicator button:disabled,
+.carousel-media .carousel-media-slide-indicator button:hover {
+  background-color: var(--parker-black);
+}
+
+.carousel-media .carousel-media-slide-indicator button:disabled {
+  cursor: default;
+}
+
+.carousel-media .carousel-media-slide-indicator button:focus-visible {
+  outline: 2px solid var(--link-color);
+  outline-offset: 2px;
+}
+
+/* prev / next chevrons at the sides (shown from 900px) */
+.carousel-media .carousel-media-navigation-buttons {
+  position: absolute;
+  inset: 50% 0 auto;
+  transform: translateY(-50%);
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* stylelint-disable-next-line no-descending-specificity */
+.carousel-media .carousel-media-navigation-buttons button,
+.carousel-media .carousel-media-navigation-buttons button:hover,
+.carousel-media .carousel-media-navigation-buttons button:focus {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--parker-black);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.carousel-media .carousel-media-navigation-buttons button:focus-visible {
+  outline: 2px solid var(--link-color);
+  outline-offset: -2px;
+}
+
+.carousel-media .carousel-media-navigation-buttons button::after {
+  display: block;
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: calc(50% + 3px);
+  width: 12px;
+  height: 12px;
+  border: 2px solid;
+  border-bottom: 0;
+  border-left: 0;
+  transform: translate(-50%, -50%) rotate(-135deg);
+}
+
+.carousel-media .carousel-media-navigation-buttons button.slide-next::after {
+  left: calc(50% - 3px);
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+@media (width >= 600px) {
+  .carousel-media.panel .carousel-media-slide-content {
+    padding: 32px 40px;
+  }
+}
+
+@media (width >= 900px) {
+  .carousel-media .carousel-media-slides-container {
+    padding-inline: 40px;
+  }
+
+  .carousel-media .carousel-media-navigation-buttons {
+    display: flex;
+  }
+
+  .carousel-media .carousel-media-slide {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .carousel-media .carousel-media-slide > div {
+    flex: 1 1 50%;
+    min-width: 0;
+  }
+
+  .carousel-media .carousel-media-slide-content {
+    padding: 48px 40px 48px 80px;
+  }
+
+  .carousel-media .carousel-media-slide-text-only > div {
+    flex-basis: 100%;
+  }
+
+  /* panel: image and panel share the slide's full height */
+  .carousel-media.panel .carousel-media-slide {
+    align-items: stretch;
+  }
+
+  .carousel-media.panel .carousel-media-slide-image {
+    align-items: stretch;
+  }
+
+  .carousel-media.panel .carousel-media-slide-image picture {
+    height: 100%;
+  }
+
+  .carousel-media.panel .carousel-media-slide-image img {
+    height: 100%;
+    min-height: 400px;
+    aspect-ratio: auto;
+  }
+
+  .carousel-media.panel .carousel-media-slide-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 64px 80px;
+  }
+}

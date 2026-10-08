@@ -35,13 +35,13 @@ var CustomImportScript = (() => {
   };
   var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-  // tools/importer/import-markets.js
+  // import-markets.js
   var import_markets_exports = {};
   __export(import_markets_exports, {
     default: () => import_markets_default
   });
 
-  // tools/importer/parsers/banner-cta.js
+  // parsers/banner-cta.js
   function parse(element, { document: document2 }) {
     const scope = element.querySelector(".image-box-container__opacity-overlay, .left-box") || element;
     const eyebrow = scope.querySelector(".cmp-parker-image-box-container__header-text, .image-box-container__header p");
@@ -63,7 +63,7 @@ var CustomImportScript = (() => {
     element.replaceWith(block);
   }
 
-  // tools/importer/parsers/banner-inline.js
+  // parsers/banner-inline.js
   function parse2(element, { document: document2 }) {
     const heading = element.querySelector(".image-box-container__title, h2, h3");
     const descParas = Array.from(element.querySelectorAll(".image-box-container__description")).flatMap((d) => {
@@ -89,7 +89,7 @@ var CustomImportScript = (() => {
     element.replaceWith(block);
   }
 
-  // tools/importer/parsers/cards-news.js
+  // parsers/cards-news.js
   var CATEGORY_BASE = "https://ph.parker.com/us/en/category";
   var CATEGORY_FALLBACK = CATEGORY_BASE;
   var PRODUCT_CATEGORIES = {
@@ -226,7 +226,7 @@ var CustomImportScript = (() => {
     element.replaceWith(block);
   }
 
-  // tools/importer/parsers/cards-teaser.js
+  // parsers/cards-teaser.js
   var HELP_CARD = "a.ph-card-basic__link";
   var HELP_DESC_CLASS = "ph-card-basic__desc";
   try {
@@ -338,7 +338,56 @@ var CustomImportScript = (() => {
     });
     return cells;
   }
-  function parse4(element, { document: document2 }) {
+  var PTS_PAGES = [
+    "/us/en/industries/digital/pts.html",
+    "/us/en/additional-information/asset-intelligence/asset-management.html"
+  ];
+  function pagePath(url, params) {
+    const raw = params && params.originalURL || url || "";
+    try {
+      return new URL(raw).pathname;
+    } catch (e) {
+      return "";
+    }
+  }
+  var TITLELINK = ".cmp-titlelink_container";
+  function isIconFeatures(element) {
+    return !!element.querySelector(TITLELINK) && !element.querySelector(".card") && !element.matches(".parker-carousel") && !element.querySelector(".parker-carousel");
+  }
+  function parseIconFeatures(element, document2) {
+    const cells = [];
+    Array.from(element.querySelectorAll(TITLELINK)).forEach((item) => {
+      const icon = item.querySelector("img.cmp-titlelink_icons, img");
+      const titleEl = item.querySelector(".cmp-titlelink_title, h1, h2, h3, h4, h5, h6");
+      const title = titleEl ? cleanText(titleEl.textContent) : "";
+      const scope = item.parentElement && item.parentElement.closest(".aem-container") || item.parentElement;
+      const descs = scope ? Array.from(scope.querySelectorAll("p")).filter((p) => !item.contains(p) && cleanText(p.textContent)) : [];
+      if (!icon && !title && descs.length === 0) return;
+      const textCell = [];
+      if (title) {
+        const h3 = document2.createElement("h3");
+        h3.textContent = title;
+        textCell.push(h3);
+      }
+      descs.forEach((p) => {
+        p.removeAttribute("style");
+        textCell.push(p);
+      });
+      cells.push([icon || "", textCell.length ? textCell : ""]);
+    });
+    return cells;
+  }
+  function parse4(element, { document: document2, url, params }) {
+    if (isIconFeatures(element)) {
+      const iconCells = parseIconFeatures(element, document2);
+      if (iconCells.length === 0) {
+        element.replaceWith(...element.childNodes);
+        return;
+      }
+      const block2 = WebImporter.Blocks.createBlock(document2, { name: "cards-teaser (grid, icons)", cells: iconCells });
+      element.replaceWith(block2);
+      return;
+    }
     if (!isHelpCards(element) && (isLandingTileGrid(element) || isLandingButtonCards(element))) {
       const tiles = isLandingTileGrid(element);
       const landingCells = tiles ? parseLandingTiles(element, document2) : parseLandingButtonCards(element, document2);
@@ -394,12 +443,38 @@ var CustomImportScript = (() => {
       element.replaceWith(...element.childNodes);
       return;
     }
-    const block = grid ? WebImporter.Blocks.createBlock(document2, { name: "cards-teaser (grid)", cells }) : WebImporter.Blocks.createBlock(document2, { name: "cards-teaser", cells });
+    const gridName = PTS_PAGES.includes(pagePath(url, params)) ? "cards-teaser (grid, buttons)" : "cards-teaser (grid)";
+    const block = grid ? WebImporter.Blocks.createBlock(document2, { name: gridName, cells }) : WebImporter.Blocks.createBlock(document2, { name: "cards-teaser", cells });
     if (sectionHeading) element.before(sectionHeading);
     element.replaceWith(block);
   }
 
-  // tools/importer/parsers/columns-media.js
+  // parsers/columns-media.js
+  var PRODUCT_CATEGORY_DESC = '#category-list-details-description-container, [data-testid="category-list-details-description-container"]';
+  var isProductCategoryDesc = (element) => !!(element.matches && element.matches(PRODUCT_CATEGORY_DESC));
+  function productCategoryParagraphs(element, document2) {
+    const paras = [];
+    Array.from(element.querySelectorAll("p")).forEach((p) => {
+      const nodes = Array.from(p.childNodes).filter((n) => !(n.nodeType === 1 && n.tagName === "P"));
+      const text = nodes.map((n) => n.textContent).join("").replace(/\u00a0/g, " ").trim();
+      if (!text) return;
+      const para = document2.createElement("p");
+      para.append(...nodes);
+      paras.push(para);
+    });
+    return paras;
+  }
+  function parseProductCategoryDesc(element, document2) {
+    const img = element.querySelector('#category-list-details-desktop-image, [data-testid="category-list-details-desktop-image"]') || element.querySelector("img");
+    if (img) {
+      const h1 = document2.querySelector('#category-list-details-title, [data-testid="category-list-details-title"]') || document2.querySelector("h1");
+      const title = h1 ? h1.textContent.replace(/\s+/g, " ").trim() : "";
+      if (title) img.setAttribute("alt", title);
+    }
+    const paras = productCategoryParagraphs(element, document2);
+    if (!img && !paras.length) return [];
+    return [[img || "", paras.length ? paras : ""]];
+  }
   function bootstrapOrder(col) {
     let order = 0;
     Array.from(col.classList).forEach((c) => {
@@ -450,7 +525,7 @@ var CustomImportScript = (() => {
     return null;
   }
   var FULL_BLEED_YELLOW_PAGES = ["/us/en/markets.html"];
-  function pagePath(url, params) {
+  function pagePath2(url, params) {
     const raw = params && params.originalURL || url || "";
     try {
       return new URL(raw).pathname;
@@ -458,7 +533,38 @@ var CustomImportScript = (() => {
       return "";
     }
   }
+  var PTS_PAGES2 = [
+    "/us/en/industries/digital/pts.html",
+    "/us/en/additional-information/asset-intelligence/asset-management.html"
+  ];
+  var PTS_VIDEO_BANDS = {
+    "PTS-PTS-Logo.png": "https://www.parker.com/content/dam/parker/na/united-states/industries/digital/pts/6C5BE368B115B075F4D3035A23E3940B.mp4"
+  };
+  function ptsVideoUrl(mediaBox, image) {
+    if (!image || !mediaBox || !mediaBox.querySelector(".play-arrow-icon-container, #thumnail-image")) return null;
+    const src = (image.getAttribute("src") || "").split("?")[0];
+    const file = src.substring(src.lastIndexOf("/") + 1);
+    return PTS_VIDEO_BANDS[file] || null;
+  }
+  function unwrapSingleCellTables(root) {
+    if (!root) return;
+    Array.from(root.querySelectorAll("table")).forEach((table) => {
+      const cells = table.querySelectorAll("td, th");
+      if (table.querySelectorAll("tr").length !== 1 || cells.length !== 1) return;
+      table.replaceWith(...cells[0].childNodes);
+    });
+  }
   function parse5(element, { document: document2, url, params }) {
+    if (isProductCategoryDesc(element)) {
+      const productCells = parseProductCategoryDesc(element, document2);
+      if (productCells.length === 0) {
+        element.replaceWith(...element.childNodes);
+        return;
+      }
+      const block2 = WebImporter.Blocks.createBlock(document2, { name: "columns-media (compact)", cells: productCells });
+      element.replaceWith(block2);
+      return;
+    }
     if (isHelpMediaRow(element)) {
       const helpCells = parseHelpMediaRow(element, document2);
       if (helpCells.length === 0) {
@@ -472,6 +578,8 @@ var CustomImportScript = (() => {
     const textBox = element.querySelector('.left-box, .image-box-container__opacity-overlay, [class*="left-box"]');
     const mediaBox = element.querySelector('.image-wrapper, .image-container, [class*="image-wrapper"]');
     const image = element.querySelector(".image-wrapper img, .image-container img, picture img, img");
+    const isPts = PTS_PAGES2.includes(pagePath2(url, params));
+    if (isPts && textBox) unwrapSingleCellTables(textBox.querySelector(".image-box-container__description"));
     const textCell = [];
     if (textBox) {
       const eyebrow = textBox.querySelector(".cmp-parker-image-box-container__header-text");
@@ -491,6 +599,15 @@ var CustomImportScript = (() => {
     } else if (mediaBox) {
       mediaCell.push(mediaBox);
     }
+    const videoUrl = isPts ? ptsVideoUrl(mediaBox, image) : null;
+    if (videoUrl) {
+      const p = document2.createElement("p");
+      const a = document2.createElement("a");
+      a.setAttribute("href", videoUrl);
+      a.textContent = "Watch Video";
+      p.append(a);
+      mediaCell.push(p);
+    }
     if (textCell.length === 0 && mediaCell.length === 0) {
       element.replaceWith(...element.childNodes);
       return;
@@ -507,12 +624,12 @@ var CustomImportScript = (() => {
     }
     const cells = [];
     cells.push(imageFirst ? [mediaCell, textCell] : [textCell, mediaCell]);
-    const fullBleed = element.classList.contains("cmp-parker-secondary-img-box-theme") || element.classList.contains("cmp-parker-yellow-theme") && FULL_BLEED_YELLOW_PAGES.includes(pagePath(url, params));
+    const fullBleed = element.classList.contains("cmp-parker-secondary-img-box-theme") || element.classList.contains("cmp-parker-yellow-theme") && FULL_BLEED_YELLOW_PAGES.includes(pagePath2(url, params));
     const block = fullBleed ? WebImporter.Blocks.createBlock(document2, { name: "columns-media (full-bleed)", cells }) : WebImporter.Blocks.createBlock(document2, { name: "columns-media", cells });
     element.replaceWith(block);
   }
 
-  // tools/importer/parsers/hero-banner.js
+  // parsers/hero-banner.js
   function parse6(element, { document: document2 }) {
     const bgImage = element.querySelector(".cmp-teaser__image img, .cmp-image__image, picture img, img");
     const heading = element.querySelector('.cmp-teaser__title h1, .cmp-teaser__title h2, .cmp-teaser__title-link, [class*="hero-text"], h1, h2');
@@ -524,7 +641,9 @@ var CustomImportScript = (() => {
     }
     const cells = [];
     if (bgImage) cells.push([bgImage]);
+    const logo = Array.from(element.querySelectorAll(".cmp-logo-container img")).find((img) => img !== bgImage) || null;
     const contentCell = [];
+    if (logo) contentCell.push(logo);
     if (heading) contentCell.push(heading);
     if (description) contentCell.push(description);
     contentCell.push(...ctaLinks);
@@ -533,7 +652,7 @@ var CustomImportScript = (() => {
     element.replaceWith(block);
   }
 
-  // tools/importer/parsers/hero-card.js
+  // parsers/hero-card.js
   function parse7(element, { document: document2 }) {
     const image = element.querySelector(".cmp-teaser__image img, .cmp-image__image, picture img, img");
     const eyebrow = element.querySelector(".cmp-teaser__header-text, .cmp-teaser__header p");
@@ -565,7 +684,7 @@ var CustomImportScript = (() => {
     element.replaceWith(block);
   }
 
-  // tools/importer/transformers/parker-cleanup.js
+  // transformers/parker-cleanup.js
   var H = { before: "beforeTransform", after: "afterTransform" };
   var MEDIA_SELECTOR = "img, picture, video, iframe, svg, table";
   function isEmptyColumn(col) {
@@ -577,6 +696,14 @@ var CustomImportScript = (() => {
     if (support && hookName === H.before && isMasterDirectoryPage(payload)) masterDirectoryBefore(element, payload);
     if (support && hookName === H.before) supportBefore(element, payload);
     if (support && hookName === H.after) supportAfter(element);
+    const product = isProductPage(payload);
+    if (product && hookName === H.before) productBefore(element, payload);
+    if (product && hookName === H.before && isProductLandingPage(payload)) productLandingBefore(element);
+    if (product && hookName === H.after && isProductLandingPage(payload)) productLandingAfter(element);
+    if (product && hookName === H.after) productAfter(element);
+    const pts = isPtsPage(payload);
+    if (pts && hookName === H.before) ptsBefore(element);
+    if (pts && hookName === H.after) ptsAfter(element);
     if (hookName === H.before) {
       WebImporter.DOMUtils.remove(element, [
         ".parker-comchatskill",
@@ -795,6 +922,177 @@ var CustomImportScript = (() => {
     element.querySelectorAll("h3.ht, .jumbotron > h3").forEach((h3) => retag2(h3, "p"));
     element.querySelectorAll("h1, h2, h3, h4, h5, h6, .jumbotron > a").forEach(trimText);
   }
+  var PH_ORIGIN = "https://ph.parker.com";
+  function isProductPage(payload) {
+    const url = pageUrl(payload);
+    if (url && url.hostname === "ph.parker.com") return true;
+    const name = payload && payload.template && payload.template.name;
+    return typeof name === "string" && name.startsWith("product");
+  }
+  function productMetadata(doc, payload) {
+    doc.querySelectorAll([
+      'meta[name="description"]',
+      'meta[property="og:description"]',
+      'meta[name="og:description"]',
+      'meta[name="twitter:description"]',
+      'meta[property="twitter:description"]',
+      'meta[itemprop="description"]'
+    ].join(", ")).forEach((m) => {
+      const content = m.getAttribute("content");
+      if (content == null) return;
+      const clean = content.replace(/<\/?p\b[^>]*>/gi, " ").replace(/\s+/g, " ").trim();
+      if (clean !== content) m.setAttribute("content", clean);
+    });
+    const seen = /* @__PURE__ */ new Set();
+    doc.querySelectorAll("meta[name], meta[property], meta[itemprop]").forEach((m) => {
+      const key = ["name", "property", "itemprop"].map((a) => m.getAttribute(a) || "").join("|");
+      const id = `${key}=${m.getAttribute("content")}`;
+      if (seen.has(id)) m.remove();
+      else seen.add(id);
+    });
+    const page = pageUrl(payload);
+    doc.querySelectorAll('meta[property="og:url"], meta[name="og:url"]').forEach((m) => {
+      const content = m.getAttribute("content") || "";
+      let ok = false;
+      try {
+        const u = new URL(content);
+        ok = /^https?:$/.test(u.protocol) && !/undefined|null/i.test(content) && (!page || u.hostname === page.hostname);
+      } catch (e) {
+        ok = false;
+      }
+      if (!ok) m.remove();
+    });
+  }
+  function productBefore(element, payload) {
+    productMetadata(element.ownerDocument, payload);
+    WebImporter.DOMUtils.remove(element, [
+      // Breadcrumb ("Home / Products / ...") + "Provide Feedback" row
+      '[class*="__marginProductListPrint"]',
+      // Left column: category nav, faceted filters, "Help us improve our filters",
+      // "Get your Parker account Today!" register box
+      ".MuiGrid-item:has(#category-left-block)",
+      "#category-left-block",
+      // SPA shells / loaders / hidden debug payloads
+      "#modal-root",
+      "#globalLoader",
+      // hidden (visibility:hidden; height:0) div holding ~270KB of raw API JSON
+      '.phCommerceContent > div[style*="visibility: hidden"]',
+      "pre.custom-headers",
+      "next-route-announcer",
+      "#transcend-consent-manager",
+      "div[hidden]",
+      "style",
+      // zero-size / hidden iframes and tracking pixels
+      'iframe[width="0"]',
+      'iframe[height="0"]',
+      'iframe[style*="display: none"]',
+      'img[width="1"][height="1"]',
+      'img[src*="eloqua.com"]',
+      'img[src*="en25.com"]',
+      'img[src*="clarity.ms"]',
+      'img[src*="googleadservices.com"]',
+      'img[src*="doubleclick.net"]',
+      'img[src*="google.com/pagead"]',
+      'img[src*="googleads.g.doubleclick"]',
+      'img[src*="qualtrics.com"]',
+      'iframe[src*="eloqua.com"]',
+      'iframe[src*="doubleclick.net"]',
+      'iframe[src*="googletagmanager.com"]',
+      'iframe[src*="qualtrics.com"]',
+      // emptied Qualtrics wrapper (its div#ZN_ child is removed above)
+      'body > div[style*="display: none"]'
+    ]);
+  }
+  function productAfter(element) {
+    element.querySelectorAll('h5#category-list-category-title, h5[data-testid="category-list-category-title"]').forEach((h5) => retag2(h5, "h2"));
+    element.querySelectorAll("h1, h2, h3, h4, h5, h6").forEach(trimText);
+  }
+  var PRODUCT_LANDING_PATH = "/us/en/category";
+  function isProductLandingPage(payload) {
+    const url = pageUrl(payload);
+    if (url) return url.hostname === "ph.parker.com" && url.pathname.replace(/\/+$/, "") === PRODUCT_LANDING_PATH;
+    return !!(payload && payload.template && payload.template.name === "product-landing");
+  }
+  function productLandingBefore(element) {
+    WebImporter.DOMUtils.remove(element, [
+      "#non-mobile-category-left-column",
+      "#non-mobile-category-breadcrumb"
+    ]);
+  }
+  function productLandingAfter(element) {
+    const doc = element.ownerDocument;
+    element.querySelectorAll('h1#category-products-title, h1[data-testid="category-products-title"]').forEach((h1) => retag2(h1, "h2"));
+    element.querySelectorAll('[id^="category-products-category-"][id$="-header"]').forEach((header) => {
+      const link = header.querySelector("a[href]");
+      const text = (link || header).textContent.replace(/\s+/g, " ").trim();
+      if (!text) {
+        header.remove();
+        return;
+      }
+      const h3 = doc.createElement("h3");
+      if (link) {
+        const a = doc.createElement("a");
+        a.setAttribute("href", link.getAttribute("href"));
+        a.textContent = text;
+        h3.append(a);
+      } else {
+        h3.textContent = text;
+      }
+      header.replaceWith(h3);
+    });
+  }
+  var PTS_PATHS = /* @__PURE__ */ new Set([
+    "/us/en/industries/digital/pts.html",
+    "/us/en/additional-information/asset-intelligence/asset-management.html"
+  ]);
+  function isPtsPage(payload) {
+    const url = pageUrl(payload);
+    if (url) return url.hostname === "www.parker.com" && PTS_PATHS.has(url.pathname);
+    return !!(payload && payload.template && payload.template.name === "pts");
+  }
+  function ptsBefore(element) {
+    WebImporter.DOMUtils.remove(element, [
+      ".s7dm-dynamic-media",
+      ".s7dm-interactive-media",
+      ".interactivemedia",
+      ".dynamicmedia",
+      '[data-asset-type="interactivemedia"]',
+      // Slider/video chrome: play-button overlays (data: SVG <img>), slick arrows and dots
+      ".play-arrow-icon-container",
+      ".parker-carousel .slick-arrow",
+      ".parker-carousel .slick-dots"
+    ]);
+    const fileOf = (u) => {
+      const path = u.split("?")[0];
+      return path.substring(path.lastIndexOf("/") + 1);
+    };
+    element.querySelectorAll(".image-box-container picture > img[src]").forEach((img) => {
+      const src = img.getAttribute("src");
+      if (src.includes("?")) return;
+      const sources = img.parentElement.querySelectorAll(":scope > source[srcset]");
+      const last = sources[sources.length - 1];
+      const candidate = last ? last.getAttribute("srcset").trim() : "";
+      if (!candidate || /\s/.test(candidate)) return;
+      if (fileOf(candidate) !== fileOf(src)) return;
+      img.setAttribute("src", candidate.startsWith("/") ? `${SOURCE_ORIGIN}${candidate}` : candidate);
+    });
+    const title = element.querySelector(".cmp-title");
+    const grid = title && title.closest(".aem-Grid");
+    if (grid) {
+      [...grid.children].forEach((col) => {
+        if (col.classList.contains("aem-GridColumn") && isEmptyColumn(col)) col.remove();
+      });
+    }
+  }
+  function ptsAfter(element) {
+    element.querySelectorAll(".image-box-container__description p").forEach((p) => {
+      let first = p.firstChild;
+      while (first && (first.nodeType === 3 && !first.textContent.replace(/\u00a0/g, " ").trim() || first.nodeType === 1 && first.tagName === "BR")) {
+        first.remove();
+        first = p.firstChild;
+      }
+    });
+  }
   var MIGRATED_PATHS = /* @__PURE__ */ new Set([
     "/us/en/home",
     "/us/en/markets",
@@ -838,10 +1136,35 @@ var CustomImportScript = (() => {
     "/us/en/support/replacement",
     "/us/en/support/software",
     "/us/en/support/training-tutorials",
-    "/us/en/support/master-directory/global-offices"
+    "/us/en/support/master-directory/global-offices",
+    // Products (ph.parker.com): category landing (template product-landing), the 19
+    // category pages (template product-category) and the PTS page (template pts).
+    // Matching is exact-path (Set lookup), so L3 /us/en/category/<cat>/<sub> pages
+    // and /us/en/series/* tile targets stay absolute ph.parker.com URLs.
+    "/us/en/category",
+    "/us/en/category/adhesives-coatings-and-encapsulants",
+    "/us/en/category/aerospace-systems-and-technologies",
+    "/us/en/category/air-preparation-frl-and-dryers",
+    "/us/en/category/bioprocessing-and-medical-technologies",
+    "/us/en/category/cylinders-and-actuators",
+    "/us/en/category/emi-shielding",
+    "/us/en/category/filters-collectors-separators-purifiers",
+    "/us/en/category/fittings-and-quick-couplings",
+    "/us/en/category/gas-generators",
+    "/us/en/category/hose-piping-and-tubing",
+    "/us/en/category/motors-drives-and-controllers",
+    "/us/en/category/mounting-and-vibration-control",
+    "/us/en/category/power-take-offs-and-drive-systems",
+    "/us/en/category/pumps",
+    "/us/en/category/refrigeration-and-air-conditioning",
+    "/us/en/category/regulators-monitors-sensors-and-flow-control",
+    "/us/en/category/seals-and-o-rings",
+    "/us/en/category/thermal-and-power-management",
+    "/us/en/category/valves",
+    "/us/en/industries/digital/pts"
   ]);
   var SOURCE_ORIGIN = "https://www.parker.com";
-  var SOURCE_ORIGINS = /* @__PURE__ */ new Set([SOURCE_ORIGIN, HELP_ORIGIN]);
+  var SOURCE_ORIGINS = /* @__PURE__ */ new Set([SOURCE_ORIGIN, HELP_ORIGIN, PH_ORIGIN]);
   var TRACKING_PARAM = /^(brd|app|utm_.*)$/i;
   function cleanSearch(url) {
     const params = new URLSearchParams(url.search);
@@ -882,7 +1205,7 @@ var CustomImportScript = (() => {
     });
   }
 
-  // tools/importer/transformers/parker-sections.js
+  // transformers/parker-sections.js
   var SECTION_MARKER_ATTR = "data-excat-section-id";
   var THEME_SECTION_TEMPLATES = /* @__PURE__ */ new Set(["markets"]);
   var THEME_STYLE_ATTR = "data-excat-theme-style";
@@ -997,7 +1320,7 @@ var CustomImportScript = (() => {
     }
   }
 
-  // tools/importer/import-markets.js
+  // import-markets.js
   var parsers = {
     "banner-cta": parse,
     "banner-inline": parse2,

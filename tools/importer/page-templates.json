@@ -980,6 +980,302 @@
           "defaultContent": []
         }
       ]
+    },
+    {
+      "name": "product-landing",
+      "representativeUrl": "https://ph.parker.com/us/en/category",
+      "description": "Products landing (ph.parker.com/us/en/category): intro + all product categories with subcategory image tiles; left category nav + faceted filters",
+      "blocks": [
+        {
+          "name": "columns-media",
+          "instances": [
+            "#category-list-details-description-container",
+            "[data-testid=\"category-list-details-description-container\"]"
+          ]
+        },
+        {
+          "name": "cards-category",
+          "instances": [
+            "ul[id^=\"category-products-category-\"][id$=\"-subcategories-list\"]",
+            "ul[data-testid^=\"category-products-category-\"][data-testid$=\"-subcategories-list\"]"
+          ]
+        }
+      ],
+      "urlPattern": "/us/en/category",
+      "urls": [
+        "https://ph.parker.com/us/en/category"
+      ],
+      "sections": [
+        {
+          "id": "products-main",
+          "name": "Products intro (H1 + image/paragraph), All Product Categories heading and 19 category groups (linked H3 + subcategory tiles)",
+          "selector": [
+            "#non-mobile-category-right-content",
+            "[class*=\"__gridSpacingLeft\"]",
+            "div:has(> #category-products-root)"
+          ],
+          "style": null,
+          "blocks": [
+            "columns-media",
+            "cards-category"
+          ],
+          "defaultContent": [
+            "#category-list-details-title",
+            "#category-products-title",
+            "[id^=\"category-products-category-\"][id$=\"-header\"]"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "product-category",
+      "representativeUrl": "https://ph.parker.com/us/en/category/hose-piping-and-tubing",
+      "description": "Product category landing pages (ph.parker.com/us/en/category/*): category intro + subcategory tiles; left category nav + faceted filters",
+      "blocks": [
+        {
+          "name": "columns-media",
+          "instances": [
+            "#category-list-details-description-container",
+            "[data-testid=\"category-list-details-description-container\"]"
+          ]
+        },
+        {
+          "name": "cards-category",
+          "instances": [
+            "#category-list-category-items",
+            "ul[data-testid=\"category-list-category-items\"]"
+          ]
+        }
+      ],
+      "urlPattern": "/us/en/category/*",
+      "urls": [
+        "https://ph.parker.com/us/en/category/adhesives-coatings-and-encapsulants",
+        "https://ph.parker.com/us/en/category/aerospace-systems-and-technologies",
+        "https://ph.parker.com/us/en/category/air-preparation-frl-and-dryers",
+        "https://ph.parker.com/us/en/category/bioprocessing-and-medical-technologies",
+        "https://ph.parker.com/us/en/category/cylinders-and-actuators",
+        "https://ph.parker.com/us/en/category/emi-shielding",
+        "https://ph.parker.com/us/en/category/filters-collectors-separators-purifiers",
+        "https://ph.parker.com/us/en/category/fittings-and-quick-couplings",
+        "https://ph.parker.com/us/en/category/gas-generators",
+        "https://ph.parker.com/us/en/category/hose-piping-and-tubing",
+        "https://ph.parker.com/us/en/category/motors-drives-and-controllers",
+        "https://ph.parker.com/us/en/category/mounting-and-vibration-control",
+        "https://ph.parker.com/us/en/category/power-take-offs-and-drive-systems",
+        "https://ph.parker.com/us/en/category/pumps",
+        "https://ph.parker.com/us/en/category/refrigeration-and-air-conditioning",
+        "https://ph.parker.com/us/en/category/regulators-monitors-sensors-and-flow-control",
+        "https://ph.parker.com/us/en/category/seals-and-o-rings",
+        "https://ph.parker.com/us/en/category/thermal-and-power-management",
+        "https://ph.parker.com/us/en/category/valves"
+      ],
+      "sections": [
+        {
+          "id": "category-main",
+          "name": "Category intro (H1 + image/paragraph) and subcategory tiles",
+          "selector": [
+            "div.product-module__NxU_wa__gridSpacingLeft",
+            "[class*=\"__gridSpacingLeft\"]",
+            "div:has(> #category-list-details-root)"
+          ],
+          "style": null,
+          "blocks": [
+            "columns-media",
+            "cards-category"
+          ],
+          "defaultContent": [
+            "#category-list-details-title",
+            "#category-list-category-title"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "pts",
+      "representativeUrl": "https://www.parker.com/us/en/industries/digital/pts.html",
+      "description": "PTS / Asset Management page (www.parker.com/us/en/industries/digital/pts.html, an alias of /us/en/additional-information/asset-intelligence/asset-management): grey title band (H1), full-bleed hero with PTS 3.0 logo (hero-banner), PTS 3.0 Update slider on grey panels (carousel-media panel, 7 slides), gold text + video band (columns-media; MP4 from the page model), mobile-app FAQ slider (carousel-media, 12 slides), 8 feature icons (cards-teaser grid, icons), gold Get Started band (columns-media, source 1-cell table unwrapped), Tagging band (columns-media), grey Success Stories slider (cards-teaser), Videos (cards-video, 3 MP4 tiles from the page model), grey Resources (cards-teaser grid, buttons). All selectors are page-specific: the markets '.parker-carousel' cards-teaser selector would also catch the image/video sliders here. Breadcrumb is removed in cleanup and gets no section break; .slick-cloned slides are skipped.",
+      "blocks": [
+        {
+          "name": "hero-banner",
+          "instances": [
+            ".left-to-right-gradient.aem-GridColumn"
+          ]
+        },
+        {
+          "name": "carousel-media",
+          "instances": [
+            ".parker-carousel:has(.slick-slide .image-box-container)"
+          ]
+        },
+        {
+          "name": "columns-media",
+          "instances": [
+            ".cmp-parker-yellow-theme.aem-GridColumn:has(> .image-box-container .img-container #thumnail-image)",
+            ".cmp-parker-yellow-theme.aem-GridColumn:has(> .image-box-container table)",
+            ".aem-GridColumn:not(.cmp-parker-yellow-theme):has(> .image-box-container .image-wrapper)"
+          ]
+        },
+        {
+          "name": "cards-teaser",
+          "instances": [
+            ".layout-col-4.aem-GridColumn:has(.cmp-titlelink_container)",
+            ".grey-bg.aem-GridColumn .parker-carousel:has(.cmp-parker-card-container .card)",
+            ".grey-bg.aem-GridColumn .layout-col-4:has(.cmp-parker-card-container .card)"
+          ]
+        },
+        {
+          "name": "cards-video",
+          "instances": [
+            ".parker-carousel:has(.cmp-watchnowvideo__parkerdivision)"
+          ]
+        }
+      ],
+      "urlPattern": "/us/en/industries/digital/*",
+      "urls": [
+        "https://www.parker.com/us/en/industries/digital/pts.html"
+      ],
+      "sections": [
+        {
+          "id": "title-bar",
+          "name": "Page title band (H1 Asset Management)",
+          "selector": [
+            ".aem-GridColumn:has(> .cmp-title h1)"
+          ],
+          "style": "grey",
+          "blocks": [],
+          "defaultContent": [
+            ".cmp-title h1"
+          ]
+        },
+        {
+          "id": "hero",
+          "name": "PTS 3.0 hero (logo, heading, text)",
+          "selector": [
+            ".left-to-right-gradient.aem-GridColumn"
+          ],
+          "style": null,
+          "blocks": [
+            "hero-banner"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "pts-updates-carousel",
+          "name": "PTS 3.0 Update slider (grey panels, 7 slides)",
+          "selector": [
+            ".aem-GridColumn:has(> .aem-container > div > .parker-carousel .slick-slide .grey-bg > .image-box-container)"
+          ],
+          "style": null,
+          "blocks": [
+            "carousel-media"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "simple-asset-management-tool",
+          "name": "Gold text + video band",
+          "selector": [
+            ".cmp-parker-yellow-theme.aem-GridColumn:has(> .image-box-container .img-container #thumnail-image)"
+          ],
+          "style": "gold",
+          "blocks": [
+            "columns-media"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "mobile-faq-carousel",
+          "name": "Mobile app FAQ slider (12 slides)",
+          "selector": [
+            ".aem-GridColumn:has(> .aem-container > div > .parker-carousel .slick-slide .image-box-container):not(:has(.grey-bg > .image-box-container))"
+          ],
+          "style": null,
+          "blocks": [
+            "carousel-media"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "feature-icons",
+          "name": "8 feature icons",
+          "selector": [
+            ".layout-col-4.aem-GridColumn:has(.cmp-titlelink_container)"
+          ],
+          "style": null,
+          "blocks": [
+            "cards-teaser"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "get-started",
+          "name": "Gold Get Started band",
+          "selector": [
+            ".cmp-parker-yellow-theme.aem-GridColumn:has(> .image-box-container table)"
+          ],
+          "style": "gold",
+          "blocks": [
+            "columns-media"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "tagging-parts",
+          "name": "Tagging parts band (image left)",
+          "selector": [
+            ".aem-GridColumn:not(.cmp-parker-yellow-theme):has(> .image-box-container .image-wrapper)"
+          ],
+          "style": null,
+          "blocks": [
+            "columns-media"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "success-stories",
+          "name": "Success Stories slider, grey",
+          "selector": [
+            ".grey-bg.aem-GridColumn:has(.parker-carousel .cmp-parker-card-container)"
+          ],
+          "style": "grey",
+          "blocks": [
+            "cards-teaser"
+          ],
+          "defaultContent": [
+            ".title-description-container h2",
+            ".title-description-container p"
+          ]
+        },
+        {
+          "id": "videos",
+          "name": "Videos (3 MP4 tiles)",
+          "selector": [
+            ".cmp-parker-carousel__no-box.aem-GridColumn:has(.cmp-watchnowvideo__parkerdivision)"
+          ],
+          "style": null,
+          "blocks": [
+            "cards-video"
+          ],
+          "defaultContent": [
+            ".slider-carousel-container > h2"
+          ]
+        },
+        {
+          "id": "resources",
+          "name": "Resources cards, grey",
+          "selector": [
+            ".grey-bg.aem-GridColumn:has(.layout-col-4 .cmp-parker-card-container)"
+          ],
+          "style": "grey",
+          "blocks": [
+            "cards-teaser"
+          ],
+          "defaultContent": [
+            ".title-description-container h2",
+            ".title-description-container p"
+          ]
+        }
+      ]
     }
   ]
 }
