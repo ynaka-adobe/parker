@@ -155,6 +155,52 @@ export default {
     // 4. afterTransform (final cleanup + section breaks/metadata)
     executeTransformers('afterTransform', main, payload);
 
+    // 4b. EDS allows at most 200 images per page and this page has ~226 tile
+    // images, so each category group (h3 link + its cards-category grid) is its
+    // own fragment document under /fragments/products/<category-slug>, and the
+    // landing page references it with a Fragment block. The importer writes one
+    // document per URL, so fragments are produced by importing the same URL with
+    // ?fragment=<category-slug> (see urls-product-landing-fragments.txt).
+    const wantFragment = new URL(params.originalURL).searchParams.get('fragment');
+    let fragmentEl = null;
+    [...main.querySelectorAll('h3')].forEach((h3) => {
+      const link = h3.querySelector('a[href^="/us/en/category/"]');
+      if (!link) return;
+      const slug = link.getAttribute('href').replace(/[?#].*$/, '').split('/').pop();
+      const group = document.createElement('div');
+      // source nesting: div#category-products-category-N > [header div > h3] +
+      // [subcategories container > ... > block table]
+      let root = h3.parentElement;
+      while (root && !/^category-products-category-\d+$/.test(root.id || '')) root = root.parentElement;
+      const tables = root ? [...root.querySelectorAll('table')] : [];
+      let next = tables.length ? null : h3.nextElementSibling;
+      h3.before(WebImporter.Blocks.createBlock(document, {
+        name: 'Fragment',
+        cells: [[Object.assign(document.createElement('a'), {
+          href: `/fragments/products/${slug}`,
+          textContent: `/fragments/products/${slug}`,
+        })]],
+      }));
+      group.append(h3, ...tables);
+      // fallback (flat structure): move the following table(s) up to the next heading
+      while (next && next.tagName !== 'H3' && next.tagName !== 'HR') {
+        const following = next.nextElementSibling;
+        if (next.tagName === 'TABLE') group.append(next);
+        next = following;
+      }
+      if (slug === wantFragment) fragmentEl = group;
+    });
+
+    if (wantFragment) {
+      if (!fragmentEl) throw new Error(`No category group for fragment "${wantFragment}"`);
+      WebImporter.rules.adjustImageUrls(fragmentEl, url, params.originalURL);
+      return [{
+        element: fragmentEl,
+        path: `/fragments/products/${wantFragment}`,
+        report: { title: wantFragment, template: `${PAGE_TEMPLATE.name}-fragment` },
+      }];
+    }
+
     // 5. WebImporter built-in rules
     const hr = document.createElement('hr');
     main.appendChild(hr);

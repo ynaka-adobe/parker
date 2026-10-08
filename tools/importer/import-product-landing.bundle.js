@@ -35,13 +35,13 @@ var CustomImportScript = (() => {
   };
   var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-  // import-product-landing.js
+  // tools/importer/import-product-landing.js
   var import_product_landing_exports = {};
   __export(import_product_landing_exports, {
     default: () => import_product_landing_default
   });
 
-  // parsers/cards-category.js
+  // tools/importer/parsers/cards-category.js
   var PRODUCT_TILE_LIST = [
     "ul#category-list-category-items",
     'ul[data-testid="category-list-category-items"]',
@@ -116,7 +116,7 @@ var CustomImportScript = (() => {
     element.replaceWith(block);
   }
 
-  // parsers/columns-media.js
+  // tools/importer/parsers/columns-media.js
   var PRODUCT_CATEGORY_DESC = '#category-list-details-description-container, [data-testid="category-list-details-description-container"]';
   var isProductCategoryDesc = (element) => !!(element.matches && element.matches(PRODUCT_CATEGORY_DESC));
   function productCategoryParagraphs(element, document2) {
@@ -296,7 +296,7 @@ var CustomImportScript = (() => {
     element.replaceWith(block);
   }
 
-  // transformers/parker-cleanup.js
+  // tools/importer/transformers/parker-cleanup.js
   var H = { before: "beforeTransform", after: "afterTransform" };
   var MEDIA_SELECTOR = "img, picture, video, iframe, svg, table";
   function isEmptyColumn(col) {
@@ -817,7 +817,7 @@ var CustomImportScript = (() => {
     });
   }
 
-  // transformers/parker-sections.js
+  // tools/importer/transformers/parker-sections.js
   var SECTION_MARKER_ATTR = "data-excat-section-id";
   var THEME_SECTION_TEMPLATES = /* @__PURE__ */ new Set(["markets"]);
   var THEME_STYLE_ATTR = "data-excat-theme-style";
@@ -932,7 +932,7 @@ var CustomImportScript = (() => {
     }
   }
 
-  // import-product-landing.js
+  // tools/importer/import-product-landing.js
   var parsers = {
     "cards-category": parse,
     "columns-media": parse2
@@ -1054,6 +1054,41 @@ var CustomImportScript = (() => {
         }
       });
       executeTransformers("afterTransform", main, payload);
+      const wantFragment = new URL(params.originalURL).searchParams.get("fragment");
+      let fragmentEl = null;
+      [...main.querySelectorAll("h3")].forEach((h3) => {
+        const link = h3.querySelector('a[href^="/us/en/category/"]');
+        if (!link) return;
+        const slug = link.getAttribute("href").replace(/[?#].*$/, "").split("/").pop();
+        const group = document2.createElement("div");
+        let root = h3.parentElement;
+        while (root && !/^category-products-category-\d+$/.test(root.id || "")) root = root.parentElement;
+        const tables = root ? [...root.querySelectorAll("table")] : [];
+        let next = tables.length ? null : h3.nextElementSibling;
+        h3.before(WebImporter.Blocks.createBlock(document2, {
+          name: "Fragment",
+          cells: [[Object.assign(document2.createElement("a"), {
+            href: `/fragments/products/${slug}`,
+            textContent: `/fragments/products/${slug}`
+          })]]
+        }));
+        group.append(h3, ...tables);
+        while (next && next.tagName !== "H3" && next.tagName !== "HR") {
+          const following = next.nextElementSibling;
+          if (next.tagName === "TABLE") group.append(next);
+          next = following;
+        }
+        if (slug === wantFragment) fragmentEl = group;
+      });
+      if (wantFragment) {
+        if (!fragmentEl) throw new Error(`No category group for fragment "${wantFragment}"`);
+        WebImporter.rules.adjustImageUrls(fragmentEl, url, params.originalURL);
+        return [{
+          element: fragmentEl,
+          path: `/fragments/products/${wantFragment}`,
+          report: { title: wantFragment, template: `${PAGE_TEMPLATE.name}-fragment` }
+        }];
+      }
       const hr = document2.createElement("hr");
       main.appendChild(hr);
       WebImporter.rules.createMetadata(main, document2);
