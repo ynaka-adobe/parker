@@ -1,0 +1,11 @@
+{
+  "status": "success",
+  "url": "https://help.parker.com/us/en/support/repairs",
+  "path": "us/en/support/repairs",
+  "timestamp": "2026-10-07T16:35:22.190Z",
+  "title": "Repairs - Help & Support",
+  "template": "support-topic",
+  "blocks": [
+    "cards-teaser"
+  ]
+}

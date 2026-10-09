@@ -1,0 +1,12 @@
+{
+  "status": "success",
+  "url": "https://ph.parker.com/us/en/category/adhesives-coatings-and-encapsulants",
+  "path": "us/en/category/adhesives-coatings-and-encapsulants",
+  "timestamp": "2026-10-08T04:54:25.544Z",
+  "title": "Adhesives, Coatings and Encapsulants | Parker US",
+  "template": "product-category",
+  "blocks": [
+    "columns-media",
+    "cards-category"
+  ]
+}

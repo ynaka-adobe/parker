@@ -1,0 +1,14 @@
+{
+  "status": "success",
+  "url": "https://help.parker.com/us/en/support",
+  "path": "us/en/support",
+  "timestamp": "2026-10-07T16:58:03.168Z",
+  "title": "Help & Support | Parker US",
+  "template": "support-landing",
+  "blocks": [
+    "cards-teaser",
+    "cards-teaser",
+    "cards-contact",
+    "cards-news"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "status": "success",
+  "url": "https://ph.parker.com/us/en/category/bioprocessing-and-medical-technologies",
+  "path": "us/en/category/bioprocessing-and-medical-technologies",
+  "timestamp": "2026-10-08T04:54:33.511Z",
+  "title": "Bioprocessing and Medical Technologies | Parker US",
+  "template": "product-category",
+  "blocks": [
+    "columns-media",
+    "cards-category"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "status": "success",
+  "url": "https://ph.parker.com/us/en/category/pumps",
+  "path": "us/en/category/pumps",
+  "timestamp": "2026-10-08T04:55:01.431Z",
+  "title": "Pumps | Parker US",
+  "template": "product-category",
+  "blocks": [
+    "columns-media",
+    "cards-category"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "status": "success",
+  "url": "https://ph.parker.com/us/en/category/gas-generators",
+  "path": "us/en/category/gas-generators",
+  "timestamp": "2026-10-08T04:54:46.819Z",
+  "title": "Gas Generators | Parker US",
+  "template": "product-category",
+  "blocks": [
+    "columns-media",
+    "cards-category"
+  ]
+}

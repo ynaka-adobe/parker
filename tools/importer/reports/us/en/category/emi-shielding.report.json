@@ -1,0 +1,12 @@
+{
+  "status": "success",
+  "url": "https://ph.parker.com/us/en/category/emi-shielding",
+  "path": "us/en/category/emi-shielding",
+  "timestamp": "2026-10-08T04:54:38.429Z",
+  "title": "EMI Shielding | Parker US",
+  "template": "product-category",
+  "blocks": [
+    "columns-media",
+    "cards-category"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "status": "success",
+  "url": "https://ph.parker.com/us/en/category/refrigeration-and-air-conditioning",
+  "path": "us/en/category/refrigeration-and-air-conditioning",
+  "timestamp": "2026-10-08T04:55:04.734Z",
+  "title": "Refrigeration and Air Conditioning | Parker US",
+  "template": "product-category",
+  "blocks": [
+    "columns-media",
+    "cards-category"
+  ]
+}

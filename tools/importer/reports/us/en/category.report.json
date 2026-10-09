@@ -1,0 +1,30 @@
+{
+  "status": "success",
+  "url": "https://ph.parker.com/us/en/category",
+  "path": "us/en/category",
+  "timestamp": "2026-10-08T21:41:37.791Z",
+  "title": "Products | Parker US",
+  "template": "product-landing",
+  "blocks": [
+    "columns-media",
+    "cards-category",
+    "cards-category",
+    "cards-category",
+    "cards-category",
+    "cards-category",
+    "cards-category",
+    "cards-category",
+    "cards-category",
+    "cards-category",
+    "cards-category",
+    "cards-category",
+    "cards-category",
+    "cards-category",
+    "cards-category",
+    "cards-category",
+    "cards-category",
+    "cards-category",
+    "cards-category",
+    "cards-category"
+  ]
+}

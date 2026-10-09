@@ -1,0 +1,20 @@
+{
+  "status": "success",
+  "url": "https://www.parker.com/us/en/industries/digital/pts.html",
+  "path": "us/en/industries/digital/pts",
+  "timestamp": "2026-10-08T04:11:11.428Z",
+  "title": "Asset Management | Parker US",
+  "template": "pts",
+  "blocks": [
+    "hero-banner",
+    "carousel-media",
+    "carousel-media",
+    "columns-media",
+    "columns-media",
+    "columns-media",
+    "cards-teaser",
+    "cards-teaser",
+    "cards-teaser",
+    "cards-video"
+  ]
+}

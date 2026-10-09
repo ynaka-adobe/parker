@@ -1,0 +1,12 @@
+{
+  "status": "success",
+  "url": "https://ph.parker.com/us/en/category/aerospace-systems-and-technologies",
+  "path": "us/en/category/aerospace-systems-and-technologies",
+  "timestamp": "2026-10-08T04:54:28.345Z",
+  "title": "Aerospace Systems and Technologies | Parker US",
+  "template": "product-category",
+  "blocks": [
+    "columns-media",
+    "cards-category"
+  ]
+}

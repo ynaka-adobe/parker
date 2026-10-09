@@ -1,0 +1,11 @@
+{
+  "status": "success",
+  "url": "https://help.parker.com/us/en/support/software",
+  "path": "us/en/support/software",
+  "timestamp": "2026-10-07T16:37:09.573Z",
+  "title": "Software - Help & Support",
+  "template": "support-topic",
+  "blocks": [
+    "cards-teaser"
+  ]
+}

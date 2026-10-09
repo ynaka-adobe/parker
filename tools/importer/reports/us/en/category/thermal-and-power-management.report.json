@@ -1,0 +1,12 @@
+{
+  "status": "success",
+  "url": "https://ph.parker.com/us/en/category/thermal-and-power-management",
+  "path": "us/en/category/thermal-and-power-management",
+  "timestamp": "2026-10-08T04:55:13.029Z",
+  "title": "Thermal and Power Management | Parker US",
+  "template": "product-category",
+  "blocks": [
+    "columns-media",
+    "cards-category"
+  ]
+}

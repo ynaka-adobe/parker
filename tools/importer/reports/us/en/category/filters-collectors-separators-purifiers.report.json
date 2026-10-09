@@ -1,0 +1,12 @@
+{
+  "status": "success",
+  "url": "https://ph.parker.com/us/en/category/filters-collectors-separators-purifiers",
+  "path": "us/en/category/filters-collectors-separators-purifiers",
+  "timestamp": "2026-10-08T04:54:41.635Z",
+  "title": "Filters, Collectors, Separators, Purifiers | Parker US",
+  "template": "product-category",
+  "blocks": [
+    "columns-media",
+    "cards-category"
+  ]
+}

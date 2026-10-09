@@ -1,0 +1,12 @@
+{
+  "status": "success",
+  "url": "https://ph.parker.com/us/en/category/motors-drives-and-controllers",
+  "path": "us/en/category/motors-drives-and-controllers",
+  "timestamp": "2026-10-08T04:54:51.821Z",
+  "title": "Motors, Drives and Controllers | Parker US",
+  "template": "product-category",
+  "blocks": [
+    "columns-media",
+    "cards-category"
+  ]
+}
