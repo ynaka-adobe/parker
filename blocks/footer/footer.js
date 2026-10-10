@@ -1,9 +1,30 @@
 /**
- * Fetch the footer fragment. Metadata-independent dual-fetch:
- * /content first (localhost / aem up), then site root (DA/EDS production).
+ * Derive the locale prefix (first two path segments) from the current page path,
+ * e.g. "/us/en/products" -> "/us/en/". Returns null when there are fewer than two
+ * path segments (e.g. the site root), so callers can skip the locale-specific try.
+ * @param {String} pathname
+ * @returns {String|null}
+ */
+function getLocalePrefix(pathname) {
+  const segments = pathname.split('/').filter(Boolean);
+  if (segments.length < 2) return null;
+  return `/${segments[0]}/${segments[1]}/`;
+}
+
+/**
+ * Fetch the footer fragment, trying locale-specific, then /content, then site root.
+ * Locale-specific: `${locale}footer.plain.html` under the page's locale prefix
+ * (e.g. /fr/fr/footer.plain.html), so future translated locales can override the
+ * shared footer. /content first (localhost / aem up), then site root (DA/EDS
+ * production) remain the existing English default/fallback.
  * @returns {Promise<{html: string, base: string}>}
  */
 async function fetchFooterHtml() {
+  const locale = getLocalePrefix(window.location.pathname);
+  if (locale) {
+    const localeResp = await fetch(`${locale}footer.plain.html`);
+    if (localeResp.ok) return { html: await localeResp.text(), base: locale };
+  }
   let base = '/content/';
   let resp = await fetch('/content/footer.plain.html');
   if (!resp.ok) {

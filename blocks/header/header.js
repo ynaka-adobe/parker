@@ -2,11 +2,32 @@
 const isDesktop = window.matchMedia('(min-width: 900px)');
 
 /**
- * Fetch the nav fragment. Metadata-independent dual-fetch:
- * /content first (localhost / aem up), then site root (DA/EDS production).
+ * Derive the locale prefix (first two path segments) from the current page path,
+ * e.g. "/us/en/products" -> "/us/en/". Returns null when there are fewer than two
+ * path segments (e.g. the site root), so callers can skip the locale-specific try.
+ * @param {String} pathname
+ * @returns {String|null}
+ */
+function getLocalePrefix(pathname) {
+  const segments = pathname.split('/').filter(Boolean);
+  if (segments.length < 2) return null;
+  return `/${segments[0]}/${segments[1]}/`;
+}
+
+/**
+ * Fetch the nav fragment, trying locale-specific, then /content, then site root.
+ * Locale-specific: `${locale}nav.plain.html` under the page's locale prefix
+ * (e.g. /fr/fr/nav.plain.html), so future translated locales can override the
+ * shared nav. /content first (localhost / aem up), then site root (DA/EDS
+ * production) remain the existing English default/fallback.
  * @returns {Promise<string>} the nav fragment HTML
  */
 async function fetchNavHtml() {
+  const locale = getLocalePrefix(window.location.pathname);
+  if (locale) {
+    const localeResp = await fetch(`${locale}nav.plain.html`);
+    if (localeResp.ok) return { html: await localeResp.text(), base: locale };
+  }
   let base = '/content/';
   let resp = await fetch('/content/nav.plain.html');
   if (!resp.ok) {
