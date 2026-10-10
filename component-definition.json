@@ -371,6 +371,485 @@
               ]
             }
           }
+        },
+        {
+          "title": "Banner",
+          "id": "banner",
+          "model": "banner",
+          "plugins": {
+            "da": {
+              "name": "banner",
+              "rows": 1,
+              "columns": 2,
+              "fields": [
+                {
+                  "name": "image",
+                  "selector": "div:nth-child(1)>picture>img[src]"
+                },
+                {
+                  "name": "imageAlt",
+                  "selector": "div:nth-child(1)>picture>img[alt]"
+                },
+                {
+                  "name": "body",
+                  "selector": "div:nth-child(2)"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "title": "Banner CTA",
+          "id": "banner-cta",
+          "model": "banner-cta",
+          "plugins": {
+            "da": {
+              "name": "banner-cta",
+              "rows": 1,
+              "columns": 1,
+              "fields": [
+                {
+                  "name": "text",
+                  "selector": "div>div"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "title": "Cards Callouts",
+          "id": "cards-callouts",
+          "model": "cards-callouts",
+          "filter": "cards-callouts",
+          "plugins": {
+            "da": {
+              "name": "cards-callouts",
+              "rows": 1,
+              "columns": 2
+            }
+          }
+        },
+        {
+          "title": "Callout",
+          "id": "card-callouts",
+          "model": "card-callouts",
+          "plugins": {
+            "da": {
+              "rows": 1,
+              "columns": 2,
+              "fields": [
+                {
+                  "name": "image",
+                  "selector": "div:nth-child(1)>picture>img[src]"
+                },
+                {
+                  "name": "imageAlt",
+                  "selector": "div:nth-child(1)>picture>img[alt]"
+                },
+                {
+                  "name": "text",
+                  "selector": "div:nth-child(2)"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "title": "Cards Category",
+          "id": "cards-category",
+          "model": "cards-category",
+          "filter": "cards-category",
+          "plugins": {
+            "da": {
+              "name": "cards-category",
+              "rows": 1,
+              "columns": 2
+            }
+          }
+        },
+        {
+          "title": "Category",
+          "id": "card-category",
+          "model": "card-category",
+          "plugins": {
+            "da": {
+              "rows": 1,
+              "columns": 2,
+              "fields": [
+                {
+                  "name": "image",
+                  "selector": "div:nth-child(1)>picture>img[src]"
+                },
+                {
+                  "name": "imageAlt",
+                  "selector": "div:nth-child(1)>picture>img[alt]"
+                },
+                {
+                  "name": "text",
+                  "selector": "div:nth-child(2)"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "title": "Cards Feature",
+          "id": "cards-feature",
+          "model": "cards-feature",
+          "filter": "cards-feature",
+          "plugins": {
+            "da": {
+              "name": "cards-feature",
+              "rows": 1,
+              "columns": 2
+            }
+          }
+        },
+        {
+          "title": "Feature",
+          "id": "card-feature",
+          "model": "card-feature",
+          "plugins": {
+            "da": {
+              "rows": 1,
+              "columns": 2,
+              "fields": [
+                {
+                  "name": "image",
+                  "selector": "div:nth-child(1)>picture>img[src]"
+                },
+                {
+                  "name": "imageAlt",
+                  "selector": "div:nth-child(1)>picture>img[alt]"
+                },
+                {
+                  "name": "text",
+                  "selector": "div:nth-child(2)"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "title": "Cards News",
+          "id": "cards-news",
+          "model": "cards-news",
+          "filter": "cards-news",
+          "plugins": {
+            "da": {
+              "name": "cards-news",
+              "rows": 1,
+              "columns": 1
+            }
+          }
+        },
+        {
+          "title": "News Item",
+          "id": "card-news",
+          "model": "card-news",
+          "plugins": {
+            "da": {
+              "rows": 1,
+              "columns": 1,
+              "fields": [
+                {
+                  "name": "text",
+                  "selector": "div"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "title": "Cards Promo",
+          "id": "cards-promo",
+          "model": "cards-promo",
+          "filter": "cards-promo",
+          "plugins": {
+            "da": {
+              "name": "cards-promo",
+              "rows": 1,
+              "columns": 2
+            }
+          }
+        },
+        {
+          "title": "Promo",
+          "id": "card-promo",
+          "model": "card-promo",
+          "plugins": {
+            "da": {
+              "rows": 1,
+              "columns": 2,
+              "fields": [
+                {
+                  "name": "image",
+                  "selector": "div:nth-child(1)>picture>img[src]"
+                },
+                {
+                  "name": "imageAlt",
+                  "selector": "div:nth-child(1)>picture>img[alt]"
+                },
+                {
+                  "name": "text",
+                  "selector": "div:nth-child(2)"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "title": "Carousel Hero",
+          "id": "carousel-hero",
+          "model": "carousel-hero",
+          "filter": "carousel-hero",
+          "plugins": {
+            "da": {
+              "rows": 1,
+              "columns": 1
+            }
+          }
+        },
+        {
+          "title": "Carousel Hero Slide",
+          "id": "carousel-hero-item",
+          "model": "carousel-hero-item",
+          "plugins": {
+            "da": {
+              "rows": 1,
+              "columns": 2,
+              "fields": [
+                {
+                  "name": "backgroundImage",
+                  "selector": "div:nth-child(1)>picture>img[src]"
+                },
+                {
+                  "name": "backgroundImageAlt",
+                  "selector": "div:nth-child(1)>picture>img[alt]"
+                },
+                {
+                  "name": "text",
+                  "selector": "div:nth-child(2)"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "title": "Columns Media",
+          "id": "columns-media",
+          "model": "columns-media",
+          "plugins": {
+            "da": {
+              "name": "columns-media",
+              "rows": 1,
+              "columns": 2,
+              "fields": [
+                {
+                  "name": "image",
+                  "selector": "div:nth-child(1)>picture>img[src]"
+                },
+                {
+                  "name": "imageAlt",
+                  "selector": "div:nth-child(1)>picture>img[alt]"
+                },
+                {
+                  "name": "text",
+                  "selector": "div:nth-child(2)"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "title": "Commerce Products",
+          "id": "commerce-products",
+          "model": "commerce-products",
+          "plugins": {
+            "da": {
+              "name": "commerce-products",
+              "rows": 2,
+              "columns": 0,
+              "fields": [
+                {
+                  "name": "searchTerm",
+                  "selector": "div:nth-child(1)"
+                },
+                {
+                  "name": "pageSize",
+                  "selector": "div:nth-child(2)"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "title": "Embed",
+          "id": "embed",
+          "model": "embed",
+          "plugins": {
+            "da": {
+              "name": "embed",
+              "rows": 1,
+              "columns": 1,
+              "fields": [
+                {
+                  "name": "link",
+                  "selector": "div>div>p>a[href]"
+                },
+                {
+                  "name": "linkText",
+                  "selector": "div>div>p>a"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "title": "Footer",
+          "id": "footer",
+          "model": "footer",
+          "plugins": {
+            "da": {
+              "unsafeHTML": "<div></div>"
+            }
+          }
+        },
+        {
+          "title": "Form",
+          "id": "form",
+          "model": "form",
+          "plugins": {
+            "da": {
+              "name": "form",
+              "rows": 2,
+              "columns": 0,
+              "fields": [
+                {
+                  "name": "formPath",
+                  "selector": "div:nth-child(1)"
+                },
+                {
+                  "name": "submitPath",
+                  "selector": "div:nth-child(2)"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "title": "Header",
+          "id": "header",
+          "model": "header",
+          "plugins": {
+            "da": {
+              "unsafeHTML": "<div></div>"
+            }
+          }
+        },
+        {
+          "title": "Hero Banner",
+          "id": "hero-banner",
+          "model": "hero-banner",
+          "plugins": {
+            "da": {
+              "unsafeHTML": "<div class=\"hero-banner\"><div><div><picture><source type=\"image/webp\" srcset=\"\"><source type=\"image/jpeg\" srcset=\"\"><img loading=\"lazy\"></picture><h1></h1></div></div></div>",
+              "fields": [
+                {
+                  "name": "image",
+                  "selector": "div>div>picture>img[src]"
+                },
+                {
+                  "name": "imageAlt",
+                  "selector": "div>div>picture>img[alt]"
+                },
+                {
+                  "name": "text",
+                  "selector": "div>div>h1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "title": "Marketo",
+          "id": "marketo",
+          "model": "marketo",
+          "plugins": {
+            "da": {
+              "name": "marketo",
+              "rows": 1,
+              "columns": 1,
+              "fields": [
+                {
+                  "name": "formUrl",
+                  "selector": "div>div"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "title": "Modal",
+          "id": "modal",
+          "model": "modal",
+          "plugins": {
+            "da": {
+              "unsafeHTML": "<div></div>"
+            }
+          }
+        },
+        {
+          "title": "Promo Banner",
+          "id": "promo-banner",
+          "model": "promo-banner",
+          "plugins": {
+            "da": {
+              "name": "promo-banner",
+              "rows": 1,
+              "columns": 1,
+              "fields": [
+                {
+                  "name": "schedulerUrl",
+                  "selector": "div>div>p>a[href]"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "title": "Target offer",
+          "id": "target-offer",
+          "model": "target-offer",
+          "plugins": {
+            "da": {
+              "unsafeHTML": "<div class=\"target-offer\"><span class=\"target-offer-export-id\" hidden></span><div class=\"target-offer-config\"><div><p class=\"target-offer-mbox\"></p></div></div><div class=\"target-offer-default\"><div><p>Default content</p></div></div></div>",
+              "fields": [
+                {
+                  "name": "exportId",
+                  "selector": "span.target-offer-export-id"
+                },
+                {
+                  "name": "mboxName",
+                  "selector": "p.target-offer-mbox"
+                },
+                {
+                  "name": "content",
+                  "selector": "div.target-offer-default"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "title": "Target Slot Hero",
+          "id": "target-slot-hero",
+          "model": "target-slot-hero",
+          "plugins": {
+            "da": {
+              "unsafeHTML": "<div></div>"
+            }
+          }
         }
       ]
     }
