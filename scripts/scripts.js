@@ -21,7 +21,6 @@ import {
   loadTarget,
   applyTargetHeroMboxIfConfigured,
 } from './target.js';
-import instrument from './martech/instrument.js';
 
 /**
  * Builds hero block and prepends to main in a new section.
@@ -221,8 +220,6 @@ async function loadLazy(doc) {
 
   loadCSS(`${window.hlx.codeBasePath}/styles/lazy-styles.css`);
   loadFonts();
-
-  instrument();
 
   import('../tools/sidekick/aem-genai-variations.js');
 }
