@@ -43,6 +43,9 @@ export default function transform(hookName, element, payload) {
   const pts = isPtsPage(payload);
   if (pts && hookName === H.before) ptsBefore(element);
   if (pts && hookName === H.after) ptsAfter(element);
+  const blog = isBlogPage(payload);
+  if (blog && hookName === H.before) blogBefore(element, payload);
+  if (blog && hookName === H.after) blogAfter(element, payload);
 
   if (hookName === H.before) {
     // Chat/messaging widgets and tracking iframes can wrap or block block-matching.
@@ -122,6 +125,10 @@ export default function transform(hookName, element, payload) {
     });
 
     rewriteLinks(element, payload);
+
+    // Runs after the shared removals above: trailing iframes/scripts would
+    // otherwise count as content after the empty sections' <hr>s.
+    if (blog) blogTrailingSections(element);
   }
 }
 
@@ -630,6 +637,138 @@ function ptsAfter(element) {
       first = p.firstChild;
     }
   });
+}
+
+// ---------------------------------------------------------------------------
+// Blog pages (blog.parker.com, template names starting with 'blog'). Everything
+// below runs ONLY when isBlogPage() is true, so www/help/ph.parker.com templates
+// are unaffected. Selectors verified in migration-work/cleaned.html (blog home)
+// and tools/importer/bd-snapshots/blog.parker.com/us/en/home.html.html.
+// Already handled by the shared rules: Qualtrics div#ZN_2rDBq8r3Zv6zWTP
+// (div[id^="ZN_"]), the GTM <noscript>, the hidden tracking <iframe height="0"
+// width="0"> and the empty body-level <iframe> (bare 'iframe'), tracking pixels
+// (none present on the blog home), and the emptied header/footer grid columns.
+// ---------------------------------------------------------------------------
+
+const BLOG_ORIGIN = 'https://blog.parker.com';
+// Source blog home -> migrated path (template blog-home urlPattern).
+const BLOG_PATH_MAP = new Map([
+  ['/us/en/home', '/us/en/blog'],
+]);
+
+function isBlogPage(payload) {
+  const url = pageUrl(payload);
+  if (url && url.hostname === 'blog.parker.com') return true;
+  const name = payload && payload.template && payload.template.name;
+  return typeof name === 'string' && name.startsWith('blog');
+}
+
+// Source blog page -> page title on the migrated site.
+const BLOG_TITLE_MAP = new Map([
+  ['/us/en/home', 'Blog'],
+]);
+
+function blogBefore(element, payload) {
+  // Listing UI that is not authorable content (inside / next to the recent-posts
+  // grid, removed before the cards-blog parser runs):
+  //   div.blog-show-more > button.blog-post-show-more-btn "Load More" (pagination
+  //     control, no href) and its MuiGrid wrapper inside .cmp-blog-recent-blogs
+  //   button#scroll-to-top.scroll-to-top (floating "Scroll to Top" button)
+  // Not positional: section selectors (.aem-container:has(...), #spa-root > div > ...)
+  // are unaffected by these removals.
+  WebImporter.DOMUtils.remove(element, [
+    '.cmp-blog-recent-blogs .MuiGrid-root:has(> .blog-show-more)',
+    '.blog-show-more',
+    'button#scroll-to-top',
+  ]);
+
+  // The blog home's source title is "Home", which clashes with the www homepage;
+  // createMetadata reads <title>, so set it (and og:title) before it runs.
+  const doc = element.ownerDocument;
+  const page = pageUrl(payload);
+  const sourcePath = page ? page.pathname.replace(/\.html$/, '').replace(/\/$/, '') : '';
+  const title = BLOG_TITLE_MAP.get(sourcePath);
+  if (title) {
+    let titleEl = doc.querySelector('title');
+    if (!titleEl) {
+      titleEl = doc.createElement('title');
+      doc.head.append(titleEl);
+    }
+    titleEl.textContent = title;
+    doc.querySelectorAll('meta[property="og:title"], meta[name="twitter:title"]').forEach((meta) => {
+      meta.setAttribute('content', title);
+    });
+  }
+
+  // The blog's og:image is the bare origin ("https://blog.parker.com"), which
+  // createMetadata would turn into a broken Image row.
+  element.ownerDocument.querySelectorAll('meta[property="og:image"], meta[name="twitter:image"]').forEach((meta) => {
+    try {
+      if (new URL(meta.content).pathname.replace(/\/$/, '') === '') meta.remove();
+    } catch (e) {
+      meta.remove();
+    }
+  });
+}
+
+function blogAfter(element, payload) {
+  // Blog site chrome:
+  //   header#header.pb-header-main -> logo, secondary/primary nav, mobile sidenav
+  //   div#pb-footer.pb-footer      -> copyright, "ENGINEERING Your Success", footer menu
+  // Their now-empty .aem-GridColumn wrappers are removed by the shared
+  // empty-column sweep that runs after this.
+  WebImporter.DOMUtils.remove(element, [
+    'header#header.pb-header-main',
+    '#pb-footer',
+  ]);
+
+  // Relative blog links (e.g. /us/en/emg_cho/....html, "Read Blog" buttons) must
+  // resolve against blog.parker.com; rewriteLinks() would otherwise resolve them
+  // against www.parker.com. Absolute blog.parker.com URLs are left alone by
+  // rewriteLinks() (blog origin is not in SOURCE_ORIGINS), except migrated blog
+  // pages which become site-relative.
+  const page = pageUrl(payload);
+  const base = page && page.hostname === 'blog.parker.com' ? page : new URL(`${BLOG_ORIGIN}/`);
+  element.querySelectorAll('a[href]').forEach((a) => {
+    const href = (a.getAttribute('href') || '').trim();
+    const isBlogAbsolute = /^https?:\/\/blog\.parker\.com(\/|$)/i.test(href);
+    const isOtherScheme = /^[a-z][a-z0-9+.-]*:/i.test(href); // mailto:, tel:, other hosts
+    if (!href || href.startsWith('#') || (isOtherScheme && !isBlogAbsolute)) return;
+    let url;
+    try { url = new URL(href, base); } catch (e) { return; }
+    if (url.origin !== BLOG_ORIGIN) return;
+    const path = url.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/';
+    const migrated = BLOG_PATH_MAP.get(path);
+    // Query indexes (search-blog's link) are served by this site, not the blog.
+    if (/\.json$/.test(url.pathname)) {
+      a.setAttribute('href', url.pathname);
+      a.setAttribute(KEEP_HREF_ATTR, '');
+      return;
+    }
+    a.setAttribute('href', migrated ? `${migrated}${url.hash}` : url.href);
+  });
+}
+
+function blogTrailingSections(element) {
+  // Empty trailing sections: the blog-home template's rc2/rc3 entries are empty
+  // SPA wrapper divs, so the section transformer's <hr> before them would leave
+  // empty sections at the end of the page. The section transformer inserts its
+  // breaks in beforeTransform and this cleanup's afterTransform runs before the
+  // section transformer's afterTransform, so drop every <hr> that has no
+  // authorable content after it. (Styled-section marker <hr>s are never trailing:
+  // their section content follows them.)
+  const hrs = [...element.querySelectorAll('hr')].reverse();
+  for (const hr of hrs) {
+    const range = element.ownerDocument.createRange();
+    range.setStartAfter(hr);
+    range.setEndAfter(element.lastChild || element);
+    const rest = range.cloneContents();
+    // Injected Qualtrics <style> text is not content.
+    rest.querySelectorAll('style, script, noscript, link').forEach((el) => el.remove());
+    const hasContent = rest.textContent.trim() !== '' || !!rest.querySelector(MEDIA_SELECTOR);
+    if (hasContent) break;
+    hr.remove();
+  }
 }
 
 // Pages migrated to EDS (served extensionless). Links to these become site-relative

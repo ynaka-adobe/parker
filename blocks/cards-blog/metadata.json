@@ -1,0 +1,23 @@
+{
+  "variantName": "cards-blog",
+  "baseBlock": "cards",
+  "canonicalModel": "standalone",
+  "visualCharacteristics": {
+    "colorScheme": "light",
+    "density": "medium",
+    "imagePattern": "16:9 photo",
+    "columns": 3,
+    "structure": "meta (author + date) + title + image + description + gold CTA button"
+  },
+  "contentPattern": "repeating dated blog article cards",
+  "usage": {
+    "pagesFound": [
+      "/us/en/home"
+    ],
+    "reuseGuidance": "Use for a grid of blog article cards. One row per article, 2 columns: [image] | [p 'Contributed By: <author>' + date, h2/h3 title, p description, p > a 'Read Blog']."
+  },
+  "options": [],
+  "memberVariantIds": [
+    "cards-blog"
+  ]
+}

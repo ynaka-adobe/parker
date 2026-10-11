@@ -1,0 +1,12 @@
+{
+  "status": "success",
+  "url": "https://blog.parker.com/us/en/home.html",
+  "path": "us/en/blog",
+  "timestamp": "2026-10-11T15:20:43.210Z",
+  "title": "Blog",
+  "template": "blog-home",
+  "blocks": [
+    "search-blog",
+    "cards-blog"
+  ]
+}
