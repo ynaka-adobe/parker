@@ -44,8 +44,13 @@ export default function transform(hookName, element, payload) {
   if (pts && hookName === H.before) ptsBefore(element);
   if (pts && hookName === H.after) ptsAfter(element);
   const blog = isBlogPage(payload);
+  // Blog ARTICLE pages only (template blog-article); never blog-home.
+  const blogArticle = blog && isBlogArticlePage(element, payload);
   if (blog && hookName === H.before) blogBefore(element, payload);
-  if (blog && hookName === H.after) blogAfter(element, payload);
+  // After blogBefore(): it drops the bare-origin og:image this step replaces.
+  if (blogArticle && hookName === H.before) blogArticleBefore(element, payload);
+  if (blogArticle && hookName === H.after) blogArticleAfter(element);
+  if (blog && hookName === H.after) blogAfter(element, payload, blogArticle);
 
   if (hookName === H.before) {
     // Chat/messaging widgets and tracking iframes can wrap or block block-matching.
@@ -711,7 +716,7 @@ function blogBefore(element, payload) {
   });
 }
 
-function blogAfter(element, payload) {
+function blogAfter(element, payload, article) {
   // Blog site chrome:
   //   header#header.pb-header-main -> logo, secondary/primary nav, mobile sidenav
   //   div#pb-footer.pb-footer      -> copyright, "ENGINEERING Your Success", footer menu
@@ -745,6 +750,15 @@ function blogAfter(element, payload) {
       a.setAttribute(KEEP_HREF_ATTR, '');
       return;
     }
+    // Blog home aliases + the 12 migrated articles become site-relative
+    // /us/en/blog[/<slug>] (kept as-is by rewriteLinks()), on the blog home's
+    // "Read Blog" cards as well as inside articles.
+    const articleTarget = !migrated ? blogArticleLinkTarget(path) : null;
+    if (articleTarget) {
+      a.setAttribute('href', `${articleTarget}${url.hash}`);
+      a.setAttribute(KEEP_HREF_ATTR, '');
+      return;
+    }
     a.setAttribute('href', migrated ? `${migrated}${url.hash}` : url.href);
   });
 }
@@ -769,6 +783,253 @@ function blogTrailingSections(element) {
     if (hasContent) break;
     hr.remove();
   }
+}
+
+// ---------------------------------------------------------------------------
+// Blog ARTICLE pages (template blog-article: blog.parker.com/us/en/<emg_cho|msg_grp>/<slug>.html,
+// imported to /us/en/blog/<slug>). Gated by isBlogArticlePage(), so blog-home and
+// every non-blog template are unaffected. Selectors verified in
+// migration-work/cleaned.html (emg_cho/comparing-silver-plated-...) and the BD
+// snapshots tools/importer/bd-snapshots/blog.parker.com/us/en/{emg_cho,msg_grp}/*.html.html
+// (msg_grp: helping-oems-find-right-hydraulic-cylinder-solution,
+// why-documentation-and-end-user-insight-matter-in-hydraulic-design).
+// Already handled by the shared/blog rules: header#header.pb-header-main,
+// nav.cmp-breadcrumb (+ its grid column), hidden tracking iframe, Qualtrics
+// div#ZN_*, button#scroll-to-top. The article snapshots have no footer markup
+// (no #pb-footer / footer element), so no footer selector is added here.
+//
+// Metadata hand-off: Author and Publication Date are written to <head> as
+// <meta name="author"> / <meta name="publication-date">. WebImporter.rules.createMetadata
+// (Blocks.getMetadata) only reads title, description, og:* and twitter:*, so the
+// blog-article import script must add those two rows itself (see report).
+// ---------------------------------------------------------------------------
+
+// Source article paths (lowercased, no .html) -> migrated to /us/en/blog/<slug>.
+const BLOG_ARTICLE_PATHS = new Set([
+  '/us/en/emg_cho/comparing-silver-plated-and-nickel--plated-aluminum-emi-shielding-particles',
+  '/us/en/emg_cho/emi-shielding-and-thermal-management-for-robotics',
+  '/us/en/emg_cho/emi-shielding-and-thermal-solutions-for-electric-transportation',
+  '/us/en/emg_cho/emi-shielding-within-medical-device-applications',
+  '/us/en/emg_cho/essential-protection-for-high-performance-drone-systems',
+  '/us/en/emg_cho/how-do-thermal-interface-materials-support-leo-small-satellite-electronics',
+  '/us/en/emg_cho/radar-across-every-domain',
+  '/us/en/emg_cho/space-payload-emi-shielding',
+  '/us/en/emg_cho/thermal-management-for-optical-transceivers',
+  '/us/en/msg_grp/how-parker-chelsea-helps-oems-fleets-improve-pto-performance',
+  '/us/en/msg_grp/helping-oems-find-right-hydraulic-cylinder-solution',
+  '/us/en/msg_grp/why-documentation-and-end-user-insight-matter-in-hydraulic-design',
+]);
+// Blog home aliases seen on article pages (breadcrumb "Home" ->
+// /content/parker-blog/us/en.html) -> migrated blog home.
+const BLOG_HOME_ALIASES = new Set([
+  '/', '/us/en', '/us/en/home', '/content/parker-blog/us/en', '/content/parker-blog/us/en/home',
+]);
+const BLOG_MIGRATED_HOME = '/us/en/blog';
+const BLOG_SITE_SUFFIX = /\s*[|–—-]\s*Parker(\s+(Hannifin|US|Blog))*\s*$/i;
+
+function isBlogArticlePage(element, payload) {
+  const name = payload && payload.template && payload.template.name;
+  if (name === 'blog-article') return true;
+  if (name && name.startsWith('blog')) return false; // blog-home etc.
+  return !!element.querySelector('.parker-blog-custom-container');
+}
+
+// Same rule as WebImporter.FileUtils.sanitizeFilename (the import script's
+// sanitizePath), so links match the imported page path
+// ("nickel--plated" -> "nickel-plated", "How-Parker-..." -> "how-parker-...").
+function sanitizeSlug(slug) {
+  if (typeof WebImporter !== 'undefined' && WebImporter.FileUtils && WebImporter.FileUtils.sanitizeFilename) {
+    return WebImporter.FileUtils.sanitizeFilename(slug);
+  }
+  let s = slug;
+  try { s = decodeURIComponent(slug); } catch (e) { /* keep raw */ }
+  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+// Blog path (no .html, no trailing slash) -> migrated path, or null.
+function blogArticleLinkTarget(path) {
+  const p = path.replace(/^\/content\/parker-blog(?=\/)/, '').toLowerCase();
+  if (BLOG_HOME_ALIASES.has(path) || BLOG_HOME_ALIASES.has(p)) return BLOG_MIGRATED_HOME;
+  if (!BLOG_ARTICLE_PATHS.has(p)) return null;
+  return `${BLOG_MIGRATED_HOME}/${sanitizeSlug(path.split('/').pop())}`;
+}
+
+const nbspTrim = (s) => (s || '').replace(/\u00a0/g, ' ').replace(/\s+/g, ' ').trim();
+
+function removeEmptyParagraphs(root, skipTables) {
+  root.querySelectorAll('p').forEach((p) => {
+    if (skipTables && p.closest('table')) return;
+    if (nbspTrim(p.textContent) === '' && !p.querySelector(MEDIA_SELECTOR)) p.remove();
+  });
+}
+
+function setHeadMeta(doc, attr, key, content) {
+  let meta = doc.head.querySelector(`meta[${attr}="${key}"]`);
+  if (!meta) {
+    meta = doc.createElement('meta');
+    meta.setAttribute(attr, key);
+    doc.head.append(meta);
+  }
+  meta.setAttribute('content', content);
+}
+
+function blogArticleBefore(element, payload) {
+  const doc = element.ownerDocument;
+
+  // --- Capture per-article facts before the sidebar is removed ---
+  //   .cmp-blog-author .cmp-blog-author-name -> " Ben Nudelman, Global Market Manager, ..."
+  //   .cmp-blog-date-social-media > .social-media (span "Date ") > a[href="#"] "September 24, 2026"
+  const author = nbspTrim((element.querySelector('.cmp-blog-author .cmp-blog-author-name') || {}).textContent);
+  // Match on the box text, not the <span>: the importer's html2md preprocessing
+  // unwraps spans before the transformers run ("Date <br><a>...").
+  const dateBox = [...element.querySelectorAll('.cmp-blog-date-social-media .social-media')]
+    .find((box) => /^date\b/i.test(nbspTrim(box.textContent)));
+  const date = dateBox ? nbspTrim((dateBox.querySelector('a') || {}).textContent) : '';
+
+  // --- Remove non-authored-per-page chrome ---
+  //   left sidebar: .parker-blog-custom-container > .parker-blog-custom-container-child (1st)
+  //     holding .cmp-blog-date-social-media (date + social handles + hr) and
+  //     .cmp-blog-category-list ("All Categories" list)
+  //   recent posts strip: .cmp-blog-recent-blogs.detail-page (cards, separators, pagination)
+  // Not positional: the blog-article section selectors (:has(> .cmp-title),
+  // :has(> .cmp-blog-author)) and the columns-media instance selector are unaffected.
+  WebImporter.DOMUtils.remove(element, [
+    '.parker-blog-custom-container > .parker-blog-custom-container-child:has(.cmp-blog-date-social-media)',
+    '.parker-blog-custom-container > .parker-blog-custom-container-child:has(.cmp-blog-category-list)',
+    '.cmp-blog-date-social-media',
+    '.cmp-blog-category-list',
+    '.aem-GridColumn:has(> .cmp-blog-recent-blogs)',
+    '.cmp-blog-recent-blogs',
+  ]);
+
+  // Empty / &nbsp;-only spacer paragraphs in the body (text components and the
+  // two-up rows' descriptions, e.g. <p>&nbsp;</p> between quote and attribution).
+  element.querySelectorAll('.parker-blog-custom-container').forEach((c) => removeEmptyParagraphs(c, false));
+
+  // --- Head metadata read by WebImporter.rules.createMetadata ---
+  const body = element.querySelector('.parker-blog-custom-container') || element;
+  const titleEl = doc.querySelector('title');
+  const heading = element.querySelector('.cmp-title .cmp-title__text');
+  const title = nbspTrim(titleEl && titleEl.textContent).replace(BLOG_SITE_SUFFIX, '')
+    || nbspTrim(heading && heading.textContent);
+  if (title) {
+    if (titleEl) titleEl.textContent = title;
+    else {
+      const t = doc.createElement('title');
+      t.textContent = title;
+      doc.head.append(t);
+    }
+    // og:title is a name= meta on this site (ignored by createMetadata) - keep all in sync.
+    doc.querySelectorAll('meta[property="og:title"], meta[name="og:title"], meta[name="twitter:title"], meta[property="twitter:title"]')
+      .forEach((m) => m.setAttribute('content', title));
+  }
+
+  // Description: meta description, else the first body paragraph's text.
+  const descMeta = doc.head.querySelector('meta[name="description"]');
+  let description = nbspTrim(descMeta && descMeta.getAttribute('content'));
+  if (!description) {
+    const firstP = [...body.querySelectorAll('[id$="_right_container_text"] p')]
+      .find((p) => nbspTrim(p.textContent));
+    description = firstP ? nbspTrim(firstP.textContent) : '';
+  }
+  if (description) {
+    setHeadMeta(doc, 'name', 'description', description);
+    // Keep og/twitter descriptions identical so createMetadata emits one Description row.
+    doc.querySelectorAll('meta[property="og:description"], meta[name="og:description"], meta[name="twitter:description"], meta[property="twitter:description"]')
+      .forEach((m) => m.setAttribute('content', description));
+  }
+
+  // Image: first body image (blogBefore() already removed the bare-origin og:image).
+  const firstImg = [...body.querySelectorAll('img[src]')]
+    .find((img) => !/^data:/i.test(img.getAttribute('src')));
+  if (firstImg) {
+    const page = pageUrl(payload);
+    const base = page && page.hostname === 'blog.parker.com' ? page : new URL(`${BLOG_ORIGIN}/`);
+    try {
+      setHeadMeta(doc, 'property', 'og:image', new URL(firstImg.getAttribute('src'), base).href);
+    } catch (e) { /* unparsable src: leave Image empty */ }
+  }
+
+  // Author / Publication Date for the import script (not read by createMetadata).
+  if (author) setHeadMeta(doc, 'name', 'author', author);
+  if (date) setHeadMeta(doc, 'name', 'publication-date', date);
+}
+
+function blogArticleAfter(element) {
+  const doc = element.ownerDocument;
+
+  // Title band: <div class="cmp-title"><h3 class="cmp-title__text"><a href="#"
+  // class="cmp-title__link">Title</a></h3> -> <h1>Title</h1> (dead link dropped).
+  element.querySelectorAll('.cmp-title .cmp-title__text').forEach((h, i) => {
+    const text = nbspTrim(h.textContent);
+    if (!text) {
+      h.remove();
+      return;
+    }
+    const heading = doc.createElement(i === 0 ? 'h1' : 'h2');
+    heading.textContent = text;
+    h.replaceWith(heading);
+  });
+
+  // Byline: .cmp-blog-author = decorative data:-SVG icon + p.cmp-blog-author-label
+  // "Contributed By" + h5.cmp-blog-author-name -> <p>Contributed By<br>Name, Title</p>.
+  element.querySelectorAll('.cmp-blog-author').forEach((byline) => {
+    const label = nbspTrim((byline.querySelector('.cmp-blog-author-label') || {}).textContent) || 'Contributed By';
+    const name = nbspTrim((byline.querySelector('.cmp-blog-author-name') || {}).textContent);
+    if (!name) {
+      byline.remove();
+      return;
+    }
+    const p = doc.createElement('p');
+    p.append(label, doc.createElement('br'), name);
+    byline.replaceWith(p);
+  });
+
+  const containers = element.querySelectorAll('.parker-blog-custom-container');
+  containers.forEach((container) => {
+    // Subheadings: Chomerics bodies use <h2>, hydraulics (msg_grp) bodies use
+    // <h5><b>Text</b></h5>. Rank the levels used in the body (outside block
+    // tables): shallowest -> h2, any deeper level -> h3 (under the page H1).
+    const headings = [...container.querySelectorAll('h1, h2, h3, h4, h5, h6')]
+      .filter((h) => !h.closest('table'));
+    const levels = [...new Set(headings.map((h) => Number(h.tagName[1])))].sort((a, b) => a - b);
+    headings.forEach((h) => {
+      const text = nbspTrim(h.textContent);
+      if (!text && !h.querySelector(MEDIA_SELECTOR)) {
+        h.remove();
+        return;
+      }
+      const target = levels.indexOf(Number(h.tagName[1])) === 0 ? 'h2' : 'h3';
+      const out = h.tagName.toLowerCase() === target ? h : retag(h, target);
+      // <h5><b>Text</b></h5>: the bold wrapper is the heading style, not emphasis.
+      const only = out.children.length === 1 ? out.children[0] : null;
+      if (only && /^(B|STRONG)$/.test(only.tagName) && nbspTrim(only.textContent) === text) {
+        only.replaceWith(...only.childNodes);
+      }
+      trimText(out);
+    });
+
+    // Inline images (.cmp-image): <a class="cmp-image__link"> has no href -> unwrap;
+    // drop the empty <span class="cmp-image__title">.
+    container.querySelectorAll('.cmp-image a.cmp-image__link:not([href])').forEach((a) => a.replaceWith(...a.childNodes));
+    container.querySelectorAll('.cmp-image .cmp-image__title').forEach((s) => {
+      if (!nbspTrim(s.textContent)) s.remove();
+    });
+
+    // Spacer paragraphs left outside the block tables (parser output untouched).
+    removeEmptyParagraphs(container, true);
+  });
+
+  // No skipped heading levels across the page (incl. columns-media row titles,
+  // which are H3 and can precede the first body H2, e.g. space-payload).
+  let prev = 0;
+  element.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach((h) => {
+    const level = Number(h.tagName[1]);
+    const max = prev + 1;
+    prev = level > max ? max : level;
+    if (level > max) retag(h, `h${max}`);
+  });
 }
 
 // Pages migrated to EDS (served extensionless). Links to these become site-relative

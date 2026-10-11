@@ -1334,6 +1334,71 @@
           "defaultContent": []
         }
       ]
+    },
+    {
+      "name": "blog-article",
+      "urls": [
+        "https://blog.parker.com/us/en/emg_cho/comparing-silver-plated-and-nickel--plated-aluminum-emi-shielding-particles.html",
+        "https://blog.parker.com/us/en/emg_cho/emi-shielding-and-thermal-management-for-robotics.html",
+        "https://blog.parker.com/us/en/emg_cho/emi-shielding-and-thermal-solutions-for-electric-transportation.html",
+        "https://blog.parker.com/us/en/emg_cho/emi-shielding-within-medical-device-applications.html",
+        "https://blog.parker.com/us/en/emg_cho/essential-protection-for-high-performance-drone-systems.html",
+        "https://blog.parker.com/us/en/emg_cho/how-do-thermal-interface-materials-support-leo-small-satellite-electronics.html",
+        "https://blog.parker.com/us/en/emg_cho/radar-across-every-domain.html",
+        "https://blog.parker.com/us/en/emg_cho/space-payload-emi-shielding.html",
+        "https://blog.parker.com/us/en/emg_cho/thermal-management-for-optical-transceivers.html",
+        "https://blog.parker.com/us/en/msg_grp/How-Parker-Chelsea-Helps-OEMs-Fleets-Improve-PTO-Performance.html",
+        "https://blog.parker.com/us/en/msg_grp/helping-oems-find-right-hydraulic-cylinder-solution.html",
+        "https://blog.parker.com/us/en/msg_grp/why-documentation-and-end-user-insight-matter-in-hydraulic-design.html"
+      ],
+      "representativeUrl": "https://blog.parker.com/us/en/emg_cho/comparing-silver-plated-and-nickel--plated-aluminum-emi-shielding-particles.html",
+      "description": "Parker blog article pages (blog.parker.com/us/en/<division>/<slug>.html), imported to /us/en/blog/<slug>",
+      "blocks": [
+        {
+          "name": "columns-media",
+          "instances": [
+            ".parker-blog-custom-container .aem-GridColumn:has(> .image-box-container)"
+          ]
+        },
+        {
+          "name": "table",
+          "instances": [
+            ".parker-blog-custom-container table"
+          ]
+        }
+      ],
+      "urlPattern": "/us/en/blog/*",
+      "sections": [
+        {
+          "id": "title",
+          "name": "Article title band",
+          "selector": [
+            ".aem-GridColumn:has(> .cmp-title)"
+          ],
+          "style": "grey",
+          "blocks": [],
+          "defaultContent": [
+            ".cmp-title .cmp-title__text"
+          ]
+        },
+        {
+          "id": "article",
+          "name": "Byline + article body",
+          "selector": [
+            ".aem-GridColumn:has(> .cmp-blog-author)"
+          ],
+          "style": null,
+          "blocks": [
+            "columns-media",
+            "table"
+          ],
+          "defaultContent": [
+            ".cmp-blog-author",
+            "[id$=\"_right_container_text\"]",
+            ".cmp-image"
+          ]
+        }
+      ]
     }
   ]
 }

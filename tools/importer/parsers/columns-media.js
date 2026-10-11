@@ -56,6 +56,17 @@
  *  - Gold "GET STARTED WITH PTS" band: the description wraps its paragraphs in a
  *    bordered 1-row / 1-cell <table> (WYSIWYG artefact); the table is unwrapped so
  *    the paragraphs are authored directly (no nested table in the block).
+ *
+ * Blog article (blog.parker.com/us/en/<division>/*.html, template blog-article):
+ * matched element is an .aem-GridColumn (same .image-box-container markup) inside
+ * .parker-blog-custom-container - separate branch, taken only inside that
+ * container, which no other template has. Emitted as plain "columns-media", one
+ * row of two cells in visual order (order-left / order-right). Text cell: optional
+ * title (in-content h1 authored as h3), description paragraphs / lists / pull quotes
+ * (&nbsp; normalised, empty paragraphs dropped) and .btn-align CTA links. Picture
+ * cell: the img (no <source>s; AEM ?im= query dropped, spaces %20-encoded to match
+ * the image sidecar); a generic "Parker Image" alt is replaced by the row title,
+ * else the bold quote attribution name, else the article title.
  */
 
 const PRODUCT_CATEGORY_DESC = '#category-list-details-description-container, [data-testid="category-list-details-description-container"]';
@@ -200,7 +211,115 @@ function unwrapSingleCellTables(root) {
   });
 }
 
+// Blog article (blog.parker.com, template blog-article): the matched element is an
+// .aem-GridColumn inside .parker-blog-custom-container. No www.parker.com /
+// help.parker.com / ph.parker.com template has that container.
+const isBlogArticleRow = (element) => !!(element.closest && element.closest('.parker-blog-custom-container'));
+
+const GENERIC_ALT = /^(parker image|image|)$/i;
+
+const cleanText = (s) => (s || '').replace(/\u00a0/g, ' ').replace(/\s+/g, ' ').trim();
+
+// Blog article image + text row -> one row, 2 cells in visual order
+function parseBlogArticleRow(element, document) {
+  const textBox = element.querySelector('.left-box');
+  const mediaCol = element.querySelector('.image-wrapper');
+  const image = (mediaCol && mediaCol.querySelector('img')) || element.querySelector('img');
+
+  const textCell = [];
+  let titleText = '';
+  let attribution = '';
+  if (textBox) {
+    // Optional title; in-content h1 is authored as h3 (one page H1 only)
+    let title = textBox.querySelector('.image-box-container__title, h1, h2, h3, h4');
+    if (title && cleanText(title.textContent)) {
+      if (title.tagName === 'H1') {
+        const h3 = document.createElement('h3');
+        h3.append(...title.childNodes);
+        title.replaceWith(h3);
+        title = h3;
+      }
+      title.removeAttribute('class');
+      titleText = cleanText(title.textContent);
+      textCell.push(title);
+    }
+
+    const description = textBox.querySelector('.image-box-container__description');
+    if (description) {
+      // Normalise &nbsp; inside text, then drop empty paragraphs
+      const walker = document.createTreeWalker(description, 4 /* NodeFilter.SHOW_TEXT */);
+      let n = walker.nextNode();
+      while (n) {
+        if (n.nodeValue.includes('\u00a0')) n.nodeValue = n.nodeValue.replace(/\u00a0/g, ' ');
+        n = walker.nextNode();
+      }
+      // Trim edge whitespace inside emphasis so markdown italics/bold stay valid
+      Array.from(description.querySelectorAll('i, em, b, strong')).forEach((el) => {
+        const first = el.firstChild;
+        const last = el.lastChild;
+        if (first && first.nodeType === 3) first.nodeValue = first.nodeValue.replace(/^\s+/, '');
+        if (last && last.nodeType === 3) last.nodeValue = last.nodeValue.replace(/\s+$/, '');
+      });
+      Array.from(description.querySelectorAll('p')).forEach((p) => {
+        if (!cleanText(p.textContent) && !p.querySelector('img, picture, a')) p.remove();
+      });
+      const bold = description.querySelector('b, strong');
+      if (bold) attribution = cleanText(bold.textContent).split(',')[0].trim();
+      Array.from(description.children).forEach((child) => {
+        if (cleanText(child.textContent) || child.querySelector('img, a')) textCell.push(child);
+      });
+    }
+
+    // CTA links ("Get a Free Sample" / "Learn More"), one paragraph each
+    Array.from(textBox.querySelectorAll('.btn-align a, a.btn')).forEach((a) => {
+      if (!cleanText(a.textContent)) return;
+      a.removeAttribute('class');
+      a.removeAttribute('target');
+      const p = document.createElement('p');
+      p.append(a);
+      textCell.push(p);
+    });
+  }
+
+  const mediaCell = [];
+  if (image) {
+    // Plain asset URL (drop AEM ?im=Resize=(...) query); <img> only, no <source>s
+    const src = image.getAttribute('src') || '';
+    // and encode raw spaces so the src matches the image sidecar keys (%20)
+    let cleanSrc = /[?&]im=/.test(src) ? src.split('?')[0] : src;
+    cleanSrc = cleanSrc.replace(/ /g, '%20');
+    if (cleanSrc !== src) image.setAttribute('src', cleanSrc);
+    ['width', 'height'].forEach((attr) => image.removeAttribute(attr));
+    if (GENERIC_ALT.test(cleanText(image.getAttribute('alt')))) {
+      const ogTitle = document.querySelector('meta[property="og:title"]');
+      const pageTitle = cleanText((ogTitle && ogTitle.getAttribute('content')) || document.title);
+      const alt = titleText || attribution || pageTitle;
+      if (alt) image.setAttribute('alt', alt);
+    }
+    mediaCell.push(image);
+  }
+
+  if (!textCell.length && !mediaCell.length) return [];
+
+  const mediaSide = visualSide(mediaCol);
+  const textSide = visualSide(textBox);
+  const imageFirst = mediaSide === 'left' || (mediaSide === null && textSide === 'right');
+  return [imageFirst ? [mediaCell, textCell] : [textCell, mediaCell]];
+}
+
 export default function parse(element, { document, url, params }) {
+  // Blog article image + text row (blog.parker.com) - separate branch
+  if (isBlogArticleRow(element)) {
+    const blogCells = parseBlogArticleRow(element, document);
+    if (blogCells.length === 0) {
+      element.replaceWith(...element.childNodes);
+      return;
+    }
+    const block = WebImporter.Blocks.createBlock(document, { name: 'columns-media', cells: blogCells });
+    element.replaceWith(block);
+    return;
+  }
+
   // Product category intro (ph.parker.com) - separate branch
   if (isProductCategoryDesc(element)) {
     const productCells = parseProductCategoryDesc(element, document);

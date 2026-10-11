@@ -1,0 +1,12 @@
+{
+  "status": "success",
+  "url": "https://blog.parker.com/us/en/emg_cho/radar-across-every-domain.html",
+  "path": "us/en/blog/radar-across-every-domain",
+  "timestamp": "2026-10-11T16:19:30.700Z",
+  "title": "Radar Across Every Domain",
+  "template": "blog-article",
+  "blocks": [
+    "columns-media",
+    "table"
+  ]
+}

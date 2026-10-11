@@ -17,7 +17,7 @@
     "pagesFound": [
       "/us/en/home"
     ],
-    "reuseCount": 7,
+    "reuseCount": 8,
     "reuseGuidance": "Use for image + text feature bands on a colored/grey section background. Add the 'reverse' option to place the image on the right and text on the left.",
     "pagesUsing": [
       "/us/en/markets/aerospace-and-defense",
@@ -25,9 +25,10 @@
       "/us/en/support/order-status",
       "/us/en/category/hose-piping-and-tubing",
       "/us/en/category",
-      "/us/en/industries/digital/pts"
+      "/us/en/industries/digital/pts",
+      "/us/en/emg-cho/comparing-silver-plated-and-nickel-plated-aluminum-emi-shielding-particles"
     ],
-    "lastUsed": "2026-10-08T03:32:09.395683Z"
+    "lastUsed": "2026-10-11T15:42:16.230011Z"
   },
   "options": [
     {
