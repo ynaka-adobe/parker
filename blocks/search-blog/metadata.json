@@ -1,0 +1,22 @@
+{
+  "variantName": "search-blog",
+  "baseBlock": "search",
+  "canonicalModel": "standalone",
+  "visualCharacteristics": {
+    "colorScheme": "light",
+    "density": "compact",
+    "imagePattern": "noimg",
+    "structure": "white panel, text input + gold icon submit button"
+  },
+  "contentPattern": "single search input linked to a query index",
+  "usage": {
+    "pagesFound": [
+      "/us/en/home"
+    ],
+    "reuseGuidance": "Use for a blog search panel: one row with a link to the blog query index (e.g. /us/en/query-index.json). Placeholder text and the 3-character minimum message come from placeholders, not authored content."
+  },
+  "options": [],
+  "memberVariantIds": [
+    "search-blog"
+  ]
+}

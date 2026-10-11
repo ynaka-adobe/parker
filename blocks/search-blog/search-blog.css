@@ -1,0 +1,186 @@
+/* search-blog: white panel (soft shadow) holding a bordered input + gold square submit button.
+   Values from blog.parker.com .cmp-parker-blog-search (computed styles, see migration-work). */
+
+/* source panel spans the full page width; it supplies its own gutters below */
+main > .section > .search-blog-wrapper {
+  padding: 0;
+}
+
+.search-blog {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 4px;
+  color: rgb(66 66 66);
+  font-size: var(--body-font-size-m);
+  line-height: 24px;
+}
+
+.search-blog .search-blog-box {
+  margin: 12px 12px 4px;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: var(--background-color);
+  box-shadow: 0 4px 4px 0 rgb(0 0 0 / 11%);
+}
+
+.search-blog .search-blog-field {
+  display: flex;
+  position: relative;
+  height: 32px;
+  margin: 16px;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 0 0 0.8px #000;
+  transition: box-shadow 250ms ease-in-out;
+}
+
+.search-blog .search-blog-input {
+  box-sizing: border-box;
+  flex: 1 1 0%;
+  min-width: 0;
+  height: 100%;
+  margin: 0;
+  padding: 1px 2px 1px 8px;
+  border: 0;
+  border-radius: 4px;
+  outline: 0;
+  appearance: none;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-family: var(--body-font-family);
+  font-size: var(--body-font-size-s);
+  line-height: 16px;
+}
+
+.search-blog .search-blog-input::placeholder {
+  color: #757575;
+  opacity: 1;
+}
+
+.search-blog .search-blog-input::-webkit-search-cancel-button {
+  display: none;
+}
+
+/* reset the global pill button styles */
+.search-blog .search-blog-submit {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background-color: var(--parker-gold);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.search-blog .search-blog-submit .icon {
+  display: block;
+  width: 24px;
+  height: 24px;
+}
+
+.search-blog .search-blog-message {
+  margin: -16px 0 0;
+  padding: 8px 24px;
+  color: rgb(255 0 0);
+  font-size: var(--body-font-size-xs);
+  line-height: 18px;
+}
+
+.search-blog .search-blog-message[hidden] {
+  display: none;
+}
+
+/* results grid: 1 column mobile, 2 from 600px, 3 from 900px */
+.search-blog .search-blog-results {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.search-blog .search-blog-results:not(:empty) {
+  margin: 24px 12px 0;
+}
+
+.search-blog .search-blog-results > li > a {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+
+.search-blog .search-blog-result-image {
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+
+.search-blog .search-blog-result-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.search-blog .search-blog-result-body {
+  padding: 0 16px;
+}
+
+.search-blog .search-blog-results.no-results {
+  display: block;
+}
+
+@media (width >= 600px) {
+  .search-blog .search-blog-results {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (width >= 768px) {
+  .search-blog .search-blog-box {
+    margin: 20px 20px 4px;
+  }
+
+  .search-blog .search-blog-field {
+    margin: 20px;
+  }
+
+  .search-blog .search-blog-results:not(:empty) {
+    margin-inline: 20px;
+  }
+}
+
+@media (width >= 900px) {
+  .search-blog .search-blog-results {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (width >= 1024px) {
+  .search-blog .search-blog-box {
+    margin: 24px 24px 4px;
+  }
+
+  .search-blog .search-blog-field {
+    margin: 24px;
+  }
+
+  .search-blog .search-blog-results:not(:empty) {
+    margin-inline: 24px;
+  }
+}
+
+/* keyboard focus: the input's own outline is off, so ring the bordered field */
+.search-blog .search-blog-field:has(.search-blog-input:focus-visible),
+.search-blog .search-blog-submit:focus-visible {
+  outline: 2px solid var(--parker-blue);
+  outline-offset: 2px;
+}

@@ -1276,6 +1276,64 @@
           ]
         }
       ]
+    },
+    {
+      "name": "blog-home",
+      "urls": [
+        "https://blog.parker.com/us/en/home.html"
+      ],
+      "representativeUrl": "https://blog.parker.com/us/en/home.html",
+      "description": "Parker blog homepage (blog.parker.com), imported to /us/en/blog",
+      "blocks": [
+        {
+          "name": "search-blog",
+          "instances": [
+            ".cmp-parker-blog-search"
+          ]
+        },
+        {
+          "name": "cards-blog",
+          "instances": [
+            ".cmp-blog-recent-blogs"
+          ]
+        }
+      ],
+      "urlPattern": "/us/en/blog",
+      "sections": [
+        {
+          "id": "rc1",
+          "name": "Blog landing (search + recent posts grid)",
+          "selector": [
+            ".aem-container:has(.cmp-blog-recent-blogs)"
+          ],
+          "style": "light-grey",
+          "blocks": [
+            "search-blog",
+            "cards-blog"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "rc2",
+          "name": "Empty wrapper",
+          "selector": [
+            "#spa-root > div > div:nth-of-type(1) > div:nth-of-type(2)"
+          ],
+          "style": null,
+          "blocks": [],
+          "defaultContent": []
+        },
+        {
+          "id": "rc3",
+          "name": "Empty wrapper",
+          "selector": [
+            "#spa-root > div > div:nth-of-type(2)"
+          ],
+          "style": null,
+          "blocks": [],
+          "defaultContent": []
+        }
+      ]
     }
   ]
 }

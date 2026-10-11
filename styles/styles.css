@@ -389,6 +389,12 @@ main .section.grey {
   background-color: var(--parker-grey);
 }
 
+/* blog.parker.com page background (blog home search + recent posts) */
+main .section.light-grey {
+  margin: 0;
+  background-color: #f7f7f7;
+}
+
 main .section.charcoal {
   margin: 0;
   background-color: var(--parker-charcoal);
