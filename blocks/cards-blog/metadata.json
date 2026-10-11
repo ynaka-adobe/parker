@@ -14,7 +14,12 @@
     "pagesFound": [
       "/us/en/home"
     ],
-    "reuseGuidance": "Use for a grid of blog article cards. One row per article, 2 columns: [image] | [p 'Contributed By: <author>' + date, h2/h3 title, p description, p > a 'Read Blog']."
+    "reuseGuidance": "Use for a grid of blog article cards. One row per article, 2 columns: [image] | [p 'Contributed By: <author>' + date, h2/h3 title, p description, p > a 'Read Blog'].",
+    "pagesUsing": [
+      "/us/en/emg-cho/comparing-silver-plated-and-nickel-plated-aluminum-emi-shielding-particles"
+    ],
+    "reuseCount": 1,
+    "lastUsed": "2026-10-11T15:42:16.230011Z"
   },
   "options": [],
   "memberVariantIds": [

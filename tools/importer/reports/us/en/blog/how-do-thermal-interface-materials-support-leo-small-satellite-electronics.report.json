@@ -1,0 +1,15 @@
+{
+  "status": "success",
+  "url": "https://blog.parker.com/us/en/emg_cho/how-do-thermal-interface-materials-support-leo-small-satellite-electronics.html",
+  "path": "us/en/blog/how-do-thermal-interface-materials-support-leo-small-satellite-electronics",
+  "timestamp": "2026-10-11T16:19:20.481Z",
+  "title": "How Do Thermal Interface Materials Support Low Earth Orbit Small Satellite Electronics",
+  "template": "blog-article",
+  "blocks": [
+    "columns-media",
+    "columns-media",
+    "columns-media",
+    "columns-media",
+    "columns-media"
+  ]
+}

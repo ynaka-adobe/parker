@@ -147,8 +147,11 @@ var CustomImportScript = (() => {
     if (pts && hookName === H.before) ptsBefore(element);
     if (pts && hookName === H.after) ptsAfter(element);
     const blog = isBlogPage(payload);
+    const blogArticle = blog && isBlogArticlePage(element, payload);
     if (blog && hookName === H.before) blogBefore(element, payload);
-    if (blog && hookName === H.after) blogAfter(element, payload);
+    if (blogArticle && hookName === H.before) blogArticleBefore(element, payload);
+    if (blogArticle && hookName === H.after) blogArticleAfter(element);
+    if (blog && hookName === H.after) blogAfter(element, payload, blogArticle);
     if (hookName === H.before) {
       WebImporter.DOMUtils.remove(element, [
         ".parker-comchatskill",
@@ -581,7 +584,7 @@ var CustomImportScript = (() => {
       }
     });
   }
-  function blogAfter(element, payload) {
+  function blogAfter(element, payload, article) {
     WebImporter.DOMUtils.remove(element, [
       "header#header.pb-header-main",
       "#pb-footer"
@@ -607,6 +610,12 @@ var CustomImportScript = (() => {
         a.setAttribute(KEEP_HREF_ATTR, "");
         return;
       }
+      const articleTarget = !migrated ? blogArticleLinkTarget(path) : null;
+      if (articleTarget) {
+        a.setAttribute("href", `${articleTarget}${url.hash}`);
+        a.setAttribute(KEEP_HREF_ATTR, "");
+        return;
+      }
       a.setAttribute("href", migrated ? `${migrated}${url.hash}` : url.href);
     });
   }
@@ -622,6 +631,172 @@ var CustomImportScript = (() => {
       if (hasContent) break;
       hr.remove();
     }
+  }
+  var BLOG_ARTICLE_PATHS = /* @__PURE__ */ new Set([
+    "/us/en/emg_cho/comparing-silver-plated-and-nickel--plated-aluminum-emi-shielding-particles",
+    "/us/en/emg_cho/emi-shielding-and-thermal-management-for-robotics",
+    "/us/en/emg_cho/emi-shielding-and-thermal-solutions-for-electric-transportation",
+    "/us/en/emg_cho/emi-shielding-within-medical-device-applications",
+    "/us/en/emg_cho/essential-protection-for-high-performance-drone-systems",
+    "/us/en/emg_cho/how-do-thermal-interface-materials-support-leo-small-satellite-electronics",
+    "/us/en/emg_cho/radar-across-every-domain",
+    "/us/en/emg_cho/space-payload-emi-shielding",
+    "/us/en/emg_cho/thermal-management-for-optical-transceivers",
+    "/us/en/msg_grp/how-parker-chelsea-helps-oems-fleets-improve-pto-performance",
+    "/us/en/msg_grp/helping-oems-find-right-hydraulic-cylinder-solution",
+    "/us/en/msg_grp/why-documentation-and-end-user-insight-matter-in-hydraulic-design"
+  ]);
+  var BLOG_HOME_ALIASES = /* @__PURE__ */ new Set([
+    "/",
+    "/us/en",
+    "/us/en/home",
+    "/content/parker-blog/us/en",
+    "/content/parker-blog/us/en/home"
+  ]);
+  var BLOG_MIGRATED_HOME = "/us/en/blog";
+  var BLOG_SITE_SUFFIX = /\s*[|–—-]\s*Parker(\s+(Hannifin|US|Blog))*\s*$/i;
+  function isBlogArticlePage(element, payload) {
+    const name = payload && payload.template && payload.template.name;
+    if (name === "blog-article") return true;
+    if (name && name.startsWith("blog")) return false;
+    return !!element.querySelector(".parker-blog-custom-container");
+  }
+  function sanitizeSlug(slug) {
+    if (typeof WebImporter !== "undefined" && WebImporter.FileUtils && WebImporter.FileUtils.sanitizeFilename) {
+      return WebImporter.FileUtils.sanitizeFilename(slug);
+    }
+    let s = slug;
+    try {
+      s = decodeURIComponent(slug);
+    } catch (e) {
+    }
+    return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  }
+  function blogArticleLinkTarget(path) {
+    const p = path.replace(/^\/content\/parker-blog(?=\/)/, "").toLowerCase();
+    if (BLOG_HOME_ALIASES.has(path) || BLOG_HOME_ALIASES.has(p)) return BLOG_MIGRATED_HOME;
+    if (!BLOG_ARTICLE_PATHS.has(p)) return null;
+    return `${BLOG_MIGRATED_HOME}/${sanitizeSlug(path.split("/").pop())}`;
+  }
+  var nbspTrim = (s) => (s || "").replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
+  function removeEmptyParagraphs(root, skipTables) {
+    root.querySelectorAll("p").forEach((p) => {
+      if (skipTables && p.closest("table")) return;
+      if (nbspTrim(p.textContent) === "" && !p.querySelector(MEDIA_SELECTOR)) p.remove();
+    });
+  }
+  function setHeadMeta(doc, attr, key, content) {
+    let meta = doc.head.querySelector(`meta[${attr}="${key}"]`);
+    if (!meta) {
+      meta = doc.createElement("meta");
+      meta.setAttribute(attr, key);
+      doc.head.append(meta);
+    }
+    meta.setAttribute("content", content);
+  }
+  function blogArticleBefore(element, payload) {
+    const doc = element.ownerDocument;
+    const author = nbspTrim((element.querySelector(".cmp-blog-author .cmp-blog-author-name") || {}).textContent);
+    const dateBox = [...element.querySelectorAll(".cmp-blog-date-social-media .social-media")].find((box) => /^date\b/i.test(nbspTrim(box.textContent)));
+    const date = dateBox ? nbspTrim((dateBox.querySelector("a") || {}).textContent) : "";
+    WebImporter.DOMUtils.remove(element, [
+      ".parker-blog-custom-container > .parker-blog-custom-container-child:has(.cmp-blog-date-social-media)",
+      ".parker-blog-custom-container > .parker-blog-custom-container-child:has(.cmp-blog-category-list)",
+      ".cmp-blog-date-social-media",
+      ".cmp-blog-category-list",
+      ".aem-GridColumn:has(> .cmp-blog-recent-blogs)",
+      ".cmp-blog-recent-blogs"
+    ]);
+    element.querySelectorAll(".parker-blog-custom-container").forEach((c) => removeEmptyParagraphs(c, false));
+    const body = element.querySelector(".parker-blog-custom-container") || element;
+    const titleEl = doc.querySelector("title");
+    const heading = element.querySelector(".cmp-title .cmp-title__text");
+    const title = nbspTrim(titleEl && titleEl.textContent).replace(BLOG_SITE_SUFFIX, "") || nbspTrim(heading && heading.textContent);
+    if (title) {
+      if (titleEl) titleEl.textContent = title;
+      else {
+        const t = doc.createElement("title");
+        t.textContent = title;
+        doc.head.append(t);
+      }
+      doc.querySelectorAll('meta[property="og:title"], meta[name="og:title"], meta[name="twitter:title"], meta[property="twitter:title"]').forEach((m) => m.setAttribute("content", title));
+    }
+    const descMeta = doc.head.querySelector('meta[name="description"]');
+    let description = nbspTrim(descMeta && descMeta.getAttribute("content"));
+    if (!description) {
+      const firstP = [...body.querySelectorAll('[id$="_right_container_text"] p')].find((p) => nbspTrim(p.textContent));
+      description = firstP ? nbspTrim(firstP.textContent) : "";
+    }
+    if (description) {
+      setHeadMeta(doc, "name", "description", description);
+      doc.querySelectorAll('meta[property="og:description"], meta[name="og:description"], meta[name="twitter:description"], meta[property="twitter:description"]').forEach((m) => m.setAttribute("content", description));
+    }
+    const firstImg = [...body.querySelectorAll("img[src]")].find((img) => !/^data:/i.test(img.getAttribute("src")));
+    if (firstImg) {
+      const page = pageUrl(payload);
+      const base = page && page.hostname === "blog.parker.com" ? page : new URL(`${BLOG_ORIGIN}/`);
+      try {
+        setHeadMeta(doc, "property", "og:image", new URL(firstImg.getAttribute("src"), base).href);
+      } catch (e) {
+      }
+    }
+    if (author) setHeadMeta(doc, "name", "author", author);
+    if (date) setHeadMeta(doc, "name", "publication-date", date);
+  }
+  function blogArticleAfter(element) {
+    const doc = element.ownerDocument;
+    element.querySelectorAll(".cmp-title .cmp-title__text").forEach((h, i) => {
+      const text = nbspTrim(h.textContent);
+      if (!text) {
+        h.remove();
+        return;
+      }
+      const heading = doc.createElement(i === 0 ? "h1" : "h2");
+      heading.textContent = text;
+      h.replaceWith(heading);
+    });
+    element.querySelectorAll(".cmp-blog-author").forEach((byline) => {
+      const label = nbspTrim((byline.querySelector(".cmp-blog-author-label") || {}).textContent) || "Contributed By";
+      const name = nbspTrim((byline.querySelector(".cmp-blog-author-name") || {}).textContent);
+      if (!name) {
+        byline.remove();
+        return;
+      }
+      const p = doc.createElement("p");
+      p.append(label, doc.createElement("br"), name);
+      byline.replaceWith(p);
+    });
+    const containers = element.querySelectorAll(".parker-blog-custom-container");
+    containers.forEach((container) => {
+      const headings = [...container.querySelectorAll("h1, h2, h3, h4, h5, h6")].filter((h) => !h.closest("table"));
+      const levels = [...new Set(headings.map((h) => Number(h.tagName[1])))].sort((a, b) => a - b);
+      headings.forEach((h) => {
+        const text = nbspTrim(h.textContent);
+        if (!text && !h.querySelector(MEDIA_SELECTOR)) {
+          h.remove();
+          return;
+        }
+        const target = levels.indexOf(Number(h.tagName[1])) === 0 ? "h2" : "h3";
+        const out = h.tagName.toLowerCase() === target ? h : retag(h, target);
+        const only = out.children.length === 1 ? out.children[0] : null;
+        if (only && /^(B|STRONG)$/.test(only.tagName) && nbspTrim(only.textContent) === text) {
+          only.replaceWith(...only.childNodes);
+        }
+        trimText(out);
+      });
+      container.querySelectorAll(".cmp-image a.cmp-image__link:not([href])").forEach((a) => a.replaceWith(...a.childNodes));
+      container.querySelectorAll(".cmp-image .cmp-image__title").forEach((s) => {
+        if (!nbspTrim(s.textContent)) s.remove();
+      });
+      removeEmptyParagraphs(container, true);
+    });
+    let prev = 0;
+    element.querySelectorAll("h1, h2, h3, h4, h5, h6").forEach((h) => {
+      const level = Number(h.tagName[1]);
+      const max = prev + 1;
+      prev = level > max ? max : level;
+      if (level > max) retag(h, `h${max}`);
+    });
   }
   var MIGRATED_PATHS = /* @__PURE__ */ new Set([
     "/us/en/home",

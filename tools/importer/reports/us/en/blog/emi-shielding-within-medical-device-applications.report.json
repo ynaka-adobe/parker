@@ -1,0 +1,12 @@
+{
+  "status": "success",
+  "url": "https://blog.parker.com/us/en/emg_cho/emi-shielding-within-medical-device-applications.html",
+  "path": "us/en/blog/emi-shielding-within-medical-device-applications",
+  "timestamp": "2026-10-11T16:19:26.261Z",
+  "title": "EMI Shielding Within Medical Device Applications",
+  "template": "blog-article",
+  "blocks": [
+    "columns-media",
+    "columns-media"
+  ]
+}

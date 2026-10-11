@@ -395,6 +395,143 @@ main .section.light-grey {
   background-color: #f7f7f7;
 }
 
+/* blog article pages (Template: blog-article): one centred reading column.
+   Values from blog.parker.com articles (text #424242, 16px/22px body, 23px headings). */
+body.blog-article {
+  --blog-article-width: 1056px;
+  --blog-article-text-color: #424242;
+}
+
+body.blog-article main > .section > div {
+  max-width: var(--blog-article-width);
+  padding: 0 16px;
+}
+
+body.blog-article main :is(h1, h2, h3, p, li, td, th) {
+  color: var(--blog-article-text-color);
+}
+
+/* title band */
+body.blog-article main > .section.grey:first-of-type {
+  padding: 19px 0;
+}
+
+body.blog-article main > .section.grey:first-of-type h1 {
+  margin: 0;
+  font-size: 23.04px;
+  font-weight: var(--font-weight-regular);
+  line-height: 32px;
+}
+
+body.blog-article main > .section.grey:first-of-type + .section {
+  margin-top: 24px;
+}
+
+/* body copy */
+body.blog-article main .default-content-wrapper p {
+  margin: 0 0 16px;
+  line-height: 22px;
+}
+
+body.blog-article main .default-content-wrapper :is(h2, h3) {
+  margin: 24px 0 8px;
+  font-size: 23.04px;
+  font-weight: var(--font-weight-medium);
+  line-height: 28px;
+}
+
+body.blog-article main .default-content-wrapper h3 {
+  font-size: var(--heading-font-size-m);
+}
+
+body.blog-article main .default-content-wrapper :is(ul, ol) {
+  margin: 0 0 16px;
+  padding-left: 32px;
+}
+
+body.blog-article main .default-content-wrapper img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin-inline: auto;
+}
+
+/* side-by-side media rows sit inside the reading column */
+body.blog-article main > .section > .columns-media-wrapper {
+  max-width: var(--blog-article-width);
+  margin: 0 auto 16px;
+  padding: 0 16px;
+}
+
+body.blog-article .columns-media .columns-media-text-col {
+  padding: 24px 0;
+}
+
+body.blog-article .columns-media .columns-media-text-col h3 {
+  margin: 0 0 8px;
+  font-size: var(--heading-font-size-m);
+  font-weight: var(--font-weight-medium);
+}
+
+body.blog-article .columns-media .columns-media-text-col p {
+  margin: 0 0 16px;
+  line-height: 22px;
+}
+
+body.blog-article .columns-media .columns-media-text-col > :last-child {
+  margin-bottom: 0;
+}
+
+@media (width >= 900px) {
+  body.blog-article .columns-media > div {
+    align-items: center;
+  }
+
+  body.blog-article .columns-media > div > .columns-media-text-col {
+    box-sizing: border-box;
+    padding: 0 64px;
+  }
+
+  body.blog-article .columns-media .columns-media-img-col img {
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 16 / 9;
+  }
+}
+
+/* comparison tables: ruled grid like the source */
+body.blog-article main > .section > .table-wrapper {
+  max-width: var(--blog-article-width);
+  margin: 0 auto 16px;
+}
+
+body.blog-article .table table {
+  border-collapse: collapse;
+}
+
+body.blog-article .table :is(th, td) {
+  padding: 8px;
+  border: 1px solid var(--parker-black);
+  vertical-align: top;
+}
+
+body.blog-article .table.block :is(th, td) p {
+  margin: 0;
+}
+
+/* byline: "Contributed By" / name, ruled off from the body */
+body.blog-article main > .section.grey:first-of-type + .section > .default-content-wrapper:first-child > p:first-child {
+  margin: 0 0 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--parker-black);
+  font-weight: var(--font-weight-medium);
+  line-height: 20px;
+}
+
+body.blog-article main > .section.grey:first-of-type + .section > .default-content-wrapper:first-child > p:first-child::first-line {
+  font-weight: var(--font-weight-regular);
+}
+
 main .section.charcoal {
   margin: 0;
   background-color: var(--parker-charcoal);

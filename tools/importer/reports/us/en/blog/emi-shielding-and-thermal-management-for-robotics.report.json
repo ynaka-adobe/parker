@@ -1,0 +1,13 @@
+{
+  "status": "success",
+  "url": "https://blog.parker.com/us/en/emg_cho/emi-shielding-and-thermal-management-for-robotics.html",
+  "path": "us/en/blog/emi-shielding-and-thermal-management-for-robotics",
+  "timestamp": "2026-10-11T16:19:35.081Z",
+  "title": "EMI Shielding and Thermal Management for Robotics",
+  "template": "blog-article",
+  "blocks": [
+    "columns-media",
+    "columns-media",
+    "columns-media"
+  ]
+}
