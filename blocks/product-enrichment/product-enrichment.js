@@ -33,17 +33,6 @@ function decodeHtmlEntities(str) {
 }
 
 /**
- * The source catalog data uses a literal "--" where a dash/colon separator
- * was intended, e.g. "Parker--AGS Product Brochure--Ultra-Dry Air Dryers".
- * Reformat for display without touching the underlying commerce record.
- * @param {string} title
- * @returns {string}
- */
-function formatDocumentTitle(title) {
-  return title.replace(/--/g, ' — ');
-}
-
-/**
  * Finds the pipeline-rendered h1, picture and short description, detaches
  * them from their original sections (which are then removed), so they can
  * be re-inserted into the new PDP layout.
@@ -289,7 +278,7 @@ function buildDocumentLink(doc) {
 
   const label = document.createElement('span');
   label.className = 'product-enrichment-documents-label';
-  label.textContent = formatDocumentTitle(doc['document-title']);
+  label.textContent = doc['document-title'];
 
   link.append(badge, label);
   li.append(link);
