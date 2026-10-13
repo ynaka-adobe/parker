@@ -5,12 +5,23 @@
  * a minimal h1/picture/description for a product, in a single stacked column.
  *
  * This block restructures that minimal markup into the real Parker PDP
- * layout (breadcrumb, image gallery, product info, a filters/account
- * sidebar) and augments the page with any additional `custom` data stored on
- * the product record:
+ * layout (breadcrumb, image gallery, product info, a sidebar) and augments
+ * the page with any additional `custom` data stored on the product record:
+ *   - a "Products" table listing a Series page's SKU variants, linking to
+ *     each SKU's own nested product page
  *   - a full HTML product description
  *   - a technical specifications table
  *   - related documents (videos, literature, etc.), grouped by category
+ *
+ * Parker's catalog models two related PDP types sharing this same
+ * `/us/en/products/*` routing and JSON shape: a "Series" page (e.g.
+ * `/us/en/products/ultra-dry-gas-generator`, `custom.parts` lists its SKU
+ * variants) and a "Product"/SKU page nested one level below it (e.g.
+ * `/us/en/products/ultra-dry-gas-generator/uda-300`, identified by
+ * `custom.seriesPath` linking back up). Series pages get the default
+ * filter/account sidebar; SKU pages get a distributor/division-contact
+ * sidebar, a deeper breadcrumb, a "Part #:" line, and a "View Series Page"
+ * link instead.
  *
  * The layout restructuring always runs on a product page. The `custom`-data
  * sections (and the divider above them) only appear once the product's own
@@ -68,17 +79,18 @@ function extractPipelineContent(main, block) {
   return { h1, picture, shortDescriptionEl };
 }
 
-function buildBreadcrumb(productName) {
-  const nav = document.createElement('nav');
-  nav.className = 'product-pdp-breadcrumb';
-  nav.setAttribute('aria-label', 'Breadcrumb');
-
-  // Real category data isn't available on the client; these middle crumbs
-  // are static placeholders in the style of the production Parker PDP.
-  const crumbs = ['Home', 'Products', 'Gas Generators', 'CO2 Free Gas Generators', productName]
-    .filter(Boolean);
-
-  crumbs.forEach((crumb, i) => {
+/**
+ * (Re)renders a breadcrumb nav's crumb items from a flat list of labels, the
+ * last of which is marked as the current page. Shared by the default
+ * (Series-page) breadcrumb and the deeper SKU-page breadcrumb, which both
+ * use the same static leading categories.
+ * @param {Element} nav
+ * @param {Array<string>} crumbs
+ */
+function renderBreadcrumbCrumbs(nav, crumbs) {
+  nav.textContent = '';
+  const list = crumbs.filter(Boolean);
+  list.forEach((crumb, i) => {
     if (i > 0) {
       const sep = document.createElement('span');
       sep.className = 'product-pdp-breadcrumb-sep';
@@ -87,10 +99,20 @@ function buildBreadcrumb(productName) {
     }
     const item = document.createElement('span');
     item.className = 'product-pdp-breadcrumb-item';
-    if (i === crumbs.length - 1) item.classList.add('is-current');
+    if (i === list.length - 1) item.classList.add('is-current');
     item.textContent = crumb;
     nav.append(item);
   });
+}
+
+function buildBreadcrumb(productName) {
+  const nav = document.createElement('nav');
+  nav.className = 'product-pdp-breadcrumb';
+  nav.setAttribute('aria-label', 'Breadcrumb');
+
+  // Real category data isn't available on the client; these middle crumbs
+  // are static placeholders in the style of the production Parker PDP.
+  renderBreadcrumbCrumbs(nav, ['Home', 'Products', 'Gas Generators', 'CO2 Free Gas Generators', productName]);
 
   return nav;
 }
@@ -169,6 +191,188 @@ function buildInfoColumn(h1, shortDescriptionEl) {
   }
 
   return info;
+}
+
+/**
+ * A Parker "Series" PDP can list one or more SKU variants below the main
+ * product info. Each row links to that SKU's own nested product page
+ * (e.g. `/us/en/products/ultra-dry-gas-generator/uda-300`), derived from the
+ * current series page path plus the part number.
+ * @param {string} seriesName
+ * @param {number} numberOfSkus
+ * @param {Array<{partNumber: string, productURL: string}>} parts
+ */
+function buildPartsSection(seriesName, numberOfSkus, parts) {
+  const section = document.createElement('div');
+  section.className = 'product-enrichment-parts';
+
+  const header = document.createElement('button');
+  header.type = 'button';
+  header.className = 'product-enrichment-parts-header';
+  header.setAttribute('aria-expanded', 'true');
+
+  const title = document.createElement('span');
+  title.textContent = seriesName ? `Products — ${seriesName}` : 'Products';
+
+  const toggle = document.createElement('span');
+  toggle.className = 'product-enrichment-parts-toggle';
+  toggle.setAttribute('aria-hidden', 'true');
+  toggle.textContent = '▾';
+
+  header.append(title, toggle);
+
+  const body = document.createElement('div');
+  body.className = 'product-enrichment-parts-body';
+
+  const total = numberOfSkus ?? parts.length;
+  const count = document.createElement('p');
+  count.className = 'product-enrichment-parts-count';
+  count.textContent = `Showing 1 to ${parts.length} of ${total} entries`;
+
+  const table = document.createElement('table');
+  const thead = document.createElement('thead');
+  const headRow = document.createElement('tr');
+  const th = document.createElement('th');
+  th.textContent = 'Part Number';
+  headRow.append(th);
+  thead.append(headRow);
+
+  const basePath = window.location.pathname.replace(/\/$/, '');
+  const tbody = document.createElement('tbody');
+  parts.forEach((part) => {
+    const row = document.createElement('tr');
+    const cell = document.createElement('td');
+
+    const link = document.createElement('a');
+    link.href = part.partNumber ? `${basePath}/${part.partNumber.toLowerCase()}` : (part.productURL || '#');
+    link.textContent = part.partNumber;
+
+    cell.append(link);
+    row.append(cell);
+    tbody.append(row);
+  });
+
+  table.append(thead, tbody);
+  body.append(count, table);
+  section.append(header, body);
+
+  header.addEventListener('click', () => {
+    const expanded = header.getAttribute('aria-expanded') === 'true';
+    header.setAttribute('aria-expanded', String(!expanded));
+    section.classList.toggle('is-collapsed', expanded);
+  });
+
+  return section;
+}
+
+/**
+ * SKU (Product) page sidebar: a "Find a Distributor" panel (Where to Buy +
+ * a static Add to Workspace button) replacing the Series page's
+ * filter/account sidebar.
+ * @param {string} whereToBuyUrl
+ */
+function buildDistributorPanel(whereToBuyUrl) {
+  const panel = document.createElement('div');
+  panel.className = 'product-pdp-distributor';
+
+  const heading = document.createElement('h3');
+  heading.textContent = 'Find a Distributor';
+
+  const whereToBuy = document.createElement('a');
+  whereToBuy.href = whereToBuyUrl || '#';
+  whereToBuy.target = '_blank';
+  whereToBuy.rel = 'noopener';
+  whereToBuy.className = 'button product-pdp-where-to-buy-pill';
+  whereToBuy.textContent = 'Where to Buy';
+
+  const addToWorkspace = document.createElement('a');
+  addToWorkspace.href = '#';
+  addToWorkspace.className = 'button product-pdp-add-to-workspace';
+  addToWorkspace.textContent = 'Add to Workspace';
+
+  panel.append(heading, whereToBuy, addToWorkspace);
+  return panel;
+}
+
+/**
+ * SKU (Product) page sidebar card showing the owning division's contact
+ * details.
+ * @param {object} divisionContact
+ */
+function buildDivisionContactCard(divisionContact) {
+  if (!divisionContact) return null;
+  const card = document.createElement('div');
+  card.className = 'product-pdp-division-card';
+
+  const heading = document.createElement('h3');
+  heading.textContent = divisionContact.divisionName || '';
+  card.append(heading);
+
+  const address = document.createElement('p');
+  address.className = 'product-pdp-division-address';
+  if (divisionContact.address1) address.append(document.createTextNode(divisionContact.address1));
+  const cityStateZip = [
+    [divisionContact.city, divisionContact.state].filter(Boolean).join(', '),
+    divisionContact.zipCode,
+  ].filter(Boolean).join(' ');
+  if (cityStateZip) {
+    if (address.childNodes.length) address.append(document.createElement('br'));
+    address.append(document.createTextNode(cityStateZip));
+  }
+  if (address.childNodes.length) card.append(address);
+
+  if (divisionContact.phone) {
+    const phone = document.createElement('p');
+    const phoneLink = document.createElement('a');
+    phoneLink.href = `tel:${divisionContact.phone.replace(/[^\d+]/g, '')}`;
+    phoneLink.textContent = divisionContact.phone;
+    phone.append(phoneLink);
+    card.append(phone);
+  }
+
+  return card;
+}
+
+/**
+ * Applies the SKU (Product) page-specific differences on top of the shared
+ * layout: a deeper breadcrumb ending in the bold part number, a "Part #:"
+ * line under the H1, a "View Series Page" link near the gallery, and a
+ * distributor/division-contact sidebar in place of the Series page's
+ * filter/account sidebar.
+ * @param {Element} layout
+ * @param {object} custom
+ */
+function applySkuPageEnhancements(layout, custom) {
+  const sidebar = layout.querySelector('.product-pdp-sidebar');
+  const infoColumn = layout.querySelector('.product-pdp-info');
+  const breadcrumbNav = layout.querySelector('.product-pdp-breadcrumb');
+  const gallery = layout.querySelector('.product-pdp-gallery');
+  const h1 = infoColumn.querySelector('h1');
+
+  const seriesLabel = custom.seriesName ? custom.seriesName.replace(/\s*Series\s*$/i, '') : '';
+  renderBreadcrumbCrumbs(breadcrumbNav, [
+    'Home', 'Products', 'Gas Generators', 'CO2 Free Gas Generators', seriesLabel, custom.partNumber,
+  ]);
+
+  if (custom.partNumber && h1) {
+    const partLine = document.createElement('p');
+    partLine.className = 'product-pdp-part-number';
+    partLine.textContent = `Part #: ${custom.partNumber}`;
+    h1.insertAdjacentElement('afterend', partLine);
+  }
+
+  if (custom.seriesPath) {
+    const viewSeries = document.createElement('a');
+    viewSeries.className = 'product-pdp-view-series';
+    viewSeries.href = custom.seriesPath;
+    viewSeries.textContent = 'View Series Page';
+    gallery.append(viewSeries);
+  }
+
+  sidebar.textContent = '';
+  sidebar.append(buildDistributorPanel(custom.whereToBuyUrl));
+  const divisionCard = buildDivisionContactCard(custom.divisionContact);
+  if (divisionCard) sidebar.append(divisionCard);
 }
 
 function buildFilterPanel() {
@@ -347,6 +551,7 @@ export default async function decorate(block) {
 
   const sectionsContainer = layout.querySelector('.product-enrichment-sections');
   const gallery = layout.querySelector('.product-pdp-gallery');
+  const infoColumn = layout.querySelector('.product-pdp-info');
 
   let data;
   try {
@@ -367,6 +572,15 @@ export default async function decorate(block) {
 
   const { custom } = data;
   if (!custom) return;
+
+  // A record with `seriesPath` is a SKU (Product) page nested one level
+  // below its Series page; a record with `parts` is the Series page itself
+  // listing its SKU variants. Both share the same routing and JSON shape.
+  if (custom.seriesPath) {
+    applySkuPageEnhancements(layout, custom);
+  } else if (Array.isArray(custom.parts) && custom.parts.length) {
+    infoColumn.append(buildPartsSection(custom.seriesName, custom.numberOfSKUs, custom.parts));
+  }
 
   if (custom.fullDescription) {
     sectionsContainer.append(buildFullDescriptionSection(custom.fullDescription));
