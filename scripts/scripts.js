@@ -38,6 +38,20 @@ function buildHeroBlock(main) {
 }
 
 /**
+ * Builds the product-enrichment block and appends it to main on product
+ * detail pages. The block fetches the page's own `.json` endpoint and
+ * renders any `custom` data (full description, technical specifications,
+ * related documents) that the Product Pipeline doesn't server-render.
+ * @param {Element} main The container element
+ */
+function buildProductEnrichmentBlock(main) {
+  if (!/^\/[a-z]{2}\/[a-z]{2}\/products\//.test(window.location.pathname)) return;
+  const section = document.createElement('div');
+  section.append(buildBlock('product-enrichment', ''));
+  main.append(section);
+}
+
+/**
  * load fonts.css and set a session storage flag
  */
 async function loadFonts() {
@@ -67,6 +81,7 @@ function autolinkModals(doc) {
 function buildAutoBlocks(main) {
   try {
     if (!main.querySelector('.hero')) buildHeroBlock(main);
+    buildProductEnrichmentBlock(main);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Auto Blocking failed', error);

@@ -1,0 +1,98 @@
+.product-enrichment h2 {
+  font-family: var(--heading-font-family);
+  color: var(--heading-color);
+  margin-top: 2em;
+  margin-bottom: 0.5em;
+}
+
+.product-enrichment h3 {
+  font-family: var(--heading-font-family);
+  color: var(--heading-color);
+  font-size: var(--body-font-size-l);
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+/* Full description */
+.product-enrichment-description-body {
+  color: var(--text-color);
+  line-height: 1.5;
+}
+
+/* Technical specifications table */
+.product-enrichment-specs table {
+  width: 100%;
+  max-width: 720px;
+  border-collapse: collapse;
+  font-size: var(--body-font-size-s);
+}
+
+.product-enrichment-specs table tr {
+  border-bottom: 1px solid var(--parker-rule-color);
+}
+
+.product-enrichment-specs table th,
+.product-enrichment-specs table td {
+  padding: 0.5em 1em 0.5em 0;
+  text-align: left;
+  vertical-align: top;
+}
+
+.product-enrichment-specs table th {
+  width: 40%;
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-strong-color);
+}
+
+.product-enrichment-specs table tr:nth-child(odd) {
+  background-color: var(--light-color);
+}
+
+/* Related documents */
+.product-enrichment-documents-list {
+  list-style: none;
+  margin: 0 0 1.5em;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.product-enrichment-documents-item a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  text-decoration: none;
+  color: var(--text-color);
+  border: 1px solid var(--parker-rule-color);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.product-enrichment-documents-item a:hover,
+.product-enrichment-documents-item a:focus {
+  background-color: var(--parker-blue);
+  color: #fff;
+  border-color: var(--parker-blue);
+}
+
+.product-enrichment-documents-badge {
+  flex-shrink: 0;
+  font-size: var(--body-font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 8px;
+  border-radius: 3px;
+  color: #fff;
+  background-color: var(--parker-charcoal);
+}
+
+.product-enrichment-documents-item.is-video .product-enrichment-documents-badge {
+  background-color: var(--parker-gold);
+  color: var(--parker-black);
+}
+
+.product-enrichment-documents-label {
+  font-size: var(--body-font-size-s);
+}
