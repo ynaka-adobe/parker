@@ -368,13 +368,13 @@
   margin: 0 0 12px;
 }
 
-.product-pdp-add-to-workspace {
+a.product-pdp-add-to-workspace:any-link {
   background-color: var(--parker-charcoal);
   color: #fff;
 }
 
-.product-pdp-add-to-workspace:hover,
-.product-pdp-add-to-workspace:focus {
+a.product-pdp-add-to-workspace:hover,
+a.product-pdp-add-to-workspace:focus {
   background-color: var(--parker-black);
   color: #fff;
 }
