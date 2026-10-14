@@ -260,6 +260,15 @@
   color: var(--parker-black);
 }
 
+/* Below 600px, give the primary/secondary pill buttons their own full-width
+   row so they don't wrap unevenly alongside the ghost links. */
+@media (width < 600px) {
+  .consent-btn-primary,
+  .consent-btn-secondary {
+    flex: 1 1 100%;
+  }
+}
+
 @media (width >= 600px) {
   .consent {
     padding: 24px;
