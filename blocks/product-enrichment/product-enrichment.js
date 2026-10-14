@@ -343,6 +343,10 @@ function buildDivisionContactCard(divisionContact) {
  * @param {object} custom
  */
 function applySkuPageEnhancements(layout, custom) {
+  // On the SKU page the distributor/division sidebar sits to the right of
+  // the gallery+info column, unlike the Series page's left-hand filter rail.
+  layout.classList.add('product-pdp-layout-sidebar-right');
+
   const sidebar = layout.querySelector('.product-pdp-sidebar');
   const infoColumn = layout.querySelector('.product-pdp-info');
   const breadcrumbNav = layout.querySelector('.product-pdp-breadcrumb');
