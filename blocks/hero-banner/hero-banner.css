@@ -48,8 +48,12 @@ main > .section > .hero-banner-wrapper {
   max-width: 680px;
 }
 
-.hero-banner h1,
-.hero-banner h2 {
+/* Explicitly out-specifies main .section.<colour> :is(h1...h6) / a.button:any-link
+   (3 classes vs. 2), so the hero's own full-bleed photo + dark scrim always wins
+   over the section's colour-band text/button rules regardless of load order
+   (hero-banner can sit in any coloured section). */
+main .section:is(.gold, .sky-blue, .grey, .charcoal) .hero-banner h1,
+main .section:is(.gold, .sky-blue, .grey, .charcoal) .hero-banner h2 {
   margin: 0 0 24px;
   color: var(--background-color);
   font-size: var(--heading-font-size-xxl);
@@ -68,8 +72,10 @@ main > .section > .hero-banner-wrapper {
   margin: 0;
 }
 
-.hero-banner a.button:any-link {
+main .section:is(.gold, .sky-blue, .grey, .charcoal) .hero-banner a.button:any-link {
   margin: 0;
+  background-color: var(--parker-gold);
+  color: var(--parker-black);
 }
 
 @media (width >= 900px) {
