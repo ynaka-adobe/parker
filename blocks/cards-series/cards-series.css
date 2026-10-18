@@ -1,0 +1,93 @@
+/* cards-series — vertical list of product series (thumbnail, title + description, product count) */
+.cards-series > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cards-series > ul > li {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  grid-template-areas:
+    "image body"
+    "image count";
+  gap: 4px 24px;
+  align-items: start;
+  border: 1px solid var(--parker-rule-color);
+  padding: 16px;
+  background: var(--background-color);
+}
+
+.cards-series > ul > li.cards-series-linked {
+  cursor: pointer;
+}
+
+.cards-series > ul > li.cards-series-linked:hover {
+  border-color: var(--parker-gold);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 12%);
+}
+
+.cards-series .cards-series-image {
+  grid-area: image;
+  line-height: 0;
+}
+
+.cards-series .cards-series-image img {
+  width: 90px;
+  height: 100px;
+  object-fit: contain;
+}
+
+.cards-series .cards-series-body {
+  grid-area: body;
+}
+
+.cards-series .cards-series-body p {
+  margin: 0;
+  font-size: var(--body-font-size-s);
+  line-height: 1.5;
+  color: var(--text-color);
+}
+
+/* first paragraph is the linked series name */
+.cards-series .cards-series-body p:first-child {
+  margin-bottom: 4px;
+  font-size: var(--heading-font-size-xs);
+  font-weight: var(--font-weight-bold);
+}
+
+.cards-series .cards-series-body a:any-link {
+  color: var(--text-strong-color);
+  text-decoration: none;
+}
+
+.cards-series .cards-series-body a:any-link:hover {
+  color: var(--link-hover-color);
+  text-decoration: underline;
+}
+
+.cards-series .cards-series-count {
+  grid-area: count;
+  font-size: var(--body-font-size-s);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-muted-color);
+}
+
+.cards-series .cards-series-count p {
+  margin: 0;
+}
+
+@media (width >= 900px) {
+  .cards-series > ul > li {
+    grid-template-columns: 90px 1fr 140px;
+    grid-template-areas: "image body count";
+    align-items: center;
+  }
+
+  .cards-series .cards-series-count {
+    text-align: right;
+  }
+}

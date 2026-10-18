@@ -61,11 +61,66 @@ function autolinkModals(doc) {
 }
 
 /**
+ * Reads the Product JSON-LD that edge commerce emits for /products pages.
+ * @returns {Object|null} the Product entry, if any
+ */
+function getProductJsonLd() {
+  try {
+    const script = document.head.querySelector('script[type="application/ld+json"]');
+    const data = script && JSON.parse(script.textContent);
+    return data && data['@type'] === 'Product' ? data : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+/**
+ * Series pages (edge commerce, /products/*): the body renders as H1 + image + description.
+ * When the product lists related series, restyle the intro as image + text and append the
+ * series list, matching the source series page.
+ * @param {Element} main The container element
+ */
+function buildSeriesPage(main) {
+  const series = getProductJsonLd()?.custom?.relatedSeries;
+  if (!series?.length || main.querySelector('.cards-series')) return;
+  const h1 = main.querySelector('h1');
+  const picture = main.querySelector('picture');
+  const description = [...main.querySelectorAll('p')].find((p) => !p.querySelector('picture'));
+  if (!h1 || !picture || !description) return;
+
+  const intro = buildBlock('columns-media', [[picture, description]]);
+  intro.classList.add('compact');
+
+  const rows = series.map((item) => {
+    const link = document.createElement('a');
+    link.href = item.path || item.productURL;
+    link.textContent = item.name;
+    const title = document.createElement('p');
+    title.append(link);
+    const blurb = document.createElement('p');
+    blurb.textContent = item.description || '';
+    const image = document.createElement('img');
+    image.src = item.image;
+    image.alt = item.name;
+    const count = document.createElement('p');
+    count.textContent = `${item.numberOfSKUs} ${item.numberOfSKUs === 1 ? 'Product' : 'Products'}`;
+    const thumb = document.createElement('picture');
+    thumb.append(image);
+    return [thumb, { elems: [title, item.description ? blurb : null] }, { elems: [count] }];
+  });
+
+  const section = document.createElement('div');
+  section.append(h1, intro, buildBlock('cards-series', rows));
+  main.replaceChildren(section);
+}
+
+/**
  * Builds all synthetic blocks in a container element.
  * @param {Element} main The container element
  */
 function buildAutoBlocks(main) {
   try {
+    buildSeriesPage(main);
     if (!main.querySelector('.hero')) buildHeroBlock(main);
   } catch (error) {
     // eslint-disable-next-line no-console
