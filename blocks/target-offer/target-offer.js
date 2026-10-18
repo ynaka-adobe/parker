@@ -1,11 +1,27 @@
 import { getMetadata } from '../../scripts/aem.js';
 
 /**
+ * at.js only auto-merges `window.targetPageParams()` into the implicit
+ * global-mbox / pageLoad request — NOT into named `getOffers` mbox calls like
+ * this block's mbox. So we must attach the demo persona profile parameters
+ * ourselves, using the `profile.<key>` prefix at.js recognizes and routes
+ * into profileParameters for audience "Profile Parameter" rules.
+ * @returns {Record<string, string>}
+ */
+function demoProfileMboxParameters() {
+  const params = (typeof window.targetPageParams === 'function' ? window.targetPageParams() : {}) || {};
+  return Object.fromEntries(
+    Object.entries(params).map(([key, value]) => [key, String(value)]),
+  );
+}
+
+/**
  * Adobe Target HTML offer slot.
  * - VEC / page-load: point activities at `.target-offer` or `[data-mbox-name="…"]`
  *   (see scripts.js applyTargetPageLoad after blocks load when `<meta name="target">` is set).
- * - Optional: first table row with a single cell = mbox name triggers a post-init
- *   getOffers request when real at.js is wired (deps/at/at.js).
+ * - First table row with a single cell = mbox name triggers a post-init getOffers
+ *   request (with the demo persona's profile parameters attached) when real at.js
+ *   is wired (deps/at/at.js).
  */
 
 function directChildRowOf(el, node) {
@@ -60,10 +76,15 @@ async function applyMboxContent(slot, mboxName) {
   if (!mboxName || !window.adobe?.target?.getOffers) return;
 
   try {
+    const parameters = demoProfileMboxParameters();
     const response = await window.adobe.target.getOffers({
       request: {
         execute: {
-          mboxes: [{ index: 0, name: mboxName }],
+          mboxes: [{
+            index: 0,
+            name: mboxName,
+            ...(Object.keys(parameters).length ? { parameters } : {}),
+          }],
         },
       },
     });
