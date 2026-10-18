@@ -14,10 +14,23 @@ function logTargetError(e, el) {
   console.error('[target]', e, el);
 }
 
-export async function loadTarget() {
-  if (isUePreviewHost()) return;
-  const targetMeta = getMetadata('target');
-  if (!targetMeta) return;
+let atJsReadyPromise;
+
+/**
+ * Kicks off the at.js library import as early as possible (in parallel with
+ * block decoration), and configures `window.targetGlobalSettings`. Blocks
+ * like target-offer await this instead of the full `loadTarget()` pageLoad
+ * flow, so per-mbox getOffers calls don't race ahead of at.js being defined.
+ * Safe to call more than once; only imports at.js the first time.
+ * @returns {Promise<boolean>} whether at.js is loaded and ready to use
+ */
+export function ensureAtJsLoaded() {
+  if (atJsReadyPromise) return atJsReadyPromise;
+
+  if (isUePreviewHost() || !getMetadata('target')) {
+    atJsReadyPromise = Promise.resolve(false);
+    return atJsReadyPromise;
+  }
 
   const serverDomain = getMetadata('target-server-domain')?.trim();
   window.targetGlobalSettings = {
@@ -26,8 +39,18 @@ export async function loadTarget() {
     ...(serverDomain ? { serverDomain } : {}),
   };
 
+  atJsReadyPromise = import('../deps/at/at.js').then(() => true).catch((e) => {
+    logTargetError(e, document.body);
+    return false;
+  });
+  return atJsReadyPromise;
+}
+
+export async function loadTarget() {
+  const ready = await ensureAtJsLoaded();
+  if (!ready) return;
+
   try {
-    await import('../deps/at/at.js');
     const pageLoadRequest = { execute: { pageLoad: {} } };
     const offers = await window.adobe.target.getOffers({
       request: pageLoadRequest,

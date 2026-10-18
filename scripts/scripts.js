@@ -18,6 +18,7 @@ import {
 } from './aem.js';
 import {
   isUePreviewHost,
+  ensureAtJsLoaded,
   loadTarget,
   applyTargetHeroMboxIfConfigured,
 } from './target.js';
@@ -194,6 +195,9 @@ export function decorateMain(main) {
 async function loadEager(doc) {
   doc.documentElement.lang = 'en';
   decorateTemplateAndTheme();
+  // Kick off at.js as early as possible, in parallel with block decoration,
+  // so mbox-aware blocks (e.g. target-offer) don't race ahead of it.
+  ensureAtJsLoaded();
   if (getMetadata('breadcrumbs').toLowerCase() === 'true') {
     doc.body.dataset.breadcrumbs = true;
   }

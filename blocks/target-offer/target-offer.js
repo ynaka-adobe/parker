@@ -1,4 +1,5 @@
 import { getMetadata } from '../../scripts/aem.js';
+import { ensureAtJsLoaded } from '../../scripts/target.js';
 
 /**
  * at.js only auto-merges `window.targetPageParams()` into the implicit
@@ -73,7 +74,9 @@ function buildSlot(el) {
 }
 
 async function applyMboxContent(slot, mboxName) {
-  if (!mboxName || !window.adobe?.target?.getOffers) return;
+  if (!mboxName) return;
+  await ensureAtJsLoaded();
+  if (!window.adobe?.target?.getOffers) return;
 
   try {
     const parameters = demoProfileMboxParameters();
