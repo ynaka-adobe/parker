@@ -35,6 +35,14 @@
   max-width: 900px;
 }
 
+/* clamp the body copy so varying persona content always fits the fixed 300px block height */
+.target-offer__slot h2 + p {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
 .target-offer__slot h2 {
   color: var(--parker-black);
   font-size: var(--heading-font-size-xxl);
