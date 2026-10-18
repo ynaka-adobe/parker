@@ -1,3 +1,5 @@
+import { decorateBlock, loadBlock } from '../../scripts/aem.js';
+
 /**
  * Product Enrichment Block
  * Auto-injected on product detail pages (see buildProductEnrichmentBlock in
@@ -545,6 +547,98 @@ function buildPdpLayout(h1, picture, shortDescriptionEl) {
   return layout;
 }
 
+/**
+ * A "series list" page (e.g. CO2 Free Gas Generators) has no SKUs of its own:
+ * `custom.relatedSeries` lists the series it groups. Swap the product-style
+ * overview for the source series-page layout: title, image + intro text, a sort
+ * control and one row per series (cards-series block).
+ * @param {Element} layout
+ * @param {object} custom
+ */
+async function applySeriesListLayout(layout, custom) {
+  layout.classList.add('product-pdp-series-list');
+
+  const column = layout.querySelector('.product-pdp-main');
+  const overview = layout.querySelector('.product-pdp-overview');
+  const info = layout.querySelector('.product-pdp-info');
+  const h1 = info.querySelector('h1');
+  const breadcrumbNav = layout.querySelector('.product-pdp-breadcrumb');
+  const sectionsContainer = layout.querySelector('.product-enrichment-sections');
+
+  renderBreadcrumbCrumbs(breadcrumbNav, ['Home', 'Products', 'Gas Generators', custom.seriesName || (h1 && h1.textContent)]);
+
+  // title spans the full width above the image + intro text
+  if (h1) overview.before(h1);
+  info.querySelector('.product-pdp-where-to-buy')?.remove();
+  layout.querySelector('.product-pdp-gallery-thumbs')?.remove();
+
+  const list = document.createElement('div');
+  list.className = 'product-series-list';
+
+  const sortLabel = document.createElement('label');
+  sortLabel.className = 'product-series-sort';
+  sortLabel.append('Sort by: ');
+  const sort = document.createElement('select');
+  [['none', 'Default'], ['asc', 'Name (A-Z)'], ['desc', 'Name (Z-A)']].forEach(([value, text]) => {
+    sort.append(new Option(text, value));
+  });
+  sortLabel.append(sort);
+
+  const render = async () => {
+    const items = [...custom.relatedSeries];
+    if (sort.value === 'asc') items.sort((a, b) => a.name.localeCompare(b.name));
+    if (sort.value === 'desc') items.sort((a, b) => b.name.localeCompare(a.name));
+
+    const block = document.createElement('div');
+    block.className = 'cards-series';
+    items.forEach((item) => {
+      const row = document.createElement('div');
+      const imageCell = document.createElement('div');
+      const picture = document.createElement('picture');
+      const img = document.createElement('img');
+      img.src = item.image;
+      img.alt = item.name;
+      img.loading = 'lazy';
+      picture.append(img);
+      imageCell.append(picture);
+
+      const bodyCell = document.createElement('div');
+      const title = document.createElement('p');
+      const link = document.createElement('a');
+      link.href = item.path || item.productURL;
+      link.textContent = item.name;
+      title.append(link);
+      bodyCell.append(title);
+      if (item.description) {
+        const blurb = document.createElement('p');
+        blurb.textContent = decodeHtmlEntities(item.description);
+        bodyCell.append(blurb);
+      }
+
+      const countCell = document.createElement('div');
+      const count = document.createElement('p');
+      count.textContent = `${item.numberOfSKUs} ${item.numberOfSKUs === 1 ? 'Product' : 'Products'}`;
+      countCell.append(count);
+
+      row.append(imageCell, bodyCell, countCell);
+      block.append(row);
+    });
+
+    list.querySelector('.cards-series-wrapper')?.remove();
+    const wrapper = document.createElement('div');
+    wrapper.className = 'cards-series-wrapper';
+    wrapper.append(block);
+    list.append(wrapper);
+    decorateBlock(block);
+    await loadBlock(block);
+  };
+
+  sort.addEventListener('change', render);
+  list.prepend(sortLabel);
+  column.insertBefore(list, sectionsContainer);
+  await render();
+}
+
 export default async function decorate(block) {
   const main = document.querySelector('main');
   block.textContent = '';
@@ -580,13 +674,17 @@ export default async function decorate(block) {
   // A record with `seriesPath` is a SKU (Product) page nested one level
   // below its Series page; a record with `parts` is the Series page itself
   // listing its SKU variants. Both share the same routing and JSON shape.
-  if (custom.seriesPath) {
+  const isSeriesList = !custom.seriesPath && Array.isArray(custom.relatedSeries) && custom.relatedSeries.length;
+  if (isSeriesList) {
+    await applySeriesListLayout(layout, custom);
+  } else if (custom.seriesPath) {
     applySkuPageEnhancements(layout, custom);
   } else if (Array.isArray(custom.parts) && custom.parts.length) {
     infoColumn.append(buildPartsSection(custom.seriesName, custom.numberOfSKUs, custom.parts));
   }
 
-  if (custom.fullDescription) {
+  // series-list pages show the short description in the intro already
+  if (custom.fullDescription && !isSeriesList) {
     sectionsContainer.append(buildFullDescriptionSection(custom.fullDescription));
   }
 
