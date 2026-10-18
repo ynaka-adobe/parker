@@ -1,8 +1,11 @@
+import { filterPersonaRows } from '../../scripts/persona.js';
+
 export default function decorate(block) {
   /* text-only news list: each row becomes a list item with a linked title and a meta line */
   const ul = document.createElement('ul');
-  [...block.children].forEach((row) => {
+  filterPersonaRows([...block.children]).forEach((row) => {
     const li = document.createElement('li');
+    if (row.dataset.personaTags) li.dataset.personaTags = row.dataset.personaTags;
     while (row.firstElementChild) li.append(row.firstElementChild);
     [...li.children].forEach((div) => {
       div.className = 'cards-news-card-body';

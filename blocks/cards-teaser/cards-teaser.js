@@ -1,11 +1,13 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import { filterPersonaRows } from '../../scripts/persona.js';
 
 export default function decorate(block) {
   // one row per teaser card: [picture] | [heading, description, "Learn More" link]
   const ul = document.createElement('ul');
-  [...block.children].forEach((row) => {
+  filterPersonaRows([...block.children]).forEach((row) => {
     const li = document.createElement('li');
+    if (row.dataset.personaTags) li.dataset.personaTags = row.dataset.personaTags;
     moveInstrumentation(row, li);
     while (row.firstElementChild) li.append(row.firstElementChild);
     [...li.children].forEach((div) => {

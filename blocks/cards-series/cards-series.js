@@ -1,5 +1,6 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import { filterPersonaRows } from '../../scripts/persona.js';
 
 /**
  * Series list: one row per series — thumbnail, linked title + description, product count.
@@ -7,8 +8,9 @@ import { moveInstrumentation } from '../../scripts/scripts.js';
  */
 export default function decorate(block) {
   const ul = document.createElement('ul');
-  [...block.children].forEach((row) => {
+  filterPersonaRows([...block.children]).forEach((row) => {
     const li = document.createElement('li');
+    if (row.dataset.personaTags) li.dataset.personaTags = row.dataset.personaTags;
     moveInstrumentation(row, li);
     const [image, body, count] = [...row.children];
     if (image) image.className = 'cards-series-image';

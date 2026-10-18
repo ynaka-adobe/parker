@@ -38,3 +38,39 @@ export function matchesPersona(cell, pid) {
   // An empty cell is untagged, so it always shows.
   return tokens.length === 0 || tokens.includes(String(pid));
 }
+
+/**
+ * Persona tags for a row, from a stripped persona-filter cell.
+ * @param {HTMLElement} cell persona-filter cell
+ * @returns {string[]} e.g. ['1', '3'], or [] when untagged
+ */
+export function personaTags(cell) {
+  return (cell.textContent || '').trim().split(/[,\s]+/).filter(Boolean);
+}
+
+/**
+ * Drops the trailing persona-filter cell (if any) from each row and filters
+ * out rows that don't match the active persona. Call this first, on the raw
+ * authored rows, before a card/list block builds its markup from cells — so
+ * the filter cell is never mistaken for authored content and non-matching
+ * rows never reach the DOM.
+ *
+ * Matching rows that were tagged get a `data-persona-tags` attribute (e.g.
+ * "1,3") so the hidden persona-tagging overlay (toggled from the insights
+ * panel) can show what each surviving card was tagged with.
+ *
+ * @param {HTMLElement[]} rows authored row elements (a block's direct children)
+ * @returns {HTMLElement[]} rows that should be rendered, filter cell removed
+ */
+export function filterPersonaRows(rows) {
+  const pid = personaId();
+  return rows.filter((row) => {
+    const cells = [...row.children];
+    const filterCell = findPersonaFilterCell(cells);
+    if (!filterCell) return true;
+    const tags = personaTags(filterCell);
+    filterCell.remove();
+    if (tags.length) row.dataset.personaTags = tags.join(',');
+    return matchesPersona({ textContent: tags.join(' ') }, pid);
+  });
+}

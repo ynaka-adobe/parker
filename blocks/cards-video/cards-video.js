@@ -1,5 +1,6 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import { filterPersonaRows } from '../../scripts/persona.js';
 
 /*
  * cards-video — row of video tiles: 16:9 thumbnail with a play icon, caption below.
@@ -85,8 +86,9 @@ function buildTrigger(block, url, label) {
 export default function decorate(block) {
   const ul = document.createElement('ul');
 
-  [...block.children].forEach((row) => {
+  filterPersonaRows([...block.children]).forEach((row) => {
     const li = document.createElement('li');
+    if (row.dataset.personaTags) li.dataset.personaTags = row.dataset.personaTags;
     moveInstrumentation(row, li);
     while (row.firstElementChild) li.append(row.firstElementChild);
 

@@ -1,4 +1,5 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
+import { filterPersonaRows } from '../../scripts/persona.js';
 
 const isBlank = (el) => !el || (!el.textContent.replace(/\u00a0/g, ' ').trim() && !el.querySelector('img, picture'));
 const isPhoneCell = (cell) => !!cell.querySelector('a[href^="tel:"]')
@@ -7,8 +8,9 @@ const isPhoneCell = (cell) => !!cell.querySelector('a[href^="tel:"]')
 export default function decorate(block) {
   // contact directory: one row per contact group -> [heading] | [phone, optional] | [details]
   const ul = document.createElement('ul');
-  [...block.children].forEach((row) => {
+  filterPersonaRows([...block.children]).forEach((row) => {
     const li = document.createElement('li');
+    if (row.dataset.personaTags) li.dataset.personaTags = row.dataset.personaTags;
     moveInstrumentation(row, li);
 
     const cells = [...row.children];

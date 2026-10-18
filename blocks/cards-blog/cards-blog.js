@@ -1,4 +1,5 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
+import { filterPersonaRows } from '../../scripts/persona.js';
 
 /* no authorable options yet; any extra classes on the block are ignored */
 
@@ -117,10 +118,12 @@ function buildCard(row, eager) {
 
 export default function decorate(block) {
   const ul = document.createElement('ul');
-  [...block.children].forEach((row) => {
+  filterPersonaRows([...block.children]).forEach((row) => {
     if (!row.textContent.trim() && !row.querySelector('picture, img')) return;
     // first row (up to 3 columns) is above the fold and holds the LCP image
-    ul.append(buildCard(row, ul.children.length < 3));
+    const li = buildCard(row, ul.children.length < 3);
+    if (row.dataset.personaTags) li.dataset.personaTags = row.dataset.personaTags;
+    ul.append(li);
   });
   block.replaceChildren(ul);
 }
