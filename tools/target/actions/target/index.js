@@ -88,6 +88,18 @@ async function main(params) {
 
       data = await targetRequest('POST', '/audiences', tenant, clientId, token, audienceDef);
 
+    } else if (resource === 'create-offer') {
+      // Simple inline HTML content offer. Params: name (required), content (required, HTML string).
+      const { name, content } = params;
+      if (!name || !content) {
+        return {
+          statusCode: 400,
+          body: JSON.stringify({ error: 'create-offer requires name and content' }),
+        };
+      }
+
+      data = await targetRequest('POST', '/offers/content', tenant, clientId, token, { name, content });
+
     } else if (resource === 'create-activity') {
       // Multi-experience XT activity: one experience per audience/offer pair.
       // params: name, mbox (optional), experiences = JSON array of {audienceId, offerId}.
