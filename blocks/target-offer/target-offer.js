@@ -74,31 +74,42 @@ function buildSlot(el) {
 }
 
 async function applyMboxContent(slot, mboxName) {
+  // TEMP DEBUG: remove once the live-page rendering race is confirmed fixed.
+  window.__targetOfferDebug = window.__targetOfferDebug || [];
+  const debugEntry = { mboxName, step: 'start', ts: Date.now() };
+  window.__targetOfferDebug.push(debugEntry);
+
   if (!mboxName) return;
-  await ensureAtJsLoaded();
+  debugEntry.readyBefore = await ensureAtJsLoaded();
+  debugEntry.hasGetOffers = !!window.adobe?.target?.getOffers;
   if (!window.adobe?.target?.getOffers) return;
 
   try {
     const parameters = demoProfileMboxParameters();
-    const response = await window.adobe.target.getOffers({
-      request: {
-        execute: {
-          mboxes: [{
-            index: 0,
-            name: mboxName,
-            ...(Object.keys(parameters).length ? { parameters } : {}),
-          }],
-        },
+    debugEntry.parameters = parameters;
+    const request = {
+      execute: {
+        mboxes: [{
+          index: 0,
+          name: mboxName,
+          ...(Object.keys(parameters).length ? { parameters } : {}),
+        }],
       },
-    });
+    };
+    debugEntry.request = JSON.parse(JSON.stringify(request));
+    const response = await window.adobe.target.getOffers({ request });
+    debugEntry.response = JSON.parse(JSON.stringify(response || {}));
 
     const mboxResult = response?.execute?.mboxes?.[0];
     const raw = mboxResult?.options?.[0]?.content;
     const html = Array.isArray(raw) ? raw[0] : raw;
+    debugEntry.html = html;
     if (html == null || html === '') return;
 
     slot.innerHTML = typeof html === 'string' ? html : '';
+    debugEntry.applied = true;
   } catch (ex) {
+    debugEntry.error = String(ex);
     // eslint-disable-next-line no-console
     console.error(ex);
   }
