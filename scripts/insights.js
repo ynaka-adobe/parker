@@ -27,6 +27,7 @@ import {
   OPT_IN_BENCHMARK, OPT_IN_ENTERPRISE_RANGE, INVISIBLE_TRAFFIC_SHARE,
   observeSignals, assessBot, consentPosture,
 } from './signals.js';
+import { personaId, personaName } from './persona.js';
 
 const STORAGE_KEY = 'parker-insights';
 const FEED_LIMIT = 60;
@@ -55,8 +56,11 @@ const state = {
   categories: new Map(),
   consented: false,
   consentCategories: null,
+  lastFormSubmit: null, // { name, time } from the most recent form-submit event
   // `<details>` open state must survive the panel's full re-render on each event
-  open: { signals: true, benchmark: false },
+  open: {
+    traits: true, signals: true, benchmark: false,
+  },
 };
 
 let refs = null;
@@ -96,6 +100,13 @@ function record(entry) {
   if (event === 'consent-update') {
     state.consented = entry.consent?.status === 'granted';
     state.consentCategories = entry.consent || null;
+  }
+
+  if (event === 'form-submit') {
+    state.lastFormSubmit = {
+      name: entry.form?.name || 'form',
+      time: new Date(entry.eventInfo?.timestamp || Date.now()),
+    };
   }
 
   state.events.unshift({
@@ -239,11 +250,85 @@ function renderEmpty(message) {
  * reference figure standing in for a capability that is not yet GA.
  * @param {'measured'|'illustrative'} kind
  */
-function provenance(kind) {
+function provenance(kind, label) {
   const measured = kind === 'measured';
-  const chip = el('span', `insights-prov insights-prov-${kind}`);
-  chip.textContent = measured ? 'Measured in this browser' : 'Illustrative — not measured';
+  const chip = el('span', `insights-prov insights-prov-${measured ? 'measured' : 'illustrative'}`);
+  chip.textContent = label || (measured ? 'Measured in this browser' : 'Illustrative — not measured');
   return chip;
+}
+
+/**
+ * CJA-style "User Traits" section: the unified-profile attributes a real
+ * Customer Journey Analytics person-level record would carry for this
+ * visitor. The active demo persona is genuinely known right now (it drives
+ * every personalized block on the page); form-submission trait values are
+ * placeholders until lead-capture forms write field-level data to the data
+ * layer, so the section already carries that shape for when they do.
+ */
+function renderTraits() {
+  const section = el('details', 'insights-section insights-signals');
+  section.open = state.open.traits;
+  section.addEventListener('toggle', () => { state.open.traits = section.open; });
+
+  const summary = el('summary', 'insights-heading insights-signals-summary');
+  summary.append(el('span', null, 'User Traits'));
+  summary.append(el('span', 'insights-badge', 'CJA preview'));
+  section.append(summary);
+
+  section.append(el(
+    'p',
+    'insights-disclaimer',
+    'Models the unified-profile traits a Customer Journey Analytics person '
+    + 'record would carry for this visitor: the active persona segment, plus '
+    + 'trait values captured from form submissions. Computed in this browser '
+    + 'from the demo profile and the data layer — this calls no CJA API.',
+  ));
+
+  const pid = personaId();
+  const name = personaName(pid);
+
+  const dl = el('dl', 'insights-observations');
+
+  const personaRow = el('div');
+  personaRow.append(el('dt', null, 'Persona'));
+  const personaDd = el('dd');
+  personaDd.append(el('strong', null, name || 'No persona active'));
+  personaDd.append(el(
+    'span',
+    'insights-note',
+    name ? `persona id: ${pid} · set via ?p= or the sidekick Persona switcher` : 'Set ?p=1–4 to populate',
+  ));
+  personaDd.append(provenance('measured'));
+  personaRow.append(personaDd);
+  dl.append(personaRow);
+
+  const formRow = el('div');
+  formRow.append(el('dt', null, 'Last form submit'));
+  const formDd = el('dd');
+  if (state.lastFormSubmit) {
+    formDd.append(el('strong', null, state.lastFormSubmit.name));
+    formDd.append(el('span', 'insights-note', state.lastFormSubmit.time.toLocaleTimeString()));
+  } else {
+    formDd.append(el('strong', null, 'None yet'));
+    formDd.append(el('span', 'insights-note', 'Submit a form on this page to populate'));
+  }
+  formDd.append(provenance('measured'));
+  formRow.append(formDd);
+  dl.append(formRow);
+
+  ['Name', 'Email', 'Company'].forEach((field) => {
+    const row = el('div');
+    row.append(el('dt', null, field));
+    const dd = el('dd');
+    dd.append(el('strong', null, '\u2014'));
+    dd.append(el('span', 'insights-note', 'Form field values — coming once lead-capture forms are instrumented'));
+    dd.append(provenance('illustrative', 'Pending — not yet instrumented'));
+    row.append(dd);
+    dl.append(row);
+  });
+
+  section.append(dl);
+  return section;
 }
 
 function renderSignals() {
@@ -387,6 +472,7 @@ function render() {
   body.append(insightSection);
 
   // ── roadmap preview: bot signals + opt-in benchmark
+  body.append(renderTraits());
   body.append(renderSignals());
   body.append(renderBenchmark());
 
@@ -456,6 +542,9 @@ function setOpen(open) {
   refs.panel.classList.toggle('insights-open', open);
   refs.panel.setAttribute('aria-hidden', String(!open));
   refs.toggle.setAttribute('aria-expanded', String(open));
+  // Reveal each persona-tagged card/list item's hidden tag badge only while
+  // the presenter has the panel open, so a normal visitor never sees it.
+  document.body.classList.toggle('insights-show-persona-tags', open);
   // The bot assessment is time-sensitive (it watches for pointer movement and
   // interaction cadence), but the panel otherwise only redraws when an event
   // arrives — so it would sit frozen on a quiet page. Tick while open only.

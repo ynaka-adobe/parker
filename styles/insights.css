@@ -581,3 +581,31 @@
 .insights-roadmap-stat .insights-stat-label {
   text-align: left;
 }
+
+/* ─────────────────── hidden persona-tagging overlay ─────────────────────
+ * Every persona-filter-tagged card/list item carries data-persona-tags (set
+ * by filterPersonaRows() in scripts/persona.js). The badge is invisible to a
+ * normal visitor and is only drawn once the presenter opens this insights
+ * panel, via the .insights-show-persona-tags class the panel toggles onto
+ * <body> (see setOpen() in scripts/insights.js). */
+
+[data-persona-tags] {
+  position: relative;
+}
+
+body.insights-show-persona-tags [data-persona-tags]::after {
+  content: 'Persona ' attr(data-persona-tags);
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 5;
+  padding: 2px 8px;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: var(--parker-black);
+  border: 1px solid var(--parker-gold);
+  border-radius: 999px;
+  pointer-events: none;
+}

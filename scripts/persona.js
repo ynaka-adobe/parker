@@ -4,6 +4,25 @@
 // A persona-filter cell holds nothing but persona tokens, e.g. "1", "1, 3", "2 4".
 const FILTER_RE = /^[1-4](\s*[,\s]\s*[1-4])*$/;
 
+// Display names for the four demo personas, kept in sync with the PERSONAS
+// array authored in tools/persona/persona.js (the sidekick persona-switcher
+// palette). Duplicated rather than imported because that tool page is a
+// standalone admin surface, not part of the regular page bundle.
+export const PERSONA_NAMES = {
+  1: 'Technical Evaluator',
+  2: 'Business Decision Maker',
+  3: 'Procurement & Sourcing Manager',
+  4: 'Industry Researcher',
+};
+
+/**
+ * @param {string} pid persona id, e.g. from personaId()
+ * @returns {string} display name, or '' when pid is unknown/empty
+ */
+export function personaName(pid) {
+  return PERSONA_NAMES[pid] || '';
+}
+
 /**
  * @returns {string} active persona id, or '' when no persona is active.
  */
