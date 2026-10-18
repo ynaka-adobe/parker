@@ -1,6 +1,6 @@
 .target-offer {
   /* Stable hook for VEC / Replace content / cssSelector in Target activities */
-  height: 300px;
+  height: 225px;
   overflow: hidden;
 }
 
@@ -12,7 +12,7 @@
    banner-cta block so the Target-driven persona offer and its default
    fallback content share the same gold-band presentation. Fixed block height
    (set on .target-offer above) keeps the default and all Target-swapped
-   persona offers rendering at the same 300px size regardless of copy length. */
+   persona offers rendering at the same 225px size regardless of copy length. */
 .target-offer__slot {
   display: flex;
   flex-direction: column;
@@ -35,7 +35,7 @@
   max-width: 900px;
 }
 
-/* clamp the body copy so varying persona content always fits the fixed 300px block height */
+/* clamp the body copy so varying persona content always fits the fixed 225px block height */
 .target-offer__slot h2 + p {
   display: -webkit-box;
   overflow: hidden;
