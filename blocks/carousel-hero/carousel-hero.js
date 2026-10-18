@@ -1,4 +1,5 @@
 import { fetchPlaceholders } from '../../scripts/aem.js';
+import { filterPersonaRows } from '../../scripts/persona.js';
 
 function updateActiveSlide(slide) {
   const block = slide.closest('.carousel-hero');
@@ -78,6 +79,7 @@ function createSlide(row, slideIndex, carouselId) {
   slide.dataset.slideIndex = slideIndex;
   slide.setAttribute('id', `carousel-hero-${carouselId}-slide-${slideIndex}`);
   slide.classList.add('carousel-hero-slide');
+  if (row.dataset.personaTags) slide.dataset.personaTags = row.dataset.personaTags;
 
   row.querySelectorAll(':scope > div').forEach((column, colIdx) => {
     column.classList.add(`carousel-hero-slide-${colIdx === 0 ? 'image' : 'content'}`);
@@ -96,7 +98,7 @@ let carouselId = 0;
 export default async function decorate(block) {
   carouselId += 1;
   block.setAttribute('id', `carousel-hero-${carouselId}`);
-  const rows = block.querySelectorAll(':scope > div');
+  const rows = filterPersonaRows([...block.querySelectorAll(':scope > div')]);
   const isSingleSlide = rows.length < 2;
 
   const placeholders = await fetchPlaceholders();
