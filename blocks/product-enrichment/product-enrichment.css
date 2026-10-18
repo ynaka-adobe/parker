@@ -406,3 +406,39 @@ a.product-pdp-add-to-workspace:focus {
 .product-pdp-division-address {
   line-height: 1.5;
 }
+
+/* Series list page (custom.relatedSeries): title rule, small image + intro, sort, series rows */
+.product-pdp-series-list .product-pdp-main > h1 {
+  margin: 0 0 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--parker-rule-color);
+}
+
+.product-pdp-series-list .product-pdp-gallery {
+  flex: 0 0 90px;
+}
+
+.product-pdp-series-list .product-pdp-info {
+  align-self: center;
+}
+
+.product-pdp-series-list .product-pdp-short-description {
+  margin: 0;
+}
+
+.product-series-list {
+  margin-top: 24px;
+}
+
+.product-series-sort {
+  display: block;
+  margin-bottom: 12px;
+  text-align: right;
+  font-size: var(--body-font-size-s);
+}
+
+.product-series-sort select {
+  margin-left: 8px;
+  width: auto;
+  padding: 4px 24px 4px 8px;
+}
