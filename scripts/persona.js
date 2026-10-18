@@ -74,9 +74,10 @@ export function personaTags(cell) {
  * the filter cell is never mistaken for authored content and non-matching
  * rows never reach the DOM.
  *
- * Matching rows that were tagged get a `data-persona-tags` attribute (e.g.
- * "1,3") so the hidden persona-tagging overlay (toggled from the insights
- * panel) can show what each surviving card was tagged with.
+ * Matching rows that were tagged get a `data-persona-tags` attribute holding
+ * the display name(s) of the tagged persona(s) (e.g. "Technical Evaluator,
+ * Industry Researcher") so the hidden persona-tagging overlay (toggled from
+ * the insights panel) can show what each surviving card was tagged with.
  *
  * @param {HTMLElement[]} rows authored row elements (a block's direct children)
  * @returns {HTMLElement[]} rows that should be rendered, filter cell removed
@@ -89,7 +90,7 @@ export function filterPersonaRows(rows) {
     if (!filterCell) return true;
     const tags = personaTags(filterCell);
     filterCell.remove();
-    if (tags.length) row.dataset.personaTags = tags.join(',');
+    if (tags.length) row.dataset.personaTags = tags.map((t) => personaName(t) || t).join(', ');
     return matchesPersona({ textContent: tags.join(' ') }, pid);
   });
 }
