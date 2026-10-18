@@ -32,7 +32,7 @@
 }
 
 .target-offer__slot p {
-  max-width: 900px;
+  max-width: 100%;
 }
 
 /* clamp the body copy so varying persona content always fits the fixed 225px block height */
