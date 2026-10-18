@@ -1,6 +1,7 @@
 .target-offer {
   /* Stable hook for VEC / Replace content / cssSelector in Target activities */
-  min-height: 0;
+  height: 300px;
+  overflow: hidden;
 }
 
 .target-offer__slot:empty {
@@ -9,12 +10,16 @@
 
 /* Parker banner CTA look: text-only promotional strip, matches the former
    banner-cta block so the Target-driven persona offer and its default
-   fallback content share the same gold-band presentation. */
+   fallback content share the same gold-band presentation. Fixed block height
+   (set on .target-offer above) keeps the default and all Target-swapped
+   persona offers rendering at the same 300px size regardless of copy length. */
 .target-offer__slot {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: 48px 0;
+  justify-content: center;
+  height: 100%;
+  padding: 0;
   color: var(--parker-black);
 }
 
@@ -58,10 +63,4 @@
 .target-offer__slot a:focus {
   background-color: #333;
   color: var(--background-color);
-}
-
-@media (width >= 900px) {
-  .target-offer__slot {
-    padding: 64px 0;
-  }
 }
