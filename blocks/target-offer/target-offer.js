@@ -73,43 +73,46 @@ function buildSlot(el) {
   return { slot, mboxName };
 }
 
-async function applyMboxContent(slot, mboxName) {
-  // TEMP DEBUG: remove once the live-page rendering race is confirmed fixed.
-  window.__targetOfferDebug = window.__targetOfferDebug || [];
-  const debugEntry = { mboxName, step: 'start', ts: Date.now() };
-  window.__targetOfferDebug.push(debugEntry);
+/**
+ * Requests offer content for a single mbox.
+ * @returns {Promise<string|null|undefined>} the offer HTML, or null/undefined if no offer matched
+ */
+async function requestMboxContent(mboxName, parameters) {
+  const request = {
+    execute: {
+      mboxes: [{
+        index: 0,
+        name: mboxName,
+        ...(Object.keys(parameters).length ? { parameters } : {}),
+      }],
+    },
+  };
+  const response = await window.adobe.target.getOffers({ request });
+  const mboxResult = response?.execute?.mboxes?.[0];
+  const raw = mboxResult?.options?.[0]?.content;
+  return Array.isArray(raw) ? raw[0] : raw;
+}
 
+async function applyMboxContent(slot, mboxName) {
   if (!mboxName) return;
-  debugEntry.readyBefore = await ensureAtJsLoaded();
-  debugEntry.hasGetOffers = !!window.adobe?.target?.getOffers;
+  await ensureAtJsLoaded();
   if (!window.adobe?.target?.getOffers) return;
 
   try {
     const parameters = demoProfileMboxParameters();
-    debugEntry.parameters = parameters;
-    const request = {
-      execute: {
-        mboxes: [{
-          index: 0,
-          name: mboxName,
-          ...(Object.keys(parameters).length ? { parameters } : {}),
-        }],
-      },
-    };
-    debugEntry.request = JSON.parse(JSON.stringify(request));
-    const response = await window.adobe.target.getOffers({ request });
-    debugEntry.response = JSON.parse(JSON.stringify(response || {}));
-
-    const mboxResult = response?.execute?.mboxes?.[0];
-    const raw = mboxResult?.options?.[0]?.content;
-    const html = Array.isArray(raw) ? raw[0] : raw;
-    debugEntry.html = html;
+    let html = await requestMboxContent(mboxName, parameters);
+    // Target's very first getOffers call for a brand-new visitor can return no
+    // offer at all: the visitor's profile (including profile parameters sent
+    // in that same request) isn't committed server-side until the response
+    // completes. An immediate retry runs with that now-established profile
+    // and correctly resolves the matching audience/offer.
+    if (html == null || html === '') {
+      html = await requestMboxContent(mboxName, parameters);
+    }
     if (html == null || html === '') return;
 
     slot.innerHTML = typeof html === 'string' ? html : '';
-    debugEntry.applied = true;
   } catch (ex) {
-    debugEntry.error = String(ex);
     // eslint-disable-next-line no-console
     console.error(ex);
   }
