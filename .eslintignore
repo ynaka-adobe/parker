@@ -1,1 +1,6 @@
 helix-importer-ui
+deps/
+tools/importer/helix-importer-ui/
+tools/
+actions/
+plugins/

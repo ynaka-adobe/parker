@@ -674,7 +674,8 @@ export default async function decorate(block) {
   // A record with `seriesPath` is a SKU (Product) page nested one level
   // below its Series page; a record with `parts` is the Series page itself
   // listing its SKU variants. Both share the same routing and JSON shape.
-  const isSeriesList = !custom.seriesPath && Array.isArray(custom.relatedSeries) && custom.relatedSeries.length;
+  const isSeriesList = !custom.seriesPath && Array.isArray(custom.relatedSeries)
+    && custom.relatedSeries.length;
   if (isSeriesList) {
     await applySeriesListLayout(layout, custom);
   } else if (custom.seriesPath) {
