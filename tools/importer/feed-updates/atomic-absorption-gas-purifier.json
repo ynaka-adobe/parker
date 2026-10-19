@@ -1,0 +1,124 @@
+{
+  "sku": "73-100",
+  "name": "Atomic Absorption Gas Purifier",
+  "path": "/us/en/products/atomic-absorption-gas-purifier",
+  "url": "https://main--parker--ynaka-adobe.aem.live/us/en/products/atomic-absorption-gas-purifier",
+  "description": "Parker Atomic Absorption (AA) Gas Purifier is an engineered, wall mountable system designed to purify gases commonly used with AA Spectrophotometers. Consisting of two independent filtration systems for purifying compressed air and for acetylene gas.",
+  "brand": "Balston",
+  "images": [
+    {
+      "url": "https://www.parker.com/content/dam/Parker-com/Online/Product-Images/Industrial-Gas-Filtration-and-Generation-Division/Zoom_1000x1000/PKR_AA_GasPurifier_1000x1000_ZM.jpg"
+    }
+  ],
+  "custom": {
+    "fullDescription": "The Parker AA Gas Purifier is a completely engineered, wall mountable system designed to purify gases commonly used with AA Spectrophotometers. The Purifier consists of two independent filtration systems. The first system is designed to purify the compressed air (oxidant) with two stages of high efficiency coalescing filtration. These filters will remove all oil, water, and particulate matter down to 0.01 micron.<br/>The second filtration system is designed to purify the acetylene gas. This system removes liquid acetone and solid particulate from the gas. The Model 73-100 protects the microcomputer gas controls and AA burner assembly from contamination and corrosion. In addition, the acetylene filter has an integral flashback arrestor, meeting all OSHA requirements to enhance the safe operation of the spectrophotometer.<br/><br/>Features/Benefits<br/>• Designed specifically for AA Instrumentation<br/>• Protects microcomputer gas controls and burner system<br/>• Ensures a clean, contaminant-free flame<br/>• Ensures consistent quality of compressed air oxidant and fuel gas<br/>• Convenient, turnkey system<br/>• Services a single AA<br/>For more information or a detailed discussion about your specific requirements please contact Parker or an authorized Parker distributor.",
+    "technicalSpecifications": [
+      {
+        "Brand": "Balston"
+      },
+      {
+        "Division": "Industrial Gas Filtration and Generation Division"
+      },
+      {
+        "Industry": "Healthcare & Life Sciences"
+      },
+      {
+        "Application": "Analytical Laboratory"
+      },
+      {
+        "Technology": "Filtration"
+      },
+      {
+        "Product Type": "CO2 Free Gas Generator"
+      },
+      {
+        "Flow Rate": "1 to 7 SCFM"
+      },
+      {
+        "Gas Type Generated": "Air"
+      },
+      {
+        "Gas Purity": "< 1 ppm (Acetone)"
+      },
+      {
+        "Inlet Port Size": "1/4 inch (Air), 9/16 inch (Acetylene)"
+      },
+      {
+        "Outlet Port Size": "9/16 inch 18 LH (\"B\" size) Acetylene"
+      },
+      {
+        "Port Type": "NPT"
+      },
+      {
+        "Electrical Requirements": "No"
+      },
+      {
+        "Ambient Temperature": "4 to 26 °C, 40 to 78 °F"
+      },
+      {
+        "Inlet Pressure Rating": "15 to 125 psi"
+      },
+      {
+        "Outlet Pressure Rating": "15 psi"
+      },
+      {
+        "Specifications Met": "OSHA"
+      },
+      {
+        "Weight": "10 lb"
+      },
+      {
+        "Height": "10 inch"
+      },
+      {
+        "Width": "11 inch"
+      },
+      {
+        "Depth": "8 inch"
+      }
+    ],
+    "relatedDocuments": {
+      "Product Demos & Tutorials": [
+        {
+          "document-url": "https://www.parker.com/content/dam/videos/pfg/industrial-gas-filtration-and-generation-division/GAS_GEN_12.mp4",
+          "document-title": "Parker--Gas Generators Making a Difference (Video)",
+          "document-type": "Video"
+        }
+      ],
+      "Literature and Reference Materials": [
+        {
+          "document-url": "https://www.parker.com/content/dam/Parker-com/Literature/IGFG/PDF-Files/ags/AGS_UDA Gas Purifier Model 73-100_092025.pdf",
+          "document-title": "Atomic Absorption Gas Purifier",
+          "document-type": "Static File"
+        },
+        {
+          "document-url": "https://www.parker.com/content/dam/Parker-com/Literature/IGFG/Support-Assets/BRO_AGS-SUPCAT-M_082022.pdf",
+          "document-title": "Parker--AGS Product Brochure--Analytical Gas Accessories",
+          "document-type": "Static File"
+        },
+        {
+          "document-url": "https://www.parker.com/content/dam/Parker-com/Literature/IGFG/PDF-Files/Noise-Pollution-in-the-Laboratory-White-Paper.pdf",
+          "document-title": "Parker--Noise Pollution in the Lab WhitePaper",
+          "document-type": "Static File"
+        },
+        {
+          "document-url": "https://www.parker.com/content/dam/Parker-com/Literature/IGFG/PDF-Files/BRO_AGS Recommended Gas Gen for Analytical Instruments 062024.pdf",
+          "document-title": "Recommended Gas Generators for Analytical Instruments Brochure",
+          "document-type": "Static File"
+        }
+      ]
+    },
+    "divisionId": "688031",
+    "parkerUniqueId": "156736",
+    "parkerProductURL": "https://ph.parker.com/us/en/product-list/atomic-absorption-gas-purifier",
+    "seriesName": "Atomic Absorption (AA) Gas Purifier Series",
+    "numberOfSKUs": 1,
+    "parts": [
+      {
+        "partNumber": "73-100",
+        "productURL": "https://ph.parker.com/us/en/product/atomic-absorption-gas-purifier/73-100",
+        "attributes": []
+      }
+    ]
+  }
+}
