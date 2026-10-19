@@ -1,1 +1,66 @@
-{"sku": "CO2-FREE-GAS-GENERATORS", "name": "CO2 Free Gas Generators", "path": "/us/en/products/co2-free-gas-generators", "url": "https://main--parker--ynaka-adobe.aem.live/us/en/products/co2-free-gas-generators", "description": "Dry, CO2 free gas generators from Parker supply purge and air bearing gases from compressed air. These gases may be used in a variety of applications, including FT-IR, TOC, NMR and Emissions Test Equipment.", "brand": "Parker", "images": [{"url": "https://www.parker.com/content/dam/Parker-com/Online/Product-Images/Category/CO2-Free-Gas-Generators-1000x1000.jpg"}], "custom": {"fullDescription": "Dry, CO2 free gas generators from Parker supply purge and air bearing gases from compressed air. These gases may be used in a variety of applications, including FT-IR, TOC, NMR and Emissions Test Equipment.", "division": "Industrial Gas Filtration and Generation Division", "parkerProductURL": "https://ph.parker.com/us/en/series/co2-free-gas-generators", "seriesName": "CO2 Free Gas Generators", "numberOfSeries": 5, "relatedSeries": [{"name": "Ultra Dry Gas Generator", "path": "/us/en/products/ultra-dry-gas-generator", "numberOfSKUs": 1, "image": "https://www.parker.com/content/dam/Parker-com/Online/Product-Images/Industrial-Gas-Filtration-and-Generation-Division/Zoom_1000x1000/PKR_UDA300_1000x1000_ZM.jpg", "migrated": true, "description": "Parker Model UDA-300 Compressed Air Dryer provides ultra-dry, purified compressed air to analytical instruments. Designed for NMR instruments, the Parker compressed air dryer will reduce the dewpoint of compressed air to -100°F (-73°C)."}, {"name": "Atomic Absorption Gas Purifier", "path": "/us/en/products/atomic-absorption-gas-purifier", "productURL": "https://ph.parker.com/us/en/product-list/atomic-absorption-gas-purifier", "numberOfSKUs": 1, "image": "https://www.parker.com/content/dam/Parker-com/Online/Product-Images/Industrial-Gas-Filtration-and-Generation-Division/Zoom_1000x1000/PKR_AA_GasPurifier_1000x1000_ZM.jpg", "migrated": true, "description": "Parker Atomic Absorption (AA) Gas Purifier is an engineered, wall mountable system designed to purify gases commonly used with AA Spectrophotometers. Consisting of two independent filtration systems for purifying compressed air and for acetylene gas."}, {"name": "TOC Gas Generators", "path": null, "productURL": "https://ph.parker.com/us/en/product-list/toc-gas-generators", "numberOfSKUs": 2, "image": "https://www.parker.com/content/dam/Parker-com/Online/Product-Images/Industrial-Gas-Filtration-and-Generation-Division/Zoom_1000x1000/PKR_TOC_1000x1000_ZM.jpg", "migrated": false, "description": "Parker’s TOC Gas Generators produce carrier/combustion gas, from an existing compressed air supply for TOC instruments. Eliminates the need to purchase expensive, inconvenient, high pressure cylinders of air, nitrogen, or oxygen."}, {"name": "FT-IR Purge Gas Generators", "path": null, "productURL": "https://ph.parker.com/us/en/product-list/ft-ir-purge-gas-generators", "numberOfSKUs": 6, "image": "https://www.parker.com/content/dam/Parker-com/Online/Product-Images/Industrial-Gas-Filtration-and-Generation-Division/Zoom_1000x1000/PKR_Spectra-FTIR_1000x1000_ZM.jpg", "migrated": false, "description": "Parker’s FT-IR Purge Gas Generator is specifically designed for use with FT-IR Spectrometers to provide a purified purge and air bearing gas from compressed air."}, {"name": "CO2-free Laboratory Gas Generator - K-MT LAB Series", "path": null, "productURL": "https://ph.parker.com/us/en/product-list/co2-free-laboratory-gas-generator-k-mt-lab-series", "numberOfSKUs": 3, "image": "https://www.parker.com/content/dam/Parker-com/Online/Product-Images/Domnick-Hunter-Filtration-and-Separation-Division/zoom_1000x1000/K-MT_Lab_1000x1000_zm.jpg", "migrated": false, "description": "Parker K-MT-LAB Series CO2-free Gas Generators provide cleanroom air for many GC or TOC applications, at flow rates between 1.5 and 175 Nl/min."}]}}
+{
+  "sku": "CO2-FREE-GAS-GENERATORS",
+  "name": "CO2 Free Gas Generators",
+  "path": "/us/en/products/co2-free-gas-generators",
+  "url": "https://main--parker--ynaka-adobe.aem.live/us/en/products/co2-free-gas-generators",
+  "description": "Dry, CO2 free gas generators from Parker supply purge and air bearing gases from compressed air. These gases may be used in a variety of applications, including FT-IR, TOC, NMR and Emissions Test Equipment.",
+  "brand": "Parker",
+  "images": [
+    {
+      "url": "https://www.parker.com/content/dam/Parker-com/Online/Product-Images/Category/CO2-Free-Gas-Generators-1000x1000.jpg"
+    }
+  ],
+  "custom": {
+    "fullDescription": "Dry, CO2 free gas generators from Parker supply purge and air bearing gases from compressed air. These gases may be used in a variety of applications, including FT-IR, TOC, NMR and Emissions Test Equipment.",
+    "division": "Industrial Gas Filtration and Generation Division",
+    "parkerProductURL": "https://ph.parker.com/us/en/series/co2-free-gas-generators",
+    "seriesName": "CO2 Free Gas Generators",
+    "numberOfSeries": 5,
+    "relatedSeries": [
+      {
+        "name": "Ultra Dry Gas Generator",
+        "path": "/us/en/products/ultra-dry-gas-generator",
+        "numberOfSKUs": 1,
+        "image": "https://www.parker.com/content/dam/Parker-com/Online/Product-Images/Industrial-Gas-Filtration-and-Generation-Division/Zoom_1000x1000/PKR_UDA300_1000x1000_ZM.jpg",
+        "migrated": true,
+        "description": "Parker Model UDA-300 Compressed Air Dryer provides ultra-dry, purified compressed air to analytical instruments. Designed for NMR instruments, the Parker compressed air dryer will reduce the dewpoint of compressed air to -100°F (-73°C)."
+      },
+      {
+        "name": "Atomic Absorption Gas Purifier",
+        "path": "/us/en/products/atomic-absorption-gas-purifier",
+        "productURL": "https://ph.parker.com/us/en/product-list/atomic-absorption-gas-purifier",
+        "numberOfSKUs": 1,
+        "image": "https://www.parker.com/content/dam/Parker-com/Online/Product-Images/Industrial-Gas-Filtration-and-Generation-Division/Zoom_1000x1000/PKR_AA_GasPurifier_1000x1000_ZM.jpg",
+        "migrated": true,
+        "description": "Parker Atomic Absorption (AA) Gas Purifier is an engineered, wall mountable system designed to purify gases commonly used with AA Spectrophotometers. Consisting of two independent filtration systems for purifying compressed air and for acetylene gas."
+      },
+      {
+        "name": "TOC Gas Generators",
+        "path": "/us/en/products/toc-gas-generators",
+        "productURL": "https://ph.parker.com/us/en/product-list/toc-gas-generators",
+        "numberOfSKUs": 2,
+        "image": "https://www.parker.com/content/dam/Parker-com/Online/Product-Images/Industrial-Gas-Filtration-and-Generation-Division/Zoom_1000x1000/PKR_TOC_1000x1000_ZM.jpg",
+        "migrated": true,
+        "description": "Parker’s TOC Gas Generators produce carrier/combustion gas, from an existing compressed air supply for TOC instruments. Eliminates the need to purchase expensive, inconvenient, high pressure cylinders of air, nitrogen, or oxygen."
+      },
+      {
+        "name": "FT-IR Purge Gas Generators",
+        "path": null,
+        "productURL": "https://ph.parker.com/us/en/product-list/ft-ir-purge-gas-generators",
+        "numberOfSKUs": 6,
+        "image": "https://www.parker.com/content/dam/Parker-com/Online/Product-Images/Industrial-Gas-Filtration-and-Generation-Division/Zoom_1000x1000/PKR_Spectra-FTIR_1000x1000_ZM.jpg",
+        "migrated": false,
+        "description": "Parker’s FT-IR Purge Gas Generator is specifically designed for use with FT-IR Spectrometers to provide a purified purge and air bearing gas from compressed air."
+      },
+      {
+        "name": "CO2-free Laboratory Gas Generator - K-MT LAB Series",
+        "path": null,
+        "productURL": "https://ph.parker.com/us/en/product-list/co2-free-laboratory-gas-generator-k-mt-lab-series",
+        "numberOfSKUs": 3,
+        "image": "https://www.parker.com/content/dam/Parker-com/Online/Product-Images/Domnick-Hunter-Filtration-and-Separation-Division/zoom_1000x1000/K-MT_Lab_1000x1000_zm.jpg",
+        "migrated": false,
+        "description": "Parker K-MT-LAB Series CO2-free Gas Generators provide cleanroom air for many GC or TOC applications, at flow rates between 1.5 and 175 Nl/min."
+      }
+    ]
+  }
+}
