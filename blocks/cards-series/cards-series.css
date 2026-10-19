@@ -76,6 +76,7 @@
   color: var(--text-muted-color);
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .cards-series .cards-series-count p {
   margin: 0;
 }

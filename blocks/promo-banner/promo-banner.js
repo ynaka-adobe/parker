@@ -1,5 +1,4 @@
 import { loadFragment } from '../fragment/fragment.js';
-import initPromoScheduler from '../../scripts/promo-scheduler.js';
 
 export default async function decorate(block) {
   // The block contains a link to the promo-scheduler JSON, e.g.:
@@ -11,6 +10,7 @@ export default async function decorate(block) {
 
   if (!schedulerUrl) return;
 
+  // eslint-disable-next-line no-use-before-define
   const fragmentPath = await resolvePromoFragment(schedulerUrl);
   if (!fragmentPath) return;
 
@@ -55,26 +55,17 @@ async function resolvePromoFragment(schedulerUrl) {
   const { data } = await resp.json();
   const now = getEffectiveDate();
 
-  let match = null;
-  let fallback = null;
+  const rows = data
+    .map((row) => ({
+      start: row.start ? new Date(row.start) : null,
+      end: row.end ? new Date(row.end) : null,
+      // Support both "fragment URL" (current sheet header) and "fragment"
+      fragment: row['fragment URL'] || row.fragment || '',
+    }))
+    .filter((row) => row.fragment);
 
-  for (const row of data) {
-    const start = row.start ? new Date(row.start) : null;
-    const end = row.end ? new Date(row.end) : null;
-    const fragment = row['fragment URL'] || row.fragment || '';
-
-    if (!fragment) continue;
-
-    if (!start && !end) {
-      if (!fallback) fallback = fragment;
-      continue;
-    }
-
-    if (start && end && now >= start && now < end) {
-      match = fragment;
-      break;
-    }
-  }
+  const match = rows.find((r) => r.start && r.end && now >= r.start && now < r.end)?.fragment;
+  const fallback = rows.find((r) => !r.start && !r.end)?.fragment;
 
   return match || fallback || null;
 }
