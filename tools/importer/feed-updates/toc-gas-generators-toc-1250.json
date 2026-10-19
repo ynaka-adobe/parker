@@ -1,0 +1,137 @@
+{
+  "sku": "TOC-1250",
+  "name": "TOC Gas Generators",
+  "path": "/us/en/products/toc-gas-generators/toc-1250",
+  "url": "/us/en/products/toc-gas-generators/toc-1250",
+  "description": "Parker’s TOC Gas Generators produce carrier/combustion gas, from an existing compressed air supply for TOC instruments. Eliminates the need to purchase expensive, inconvenient, high pressure cylinders of air, nitrogen, or oxygen.",
+  "brand": "Balston",
+  "images": [
+    {
+      "url": "https://www.parker.com/content/dam/Parker-com/Online/Product-Images/Industrial-Gas-Filtration-and-Generation-Division/Zoom_1000x1000/PKR_TOC_1000x1000_ZM.jpg"
+    }
+  ],
+  "custom": {
+    "partNumber": "TOC-1250",
+    "seriesName": "TOC Gas Generators",
+    "seriesPath": "/us/en/products/toc-gas-generators",
+    "parkerUniqueId": "737656",
+    "parkerProductURL": "https://ph.parker.com/us/en/product/toc-gas-generators/toc-1250",
+    "divisionId": "688031",
+    "fullDescription": "Parker TOC Gas Generators produce carrier/combustion gas, from an existing compressed air supply for TOC instruments, eliminating the need to purchase expensive, inconvenient, high pressure cylinders of air, nitrogen, or oxygen.<br/>The generators utilize catalytic oxidation and pressure swing adsorption technologies to remove hydrocarbons to 0.05 ppm (measured as methane), CO2 to 1 ppm, water vapor to 1 ppm, and CO to 1 ppm.<br/>Parker’s TOC Gas Generators eliminate all the inconveniences and costs of cylinder gas supplies and dependence on outside vendors. Parker TOC Gas Generators offer long-term cost stability. Uncontrollable vendor price increases, contract negotiations, long term commitments, and tank rentals are no longer a concern. <br/>The Generators are complete systems with carefully matched components engineered for easy installation, operation, and long term reliability. Installation consists of connecting a standard compressed air line to the inlet and connecting the outlet to the TOC gas supply line. Plug the generator into a standard electrical wall outlet and within minutes high purity carrier/combustion gas is supplied.<br/>Features/Benefits<br/>• Replaces high pressure oxygen or nitrogen gas cylinders with hydrocarbon-free, CO2-free compressed gas for TOC Analyzers.<br/>• Ensures consistent, reliable, TOC operation and reduces instrument service and maintenance costs.<br/>• Compact design frees up valuable laboratory floor space.<br/>• Purity meets or exceeds all TOC manufacturers' gas purity requirements.<br/>• Operational display shows system status at a glance.<br/>• Requires minimal annual maintenance.<br/>For more information or a detailed discussion about your specific requirements please contact Parker or an authorized Parker distributor.<br/><br/>The generators utilize catalytic oxidation and pressure swing adsorption technologies to remove hydrocarbons to 0.05 ppm (measured as methane), CO2 to 1 ppm, water vapor to 1 ppm, and CO to 1 ppm.<br/>Parker Balston TOC Gas Generators eliminate all the inconveniences and costs of cylinder gas supplies and dependence on outside vendors. The Parker Balston TOC Gas Generators offer long-term cost stability. Uncontrollable vendor price increases, contract negotiations, long term commitments and tank rentals are no longer a concern. <br/><br/>The Generators are complete systems with carefully matched components engineered for easy installation, operation, and long term reliability. Installation consists of connecting a standard compressed air line to the inlet and connecting the outlet to the TOC gas supply line. Plug the generator into a standard electrical wall outlet and within minutes high purity carrier/combustion gas is supplied.<br/><br/>Features and Benefits<br/><br/>Replaces high pressure oxygen or nitrogen gas cylinders with hydrocarbon-free, CO2-free compressed gas for TOC Analyzers.<br/>Ensures consistent, reliable, TOC operation and reduces instrument service and maintenance costs.<br/>Compact design frees up valuable laboratory floor space.<br/>Purity meets or exceeds all TOC manufacturers' gas purity requirements.<br/>Operational display shows system status at a glance.<br/>Requires minimal annual maintenance.",
+    "technicalSpecifications": [
+      {
+        "Flow Rate": "1250 cc/min"
+      },
+      {
+        "Brand": "Balston, Parker"
+      },
+      {
+        "Division": "Industrial Gas Filtration and Generation Division"
+      },
+      {
+        "Industry": "Healthcare & Life Sciences"
+      },
+      {
+        "Application": "Analytical Laboratory"
+      },
+      {
+        "Technology": "Filtration"
+      },
+      {
+        "Product Type": "CO2 Free Gas Generator"
+      },
+      {
+        "Flow Rate": "1250 cc/min"
+      },
+      {
+        "Gas Type Generated": "Air"
+      },
+      {
+        "Gas Purity": "< 0.1 ppm (Hydrocarbon Content), < 1 ppm (CO2)"
+      },
+      {
+        "Inlet Port Size": "1/4 inch"
+      },
+      {
+        "Outlet Port Size": "1/4 inch"
+      },
+      {
+        "Port Type": "Female NPT"
+      },
+      {
+        "Electrical Requirements": "Yes"
+      },
+      {
+        "Input Voltage": "120 to 230 VAC 50/60 Hz"
+      },
+      {
+        "Ambient Temperature": "15 to 40 °C, 60 to 100 °F"
+      },
+      {
+        "Specifications Met": "CSA 1010, CE"
+      },
+      {
+        "Compressor Included": "No"
+      },
+      {
+        "Width": "10.6 inch"
+      }
+    ],
+    "relatedDocuments": {
+      "Literature and Reference Materials": [
+        {
+          "document-title": "TI-TOC1250- Upgrade Instructions",
+          "document-type": "Static File",
+          "document-url": "https://www.parker.com/content/dam/Parker-com/Literature/IGFG/PDF-Files/TI-TOC1250-UPG.pdf"
+        },
+        {
+          "document-title": "Balston--Parker Balston ® TOC-1250 TOC Gas Generator Installation, Operation, and Maintenance Manual",
+          "document-type": "Static File",
+          "document-url": "https://www.parker.com/content/dam/Parker-com/Literature/IGFG/PDF-Files/TI_TOC1250G_TOCGasGenerator.pdf"
+        },
+        {
+          "document-title": "Parker--AGS Product Bulletin -- Gas Generators for TOC",
+          "document-type": "Static File",
+          "document-url": "https://www.parker.com/content/dam/Parker-com/Literature/IGFG/Support-Assets/BUL_AGS-TOC-C_082022.pdf"
+        },
+        {
+          "document-title": "Parker AGS--Case Study--Environmental Conservation",
+          "document-type": "Static File",
+          "document-url": "https://www.parker.com/content/dam/Parker-com/Literature/IGFG/PDF-Files/CS_AGS_Environmental-Conservation_092022.pdf"
+        },
+        {
+          "document-title": "Parker--Noise Pollution in the Lab WhitePaper",
+          "document-type": "Static File",
+          "document-url": "https://www.parker.com/content/dam/Parker-com/Literature/IGFG/PDF-Files/Noise-Pollution-in-the-Laboratory-White-Paper.pdf"
+        },
+        {
+          "document-title": "Parker--AGS Product Brochure--Analytical Gas Accessories",
+          "document-type": "Static File",
+          "document-url": "https://www.parker.com/content/dam/Parker-com/Literature/IGFG/Support-Assets/BRO_AGS-SUPCAT-M_082022.pdf"
+        },
+        {
+          "document-title": "Recommended Gas Generators for Analytical Instruments Brochure",
+          "document-type": "Static File",
+          "document-url": "https://www.parker.com/content/dam/Parker-com/Literature/IGFG/PDF-Files/BRO_AGS Recommended Gas Gen for Analytical Instruments 062024.pdf"
+        }
+      ],
+      "Product Demos & Tutorials": [
+        {
+          "document-url": "https://www.parker.com/content/dam/videos/pfg/industrial-gas-filtration-and-generation-division/GAS_GEN_12.mp4",
+          "document-title": "Parker--Gas Generators Making a Difference (Video)",
+          "document-type": "Video"
+        }
+      ]
+    },
+    "divisionContact": {
+      "divisionName": "Industrial Gas Filtration and Generation Division",
+      "address1": "4087 Walden Avenue",
+      "city": "Lancaster",
+      "state": "NY",
+      "zipCode": "14086",
+      "phone": "800-343-4048",
+      "email": "GSFOrders@parker.com"
+    },
+    "whereToBuyUrl": "https://ph.parker.com/us/en/wtb/find-distributor/distributors?brd=find-a-part&app=wtb&part_series_id=737651&part_search_type=S&partNumber=TOC-1250&catName=TOC+Gas+Generators&product_id=737656&divid=688031&navOwner=687PDC"
+  }
+}
